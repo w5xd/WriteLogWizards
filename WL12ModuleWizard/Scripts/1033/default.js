@@ -113,6 +113,10 @@ function OnFinish(selProj, selObj) {
         var strImplFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + ".cpp");
         RenderAddTemplate(wizard, "object.cpp", strImplFile, selObj, false);
 
+        // Generate WXS
+        var strWxsFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + ".wxs");
+        RenderAddTemplate(wizard, "object.wxs", strWxsFile, false, false);
+
         oCM.CommitTransaction();
 
         //var newClass = oCM.Classes.Find(strClassName);
@@ -135,6 +139,12 @@ function CreateGUIDs() {
         var strRawGUID = wizard.CreateGuid();
         var strFormattedGUID = wizard.FormatGuid(strRawGUID, 0);
         wizard.AddSymbol("CLSID_REGISTRY_FORMAT", strFormattedGUID);
+        strRawGUID = wizard.CreateGuid();
+        strFormattedGUID = wizard.FormatGuid(strRawGUID, 0);
+        wizard.AddSymbol("WXS_COMPONENT_GUID_1", strFormattedGUID);
+        strRawGUID = wizard.CreateGuid();
+        strFormattedGUID = wizard.FormatGuid(strRawGUID, 0);
+        wizard.AddSymbol("WXS_COMPONENT_GUID_2", strFormattedGUID);
     }
     catch (e) {
         throw e;

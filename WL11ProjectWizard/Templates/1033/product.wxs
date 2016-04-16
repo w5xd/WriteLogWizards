@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <!-- The WL Module wizard emits this file but does not add it to any project
+       TODO: add this to a WIX project
+  -->
+  <?define [!output PROJECT_NAME_CAPS]_VERSION = 1.00.01?>
+  <Product Id="{[!output INSTALLER_PROJECT_ID]}"
+           Name="TODO modules for Writelog"
+           Language="1033"
+           Version="$(var.[!output PROJECT_NAME_CAPS]_VERSION)"
+           Manufacturer="TODO"
+           UpgradeCode="[!output INSTALLER_UPGRADECODE]">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine"/>
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <Upgrade Id='6F5FD1B8-1F40-49ba-B540-9B41A2C74DEE'>
+    <!--WriteLog V11-->
+      <UpgradeVersion OnlyDetect='yes' Property='PREVIOUSFOUND11'
+        Minimum='11.0.0' IncludeMinimum='yes'
+        Maximum='12.0.0' IncludeMaximum='no' />
+    </Upgrade>
+    
+    <Upgrade Id='9AFD6A49-5FD4-4F3C-9CC5-49B2BE507FDC'>
+    <!--WriteLog V12-->
+      <UpgradeVersion OnlyDetect='yes' Property='PREVIOUSFOUND12'
+        Minimum='12.0.0' IncludeMinimum='yes'
+        Maximum='13.0.0' IncludeMaximum='no' />
+    </Upgrade>
+
+    <Upgrade Id='[!output INSTALLER_UPGRADECODE]'>
+      <!--Self-->
+      <UpgradeVersion OnlyDetect='no' Property='PREVIOUS[!output PROJECT_NAME_CAPS]FOUND'
+        Minimum='0.0.0' IncludeMinimum='yes'
+        Maximum='$(var.[!output PROJECT_NAME_CAPS]_VERSION)' IncludeMaximum='no' />
+    </Upgrade>
+
+    <Property Id="INSTALLDIRREG">
+      <RegistrySearch Id="WlInstallDirReg32" Key="SOFTWARE\W5XD\Writelog\Install" Name="Directory"
+                      Root="HKLM" Type="directory" Win64="no" />
+    </Property>
+    <Property Id="INSTALLDIREXISTSREG">
+      <DirectorySearch Id="CheckFileDir" Path="[INSTALLDIRREG]Programs" Depth="0">
+        <FileSearch Id="CheckWlExeReg" Name="wlogsh32.dll" />
+      </DirectorySearch>
+    </Property>
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="CommonAppDataFolder" Name="DtaFiles">
+        <Directory Id="WriteLogCommonAppData" Name="WriteLog">
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramFilesFolder" Name="PFiles">
+        <Directory Id="INSTALLDIR" Name="WriteLog">
+          <Directory Id="WlPrograms" Name="Programs">
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="Complete" Title="TODO contest modules for WriteLog"
+             Description = "contest modules"
+             Display="expand"
+             AllowAdvertise='no'
+             InstallDefault='local'
+             Absent='disallow'
+             Level="1">
+      <Feature Id="FeatureID_01" AllowAdvertise='no' Absent='allow'
+                          Title="TODO CONTEST TITLE" Level='1'>
+        <ComponentRef Id="COM_TODO.dll"/> <!--Id comes from the wxs snippets emited by ModuleWizard-->
+      </Feature>
+    </Feature>
+
+    <WixVariable Id="WixUILicenseRtf" Value="TODO -- WRITE A LICENSE FILE .\License.rtf" />
+
+    <UI Id="MyWixUI_CustomizeDlg">
+      <UIRef Id="WixUI_FeatureTree" />
+    </UI>
+
+    <Condition Message="WriteLog V11 or V12 install not found">
+      <![CDATA[Installed or (INSTALLDIREXISTSREG and (PREVIOUSFOUND11 or PREVIOUSFOUND12) )]]>
+    </Condition>
+    <CustomAction Id="PropertyAssignInstReg" Property="INSTALLDIR" Value="[INSTALLDIRREG]" />
+    <InstallExecuteSequence>
+      <Custom Action="PropertyAssignInstReg" After="AppSearch"></Custom>
+    </InstallExecuteSequence>
+  </Product>
+</Wix>

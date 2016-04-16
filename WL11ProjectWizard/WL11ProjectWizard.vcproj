@@ -85,6 +85,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Templates\1033\product.wxs"
+				>
+			</File>
+			<File
 				RelativePath=".\Templates\1033\ReadMe.txt"
 				>
 				<FileConfiguration

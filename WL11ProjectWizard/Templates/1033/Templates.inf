@@ -5,6 +5,7 @@ Resource.h
 stdafx.cpp
 stdafx.h
 targetver.h
+product.wxs
 TemplateContestModule.cpp
 TemplateContestModule.def
 TemplateContestModule.rc

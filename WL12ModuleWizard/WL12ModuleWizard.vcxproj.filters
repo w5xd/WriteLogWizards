@@ -50,6 +50,9 @@
     <None Include="Deploy\LocalItems.vsdir">
       <Filter>Deploy</Filter>
     </None>
+    <None Include="Templates\1033\object.wxs">
+      <Filter>Template Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="WL12ModuleWizard.ico">

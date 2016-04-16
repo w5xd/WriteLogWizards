@@ -42,8 +42,11 @@
     <Text Include="Templates\1033\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="default.vcxproj" />
+    <None Include="default.vcxproj">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Scripts\1033\default.js" />
+    <None Include="Templates\1033\product.wxs" />
     <None Include="Templates\1033\TemplateContestModule.def" />
     <None Include="Templates\1033\TemplateContestModule.rgs" />
     <None Include="Templates\1033\Templates.inf" />

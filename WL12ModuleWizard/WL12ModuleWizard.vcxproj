@@ -46,6 +46,7 @@
     </None>
     <None Include="Scripts\1033\default.js" />
     <None Include="Templates\1033\object.rgs" />
+    <None Include="Templates\1033\object.wxs" />
     <None Include="Templates\1033\Templates.inf" />
     <None Include="WL12ModuleWizard.vsdir" />
     <None Include="WL12ModuleWizard.vsz" />

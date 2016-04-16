@@ -19,10 +19,12 @@ function OnFinish(selProj, selObj)
 	    strGuid = wizard.CreateGuid();
 	    strVal = wizard.FormatGuid(strGuid, 0);
 	    wizard.AddSymbol("APPID_REGISTRY_FORMAT", strVal);
+        CreateGUIDs();
 
 		selProj = CreateCustomProject(strProjectName, strProjectPath);
 		AddConfig(selProj, strProjectName);
 		AddFilters(selProj);
+
 
 		var InfFile = CreateCustomInfFile();
 		AddFilesToCustomProj(selProj, strProjectName, strProjectPath, InfFile);
@@ -371,6 +373,20 @@ function AddFilesToCustomProj(proj, strProjectName, strProjectPath, InfFile)
 	}
 }
 
+function CreateGUIDs() {
+    try {
+        // create CLSID
+        var strRawGUID = wizard.CreateGuid();
+        var strFormattedGUID = wizard.FormatGuid(strRawGUID, 0);
+        wizard.AddSymbol("INSTALLER_PROJECT_ID", strFormattedGUID);
+        strRawGUID = wizard.CreateGuid();
+        strFormattedGUID = wizard.FormatGuid(strRawGUID, 0);
+        wizard.AddSymbol("INSTALLER_UPGRADECODE", strFormattedGUID);
+    }
+    catch (e) {
+        throw e;
+    }
+}
 
 // SIG // Begin signature block
 // SIG // MIIj7gYJKoZIhvcNAQcCoIIj3zCCI9sCAQExCzAJBgUr

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <!-- The WL Module wizard emits this file but does not add it to any project
+       TODO: add this to a WIX project
+  -->
+  <Fragment>
+    <DirectoryRef Id="WlPrograms">
+      <Component Id = "COM_[!output PROJECT_NAME].dll" DiskId = '1' Win64='no' Guid = "{[!output WXS_COMPONENT_GUID_1]}">
+        <File Checksum = "yes"  Source = "..\[!output PROJECT_NAME]\Release\[!output PROJECT_NAME].dll" />
+        <RegistryValue Root = "HKCR"
+                       Key = "CLSID\{[!output CLSID_REGISTRY_FORMAT]}\Implemented Categories\{C7212159-7716-101A-AA54-00608C61D0B1}"
+                       Type = "string" Value = "" />
+        <RegistryValue Root = "HKCR" Key = "CLSID\{[!output CLSID_REGISTRY_FORMAT]}\InprocServer32"
+                       Value = "[WlProgramsFolder][!output PROJECT_NAME].dll" Type = "string" />
+        <RegistryValue Root = "HKCR" Key = "CLSID\{[!output CLSID_REGISTRY_FORMAT]}\WritelogMMD"
+                       Value = "[!output CONTEST_NAME]" Type = "string" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="WriteLogCommonAppData">
+      <Component Id="COM_[!output PROJECT_NAME]_data" Win64="no" DiskId='1' Guid="{[!output WXS_COMPONENT_GUID_2]}">
+        <!-- TODO ... and any data files
+        <File Source="<path to data file to go to ProgramData\WriteLog >" />
+        -->
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+</Wix>

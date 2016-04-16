@@ -91,6 +91,10 @@
 				RelativePath=".\Templates\1033\object.rgs"
 				>
 			</File>
+			<File
+				RelativePath=".\Templates\1033\object.wxs"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="HTML Files"

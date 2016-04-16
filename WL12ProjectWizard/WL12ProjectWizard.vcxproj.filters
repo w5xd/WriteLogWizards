@@ -49,6 +49,9 @@
     <None Include="WL12ProjectWizard.vsz">
       <Filter>Miscellaneous Files</Filter>
     </None>
+    <None Include="Templates\1033\product.wxs">
+      <Filter>Template Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="WL12ProjectWizard.ico">
