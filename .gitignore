@@ -7,4 +7,6 @@ Projects/
 *.ncb
 *.suo
 *.bak
+*.swp
 *.sdf
+*.opensdf
