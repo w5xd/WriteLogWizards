@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Template Files">
+      <UniqueIdentifier>{812ee08e-3b19-49cd-ba3a-421d35e97e6f}</UniqueIdentifier>
+      <Extensions>txt</Extensions>
+    </Filter>
+    <Filter Include="HTML Files">
+      <UniqueIdentifier>{2fbcf3e5-aac7-42b4-9d33-a60ba47ecd30}</UniqueIdentifier>
+      <Extensions>htm</Extensions>
+    </Filter>
+    <Filter Include="Image Files">
+      <UniqueIdentifier>{61e8d804-8959-4fd6-89c0-e3002a63f72a}</UniqueIdentifier>
+      <Extensions>bmp</Extensions>
+    </Filter>
+    <Filter Include="Script Files">
+      <UniqueIdentifier>{d99bbd93-fa0a-4dec-be57-67231fb016d9}</UniqueIdentifier>
+      <Extensions>js</Extensions>
+    </Filter>
+    <Filter Include="Miscellaneous Files">
+      <UniqueIdentifier>{5f36e5f3-8731-4ab2-9065-8c8c7845569e}</UniqueIdentifier>
+      <Extensions>vsz;vsdir;ico;vcxproj;csproj;css;inf</Extensions>
+    </Filter>
+    <Filter Include="Deploy">
+      <UniqueIdentifier>{5836b1fb-97dc-40ab-9612-22e6883df47d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Templates\1033\Templates.inf">
+      <Filter>Miscellaneous Files</Filter>
+    </None>
+    <None Include="WL12ModuleWizard.vsz">
+      <Filter>Miscellaneous Files</Filter>
+    </None>
+    <None Include="Scripts\1033\default.js">
+      <Filter>Script Files</Filter>
+    </None>
+    <None Include="WL12ModuleWizard.vsdir">
+      <Filter>Miscellaneous Files</Filter>
+    </None>
+    <None Include="HTML\1033\default.htm">
+      <Filter>HTML Files</Filter>
+    </None>
+    <None Include="1033\NewStyles.css">
+      <Filter>Miscellaneous Files</Filter>
+    </None>
+    <None Include="Templates\1033\object.rgs">
+      <Filter>Template Files</Filter>
+    </None>
+    <None Include="Deploy\LocalItems.vsdir">
+      <Filter>Deploy</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="WL12ModuleWizard.ico">
+      <Filter>Miscellaneous Files</Filter>
+    </Image>
+    <Image Include="Images\WL12ModuleWizard.gif" />
+    <Image Include="Images\WL12ModuleWizard_Background.gif" />
+    <Image Include="1033\Images\DottedHori.gif" />
+    <Image Include="1033\Images\DottedVert.gif" />
+    <Image Include="1033\Images\spacer.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="Templates\1033\objco.idl">
+      <Filter>Template Files</Filter>
+    </Midl>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Templates\1033\object.cpp">
+      <Filter>Template Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Templates\1033\object.h">
+      <Filter>Template Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

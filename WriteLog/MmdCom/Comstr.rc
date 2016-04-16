@@ -1,0 +1,12 @@
+#include "..\\mmdcom\\comrscid.h"
+STRINGTABLE 
+{
+ S_ID_FORMAT_PAGE_SUM, "Claimed QSOs: %d, points: %d, multipliers: %d this page."
+ S_ID_NORTH_AMERICA, "N.Amer"
+ WRITE_WARNING, "Fill in the remaining blanks\nand do a Save as...\nto save your summary sheet."
+ WRITE_ASCII_FAIL, "Can't open ASCII output file."
+ WRITE_FAILED, "Failed while writing to the file. Disk full?"
+ IDS_SAVEARRL, "Save as ARRL format..."
+ IDS_NOCANFILE, "Fill in Contest Parameter Setup first!"
+}
+

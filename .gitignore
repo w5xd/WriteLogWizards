@@ -1,1 +1,10 @@
 Projects/
+*/Debug/
+*/Release/
+*~
+*.vcproj.*.user
+*.vcxproj.user
+*.ncb
+*.suo
+*.bak
+*.sdf
