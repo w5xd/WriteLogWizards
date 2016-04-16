@@ -76,19 +76,23 @@ Edit that last file, the .vsz file to correct the absolute path:
 <pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL11ProjectWizard"</code>
 </pre>There is no need to copy the files out of your git work area: just point the .vsz file to the appropriate subdirectory.
 <p>Now File/New Project in Visual Studio 2008 should show this:</p>
-<p align="center"><img width="50%" alt="ProjectNew2008.png" src="ProjectNew2008.png"/></p>
+<p align="center"><img width="70%" alt="ProjectNew2008.png" src="ProjectNew2008.png"/></p>
 <p>The deployment of the WL12 wizard is the same, except substitute to WL12 for WL11, and substitute 2013 for 2008.</p>
 <h4>Deploy the ModuleWizard</h4>
-Getting a new item in the right mouse click on the project, and then Add/New-Item menu requires administrator privilege. You must create files in the Visual Studio installation directory. The directory to find is:
+Getting a new item into the Visual Studio Add/New-Item menu requires administrator privilege. 
+You must create files in the Visual Studio installation directory. The directory to find is:
 <pre><code>C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcprojectitems</code>
-</pre>In that directory, you need two things: <ul>
+</pre>In that vcprojectitems directory, you need two things: <ul>
 <li>Create a folder named <code>LocalItems</code>.
-<li>Into the vcprojectitems folder, copy the file from this repo: <code>WL11ModuleWizard/LocalItems/LocalItems.vsdir</code>.
+<li>Into that same vcprojectitems folder, copy the file (unchanged) from this repo: <code>WL11ModuleWizard/LocalItems/LocalItems.vsdir</code>.
 </ul>
 Into that newly created LocalItems folder, copy these three files:<ol>
 <li>WL11ModuleWizard.ico
 <li>WL11ModuleWizard.vsdir
 <li>WL11ModuleWizard.vsz
 </ol>
-That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work area: just point that vsz file to the appropriate subdirectory in the work area. 
+That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work area: just point that vsz file to the appropriate subdirectory in the work area. Once installed, and in Visual Studio with a WL project open, a right mouse clock on the project looks like this:
+<p align="center"><img width="70%" alt="AddNewItem.png" src="AddNewItem.png"/></p>
+<p align="center"><img width="70%" alt="AddContest.png" src="AddContest.png"/></p>
+
 
