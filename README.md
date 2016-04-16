@@ -74,5 +74,7 @@ Visual Studio should have already created the directory <code><i>&lt;MyDocuments
 </ul> 
 Edit that last file, the .vsz file to correct the absolute path:
 <pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL11ProjectWizard"</code>
-</pre>There is no need to copy the files from your git work area: just point the .vsz file to the appropriate subdirectory.
+</pre>There is no need to copy the files out of your git work area: just point the .vsz file to the appropriate subdirectory.
+<br/>Now File/New Project in Visual Studio 2008 should show this:
+<p align="center"><img alt="ProjectNew2008.gif" src="ProjectNew2008.gif"/></p>
 
