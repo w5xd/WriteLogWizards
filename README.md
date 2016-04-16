@@ -1,9 +1,10 @@
 # WriteLogWizards
 Tools for WriteLog contest module development
-This repo contains:
-1) Source code for Visual Studio 2008 wizards that create WriteLog contest module implementations.
-2) The same for Visual Studio 2013
-3) The necessary header files and import libraries to build WriteLog contest modules.
+This repo contains:<ol>
+<li>Source code for Visual Studio 2008 wizards that create WriteLog contest module implementations.
+<li>The same for Visual Studio 2013
+<li> The necessary header files and import libraries to build WriteLog contest modules.
+</ol>
 
 Developing in VS 2008 can target both WriteLog versions 11 and 12.
 Developing in VS 2013 targets only WriteLog version 12. (The VS2013
@@ -11,7 +12,7 @@ C++ runtime is not installed by the WL11 installer. But modules
 developed with VS 2013 will work on WL11 if that runtime happens
 to be already installed.)
 
-The Directory Structure.
+<h2>The Directory Structure</h2>
 The wizards generate code that assumes the relative file paths set up in this repo:
 
 <code><b>Projects/</b></code><br/>
@@ -49,13 +50,13 @@ for your development because much of it is archaic. The reason the archaic stuff
 to enable source-code compatible development of module developed using the old Visual Studio 6
 wizard last updated in 2008 (and most of which dates from 2000)
 
-The wizards.
+<h2>The wizards</h2>
 You must already have VS 2008 and/or VS 2013 installed. The Express versions are NOT supported.
-It takes two wizards to create a WriteLog contest module:
-1. The WL11ProjectWizard (or WL12ProjectWizard) creates a skeleton project in VS File/New-Project menu.
-2. The WL11ModuleWizard (or WL12ModuleWizard) adds skeleton header/cpp files to such a project for a contest. 
-
-Deploying the wizards.
+It takes two wizards to create a WriteLog contest module:<ol>
+<li>The WL11ProjectWizard (or WL12ProjectWizard) creates a skeleton project in VS File/New-Project menu.
+<li>The WL11ModuleWizard (or WL12ModuleWizard) adds skeleton header/cpp files to such a project for a contest. 
+</ol>
+<h3>Deploying the wizards</h3>
 There are a total of four wizards: two each for VS 2008 and VS 2013. The instructions for deployment are
 almost identical for the two versions. There is more than one way to accomplish deployment, but here
 is one that works and is minimally intrusive on your system.
@@ -65,4 +66,13 @@ In all four cases is is NOT necessary to use Visual Studio to File/Open-Project 
 deploy the wizard, which might or might not conflict with the instructions below. Of course, if you
 don't like the way the wizards work, you are welcome to change them to suit yourself.
 
+<h4>Deploy the Project Wizard</h4>
+Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2008&#92;</code>. Create a subfolder named <code><b>Wizards</b></code> and copy these 3 files from the <code>WL11ProjectWizard</code> repo folder into <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2008&#92;Wizards</code>: <ul>
+<li>WL11ProjectWizard.ico
+<li>WL11ProjectWizard.vsdir
+<li>WLProjectWizard.vsz
+</ul> 
+Edit that last file, the .vsz file to correct the absolute path:
+<pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL11ProjectWizard"</code>
+</pre>There is no need to copy the files from your git work area: just point the .vsz file to the appropriate subdirectory.
 
