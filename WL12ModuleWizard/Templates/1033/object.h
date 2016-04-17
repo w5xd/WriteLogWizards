@@ -20,10 +20,11 @@ class ATL_NO_VTABLE [!output MM_CLASS_NAME] :
     , public IPersistStorage
 {
 public:
+    // ctor/dtor
     [!output MM_CLASS_NAME]();
+    ~[!output MM_CLASS_NAME]();
 
     DECLARE_REGISTRY_RESOURCEID([!output RGS_ID])
-
     DECLARE_NOT_AGGREGATABLE([!output MM_CLASS_NAME])
 
     BEGIN_COM_MAP([!output MM_CLASS_NAME])
@@ -36,9 +37,28 @@ public:
     END_COM_MAP()
     
     DECLARE_PROTECT_FINAL_CONSTRUCT()
-
     HRESULT FinalConstruct();
     void FinalRelease();
+
+    enum {
+[!if MULTI_MODE]
+		BAND_SUMMARY_CW,
+		BAND_SUMMARY_PHONE,
+		//TODO--if there are more modes....
+[!else ]
+		BAND_SUMMARY_QSO,
+[!if PTS_COLUMN]
+		BAND_SUMMARY_PTS,
+[!endif ]
+[!endif ]
+[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
+		BAND_SUMMARY_MUL,
+[!endif ]
+		BAND_SUMMARY_WIDTH};
+[!if MULTI_MODE]
+
+    enum {NUMBER_OF_MODES = 2};		//TODO--If there are more modes
+[!endif ]
 
     // IWlogMulti Methods
 public:
@@ -88,18 +108,42 @@ public:
 
 protected:
     static const struct exfa_stru g_Layout[];
+    [!if !ASK_MODE]
+    static const struct band_stru g_Bands[];
+    [!else]
     static const struct band_stru g_BandsPh[];
     static const struct band_stru g_BandsCw[];
+    [!if RTTY]
+    static const struct band_stru g_BandsRy[];
+    [!endif]
+    [!endif]
+
     static const unsigned gArchiveVersion;
     IWriteLog *m_Parent; // NOT REF COUNTED
     CComPtr<IWlogBandSumm> m_bandSumm;
     CQsoFieldMgr    m_qsoFields; // must construct before CQsoField's
-    // order of the enum must match that in Layout
-    enum { CALL_IDX, SNT_IDX, RST_IDX, NR_IDX };
     CQsoCallField   CALL;
+[!if RST_IN_EXCHANGE]
     CQsoField    SNT;
     CQsoField    RST;
+[!endif]
+[!if NR_IN_EXCHANGE]
     CQsoField    NR;
+[!endif]
+[!if PTS_COLUMN]
+    CQsoField    PTS;
+[!endif]
+[!if ASK_MODE]
+enum {
+    ASK_MODE_CW, ASK_MODE_PH
+    [!if RTTY]
+    , ASK_MODE_RY
+    [!endif]
+    } m_ModeSelected;
+[!endif]
+    int						m_PageQsos;
+    int						m_PageQsoPoints;
+    int						m_PageMultipliers;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof([!output COCLASS]), [!output MM_CLASS_NAME])
