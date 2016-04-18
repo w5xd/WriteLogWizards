@@ -8,6 +8,7 @@
 #define IDD_MODESELECT                  201
 #define IDC_MODESELCW                   103
 #define IDC_MODESELPHONE                104
+#define IDC_MODESELRTTY                 105
 
 // Next default values for new objects
 //
@@ -16,6 +17,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        202
 #define _APS_NEXT_COMMAND_VALUE         32768
 #define _APS_NEXT_CONTROL_VALUE         202
-#define _APS_NEXT_SYMED_VALUE           105
+#define _APS_NEXT_SYMED_VALUE           106
 #endif
 #endif

@@ -29,7 +29,6 @@ CMultDisplayEntryBase::~CMultDisplayEntryBase()
 {
 }
 
-
 ULONG CMultDisplayEntryBase::AddRef()
 {
     return ++m_RefCount;
@@ -52,7 +51,7 @@ STDMETHODIMP CMultDisplayEntryBase::QueryInterface(REFIID riid, LPVOID FAR* ppvO
     IUnknown FAR *Unk;
     Unk = 0;
     if (IsEqualIID(riid, IID_IUnknown) || 
-        IsEqualIID(riid, IID_IMultDisplayEntry))
+        IsEqualIID(riid, __uuidof(IMultDisplayEntry)))
     {
         Unk = this;
     }
@@ -297,7 +296,7 @@ void CDxccDispContainer::MakeDxccDisplays(IMultDisplayContainer *pDispCon,
     for (i = 0; i < (NUM_CONTINENTS + IncludeMM); i += 1)
     {
         pDispCon->MakeDisplay(MultiBand, FixedColumns,
-                        IID_IMultDisplayPage,
+                        __uuidof(IMultDisplayPage),
                         (IUnknown **) &m_DxccDisplay[i]);
     }
 

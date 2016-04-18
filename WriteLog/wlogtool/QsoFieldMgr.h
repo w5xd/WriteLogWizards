@@ -55,7 +55,11 @@ public:
         HRESULT hr = pStream->Write(&version, sizeof(version), &written);
         if (SUCCEEDED(hr))
         {
-            ULONG count = m_fields.size();
+            unsigned count = m_fields.size();
+#if _MSC_VER >= 1800
+            static_assert(sizeof(count) == 4, "fix serialize");
+            static_assert(sizeof(m_fields[0].m_position) == 4, "fix serialize");
+#endif
             hr = pStream->Write(&count, sizeof(count), &written);
         }
         if (SUCCEEDED(hr))
@@ -81,6 +85,9 @@ public:
         unsigned loadedVersion;
         HRESULT hr = pStream->Read(&loadedVersion, sizeof(m_version), &bytesread);
         unsigned count = 0;
+#if _MSC_VER >= 1800
+        static_assert(sizeof(count) == 4, "fix serialize");
+#endif
         if (SUCCEEDED(hr))
             hr = pStream->Read(&count, sizeof(count), &bytesread);
         std::vector<Field> fields;

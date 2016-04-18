@@ -6,6 +6,15 @@
 #include "iwlogbsm.h"
 #include "QsoFieldMgr.h"
 
+[!if !NO_DXCC||!NO_ZONE]
+#include "dxcclist.h"
+#include "dxpref.h"
+[!endif]
+[!if !NO_DXCC]
+#include "MultDisplayEntryImpl.h"
+[!endif]
+
+
 using namespace ATL;
 
 // [!output MM_CLASS_NAME]
@@ -55,9 +64,11 @@ public:
 		BAND_SUMMARY_MUL,
 [!endif ]
 		BAND_SUMMARY_WIDTH};
-[!if MULTI_MODE]
 
-    enum {NUMBER_OF_MODES = 2};		//TODO--If there are more modes
+[!if MULTI_MODE]
+    enum ModesPerBandEnum {MULT_MODE_PHONE, MULT_MODE_CW,[!if RTTY] MULT_MODE_RTTY,[!endif] NUMBER_OF_MODES_PER_MULT_BAND};		//TODO--If there are more modes
+[!else]
+    enum ModesPerBandEnum {NUMBER_OF_MODES_PER_MULT_BAND = 1};		
 [!endif ]
 
     // IWlogMulti Methods
@@ -106,17 +117,21 @@ public:
     STDMETHOD(SaveCompleted)(IStorage *pStgNew);
     STDMETHOD(HandsOffStorage)(void);
 
+[!if !NO_DXCC]
+public: // multipliers
+    HRESULT get_MultWorked(int id, short Mult, short band);
+[!endif]
 protected:
     static const struct exfa_stru g_Layout[];
-    [!if !ASK_MODE]
+[!if !ASK_MODE]
     static const struct band_stru g_Bands[];
-    [!else]
+[!else]
     static const struct band_stru g_BandsPh[];
     static const struct band_stru g_BandsCw[];
-    [!if RTTY]
+[!if RTTY]
     static const struct band_stru g_BandsRy[];
-    [!endif]
-    [!endif]
+[!endif]
+[!endif]
 
     static const unsigned gArchiveVersion;
     IWriteLog *m_Parent; // NOT REF COUNTED
@@ -141,9 +156,40 @@ enum {
     [!endif]
     } m_ModeSelected;
 [!endif]
+/************
+Multiplier support
+************/
+[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
+	CComPtr<IMultDisplayContainer>	m_MultDispContainer;
+    enum {
+[!if !NO_DXCC]
+            DXCC_MULT_ID,
+[!endif]
+    };
+[!endif]
+
+[!if !NO_DXCC]
+	//DXCC Multiplier support
+	DxContext_t						m_DxContext;
+	struct country_stru				*m_cList;
+    int								m_MyCountryIndex;
+	CDxDispContainerHelper<[!output MM_CLASS_NAME],
+        CDxccDisplayHelper<[!output MM_CLASS_NAME], DXCC_MULT_ID> >
+        m_DxccContainer;
+[!if DXCC_SINGLE_BAND]
+	std::map<short,int>				m_Countries;
+	int					            m_DxccMults;
+[!endif]
+[!if DXCC_MULTI_BAND]
+	std::map<short, std::map<short, int> >	m_Countries;
+	std::map<short, int>				m_DxccMults;
+    // DXCC
+[!endif]
+[!endif]
     int						m_PageQsos;
     int						m_PageQsoPoints;
     int						m_PageMultipliers;
+    int                     m_NumberOfMultBands;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof([!output COCLASS]), [!output MM_CLASS_NAME])

@@ -113,7 +113,14 @@ function OnFinish(selProj, selObj) {
         var strImplFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + ".cpp");
         RenderAddTemplate(wizard, "object.cpp", strImplFile, selObj, false);
         
-        // Generate WXS
+        if (!wizard.FindSymbol("NO_DXCC")) {
+            var strMulDBase = "MulDEntInc.cpp";
+            var strMulDFile = GetUniqueFileName(strProjectPath, strMulDBase);
+            if (strMulDBase == strMulDFile) // only add it once.
+                RenderAddTemplate(wizard, "multdent.cpp", strMulDFile, selObj, false);
+        }
+
+	// Generate WXS
         var strWxsFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + ".wxs");
         RenderAddTemplate(wizard, "object.wxs", strWxsFile, false, false);
 

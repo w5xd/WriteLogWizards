@@ -15,9 +15,11 @@
     <symbol name='CABRILLO' type="checkbox" value="false"></symbol>
     <symbol name='PTS_COLUMN' type="checkbox" value="false"></symbol>
     <symbol name='RST_IN_EXCHANGE' type="checkbox" value="false"></symbol>
+    <symbol name='NR_IN_EXCHANGE' type="checkbox" value="false"></symbol>
+
+    <symbol name='SINGLE_MODE' type="checkbox" value="true"></symbol>
     <symbol name='ASK_MODE' type="checkbox" value="false"></symbol>
     <symbol name='MULTI_MODE' type="checkbox" value="false"></symbol>
-    <symbol name='NR_IN_EXCHANGE' type="checkbox" value="false"></symbol>
 
     <symbol name='NO_DXCC' type="checkbox" value="true"></symbol>
     <symbol name='DXCC_SINGLE_BAND' type="checkbox" value="false"></symbol>
@@ -105,17 +107,11 @@
 	   	  <!--OPEN OF CONTENT//-->
 		  
           <table class="CONTENT" border="0" cellpadding="0" cellspacing="0">
-              <col width="12">
-              <col width="140">
-              <col width="12">
-              <col width="140">
-              <col width="12">
-              <col width="140">
-              <col width="12">
-              <col width="140">
+              <col width="12"><col width="100"><col width="12"><col width="100"><col width="12"><col width="100"><col width="12"><col width="100">
+              <col width="12"><col width="100"><col width="12"><col width="100"><col width="12" />
               <tr>
                   <td></td>
-                  <td valign="TOP" colspan="7" height='18'>
+                  <td valign="TOP" colspan="9" height='18'>
                       Select the options for the contest. Click Finish, and a new class will be added to your project.
                   </td>
               </tr>
@@ -133,13 +129,6 @@
                           <input class="CheckBox" type="checkbox" id="CABRILLO">
                           <div class="itemTextCheckboxA">
                               <label for="CABRILLO" id="LABEL1">Cabrillo Support</label>
-                          </div>
-                      </span>
-                      <br>
-                      <span class="itemText">
-                          <input class="CheckBox" type="checkbox" id="ASK_MODE">
-                          <div class="itemTextCheckboxA">
-                              <label for="ASK_MODE" id="LABEL3">Ask user for mode</label>
                           </div>
                       </span>
                       <br>
@@ -165,15 +154,29 @@
                               <label for="RST_IN_EXCHANGE" id="LABEL2">RST in exchange</label>
                           </div>
                       </span>
-                      <br>
-                      <span class="itemText">
-                          <input class="CheckBox" type="checkbox" id="MULTI_MODE">
-                          <div class="itemTextCheckboxA">
-                              <label for="MULTI_MODE" id="LABEL4">Contest is multi-mode</label>
+                  </td>
+                  <td valign="TOP" width="12">&nbsp;</td>
+                  <td valign="TOP" colspan='4'>
+                      <span class="itemTextTop">
+                          Mode support:
+                          <p class="Spacer">&nbsp;</p>
+                          <input type="radio" class="Radio" name="radioGroupMode" id="SINGLE_MODE">
+                          <div class="itemTextRadioB">
+                              <label for="SINGLE_MODE">Single compiled-in mode</label>
+                          </div>
+                          <br>
+                          <input type="radio" class="Radio" name="radioGroupMode" id="ASK_MODE">
+                          <div class="itemTextRadioB">
+                              <label for="ASK_MODE" id="LABEL3">Ask at startup for single mode</label>
+                          </div>
+                          <br>
+                          <input type="radio" class="Radio" name="radioGroupMode" id="MULTI_MODE">
+                          <div class="itemTextRadioB">
+                              <label for="MULTI_MODE">Work multiple modes on each band</label>
                           </div>
                       </span>
                   </td>
-              </tr>
+                </tr>
               <tr> <td valign="TOP" height='12' colspan="7">   &nbsp;  </td>   </tr>
               <tr valign="TOP">
                   <td>&nbsp;</td>
@@ -261,10 +264,11 @@
                       </span>
                   </td>
               </tr>
-              <tr> <td valign="TOP" height='18' colspan="7">   &nbsp;    </td>  </tr>
+              <tr> <td valign="TOP" height='18' colspan="11">   &nbsp;    </td>  </tr>
               <tr valign="TOP">
                   <td>&nbsp;</td>
-                  <td valign="TOP" colspan='6'>
+                  <td valign="TOP" colspan='10'>
+                      <br/>
                       <span class="itemText">
                           <label for="CONTEST_NAME" id="LABEL15">Contest Display Name:</label>
                           <input type="text" id="CONTEST_NAME">

@@ -1,26 +1,9 @@
 #ifndef MULTDENT_H
 #define MULTDENT_H
 
-#ifndef __NmdMul_h__
 #include "nmdmul.h"
-#endif
-
-#define NUM_CONTINENTS 6
-#define COUNTRY_MAX 400
-
-
-struct  StateDef_t
-    {
-        const char *Name;
-        int        CallArea;
-    };
-
-struct CountryMap_t
-{
-	int	Continent;
-	int	ContinentSubIndex;
-};
-
+#include "DisplayEntryDefs.h"
+#include "wlmuldsp.h"
 
 class CMultDisplayEntryBase : public IMultDisplayEntry
 {

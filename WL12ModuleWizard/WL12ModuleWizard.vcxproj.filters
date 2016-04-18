@@ -73,6 +73,9 @@
     <ClCompile Include="Templates\1033\object.cpp">
       <Filter>Template Files</Filter>
     </ClCompile>
+    <ClCompile Include="Templates\1033\multdent.cpp">
+      <Filter>Template Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Templates\1033\object.h">

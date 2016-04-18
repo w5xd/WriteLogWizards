@@ -66,6 +66,7 @@
     </Midl>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Templates\1033\multdent.cpp" />
     <ClCompile Include="Templates\1033\object.cpp" />
   </ItemGroup>
   <ItemGroup>

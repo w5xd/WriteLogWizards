@@ -60,6 +60,10 @@
 			Filter="txt"
 			>
 			<File
+				RelativePath=".\Templates\1033\multdent.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Templates\1033\objco.idl"
 				>
 				<FileConfiguration
