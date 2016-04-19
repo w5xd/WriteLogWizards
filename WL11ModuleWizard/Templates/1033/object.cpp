@@ -8,6 +8,8 @@
 #include "AskModeDlg.h"
 [!endif]
 
+extern HINSTANCE g_hInstance;
+
 // [!output MM_CLASS_NAME]
 namespace {
     const int CALC_POS_LATER = -1;
@@ -16,24 +18,66 @@ namespace {
     const int RST_WID = 4;
 [!endif]
 [!if NR_IN_EXCHANGE]
-    const int NR_WID = 5;
+    const int NR_WID = 5; // TODO
+[!endif]
+[!if !NO_NAMEDMULT]
+    const int   RCVD_WID =	5;// TODO
+    const int   MLT_WID  =   3;// TODO
+[!endif]
+[!if !NO_ZONE]
+    const int ZN_WID = 3;
+    const int ZMULT_WID = 3;
+[!endif]
+[!if !NO_AYGMULT]
+    const int AYG_WID = 3;// TODO
+    const int AYGMULT_WID = 3;// TODO
+[!endif]
+[!if !NO_DXCC]
+    const int  COUNTRY_WID = 15;
+    const int  AMBF_WID = 2;
+    const int  CPRF_WID = 6;
+    const int  CMULT_WID = 3;
 [!endif]
 [!if PTS_COLUMN]
-    const int PTS_WID = 2;
+    const int PTS_WID = 2; // TODO
 [!endif]
 }
 
 // order of the enum MUST match that in g_Layout
     enum { CALL_IDX, 
 [!if RST_IN_EXCHANGE]
-        SNT_IDX, RST_IDX, 
+    SNT_IDX, RST_IDX,
 [!endif]
 [!if NR_IN_EXCHANGE]
-        NR_IDX
+    NR_IDX,
+[!endif]
+[!if !NO_NAMEDMULT]
+    RCVD_IDX,
+[!endif]
+[!if !NO_ZONE]
+    ZN_IDX,
+[!endif]
+[!if !NO_AYGMULT]
+	AYG_IDX,
+[!endif]
+[!if !NO_DXCC]
+    COUNTRY_IDX, COUNTRY_C_IDX, PREF_IDX,
+[!endif]
+[!if !NO_NAMEDMULT]
+	NAMEDMULT_IDX,
+[!endif]
+[!if !NO_DXCC]
+	COUNTRY_CM_IDX,
+[!endif]
+[!if !NO_ZONE]
+	ZM_IDX,
+[!endif]
+[!if !NO_AYGMULT]
+	AYG_M_IDX,
 [!endif]
 [!if PTS_COLUMN]
-        PTS_IDX
-[!endif]
+	PTS_IDX,
+[!endif]    
     };
 
 const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =	//todo, Reorder, add/delete, etc.
@@ -47,6 +91,37 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =	//todo, Reorder, ad
     { "NR", NR_WID, CALC_POS_LATER, A_NUMS | A_NOTIFY | A_PRMPT | A_TABONLY | A_REQUIRED |
             A_DUPE | A_OVERSTRIKE },
 [!endif]
+[!if !NO_NAMEDMULT]
+    {"RCVD",          RCVD_WID, CALC_POS_LATER, A_DUPE|A_PRMPT| A_NOSPACE |
+                                    A_MULTI|A_REQUIRED|A_NOTIFY|A_OVERSTRIKE}, 
+[!endif]
+[!if !NO_ZONE]
+    {"ZN",          ZN_WID, CALC_POS_LATER, A_DUPE|A_NUMS|A_PRMPT|
+                                    A_MULTI|A_REQUIRED|A_NOTIFY}, 
+[!endif]
+[!if !NO_AYGMULT]
+	{"A?",			AYG_WID, CALC_POS_LATER, A_DUPE|A_PRMPT|A_MULTI|A_REQUIRED|
+										A_NOTIFY},	//TODO: check name, size and flags
+[!endif]
+[!if !NO_DXCC]
+    {"COUNTRY",     COUNTRY_WID, CALC_POS_LATER,
+                                    A_PRMPT|A_LOWER|A_NOSPACE},
+    {"C",   AMBF_WID, CALC_POS_LATER,     
+			A_PRMPT|A_MULTI|A_NOHRD|A_TABONLY|A_NOTIFY|A_NOSPACE},
+    {"PREF",        CPRF_WID, CALC_POS_LATER, A_MULTI|A_NOTIFY},
+[!endif]
+[!if !NO_NAMEDMULT]
+	{"ML", MLT_WID, CALC_POS_LATER, A_NOED},
+[!endif]
+[!if !NO_DXCC]
+	{"CM", CMULT_WID, CALC_POS_LATER, A_NOED},
+[!endif]
+[!if !NO_ZONE]
+	{"ZM", ZMULT_WID, CALC_POS_LATER, A_NOED},
+[!endif]
+[!if !NO_AYGMULT]
+	{"?M",	AYGMULT_WID, CALC_POS_LATER, A_NOED},	//todo: NAME OF COLUMN
+[!endif]
 [!if PTS_COLUMN]
 	{"P", PTS_WID, CALC_POS_LATER, A_NOED},
 [!endif]
@@ -59,16 +134,42 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =	//todo, Reorder, ad
     , m_PageQsos(0)
     , m_PageQsoPoints(0)
     , m_PageMultipliers(0)
-    , CALL(m_qsoFields, CALL_IDX)
+    , fCALL(m_qsoFields, CALL_IDX)
 [!if RST_IN_EXCHANGE]
-    , SNT(m_qsoFields, SNT_IDX)
-    , RST(m_qsoFields, RST_IDX)
+    , fSN(m_qsoFields, SNT_IDX)
+    , fRS(m_qsoFields, RST_IDX)
 [!endif]
 [!if NR_IN_EXCHANGE]
-    , NR(m_qsoFields, NR_IDX)
+    , fNR(m_qsoFields, NR_IDX)
+[!endif]
+[!if !NO_NAMEDMULT]
+    , fRCVD(m_qsoFields,RCVD_IDX)
+[!endif]
+[!if !NO_ZONE]
+    , fZN(m_qsoFields,ZN_IDX)
+[!endif]
+[!if !NO_AYGMULT]
+    , fAYG(m_qsoFields,AYG_IDX)
+[!endif]
+[!if !NO_DXCC]
+    , fCOUNTRY(m_qsoFields, COUNTRY_IDX)
+    , fAMBF(m_qsoFields, COUNTRY_C_IDX)
+    , fCPRF(m_qsoFields, PREF_IDX)
+[!endif]
+[!if !NO_NAMEDMULT]
+    , fMULT(m_qsoFields, NAMEDMULT_IDX)
+[!endif]
+[!if !NO_DXCC]
+    , fCMULT(m_qsoFields, COUNTRY_CM_IDX)
+[!endif]
+[!if !NO_ZONE]
+    , fZMULT(m_qsoFields, ZM_IDX)
+[!endif]
+[!if !NO_AYGMULT]
+    , fAYGMULT(m_qsoFields, AYG_M_IDX)
 [!endif]
 [!if PTS_COLUMN]
-    , PTS(m_qsoFields, PTS_IDX)
+    , fPTS(m_qsoFields, PTS_IDX)
 [!endif]
 [!if ASK_MODE]
     , m_ModeSelected(ASK_MODE_CW)
@@ -76,20 +177,21 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =	//todo, Reorder, ad
 [!if DXCC_SINGLE_BAND]
     , m_DxccMults(0)
 [!endif]
-[!if !NO_DXCC]
-    , m_DxContext(0)
-[!endif]
-    , m_NumberOfMultBands(0)
+    , m_NumberOfDupeSheetBands(0)
 {}
 
 // dtor
 [!output MM_CLASS_NAME]::~[!output MM_CLASS_NAME]()
 {}
 
-
 HRESULT [!output MM_CLASS_NAME]::FinalConstruct()
 {
     m_qsoFields.StaticInit(g_Layout);
+[!if !NO_DXCC]
+    HRESULT hr = m_DxContext.Init("DXCCDOS.DAT");	//TODO
+    if (FAILED(hr))
+        return hr;
+[!endif]
     return S_OK;
 }
 
@@ -97,9 +199,7 @@ void [!output MM_CLASS_NAME]::FinalRelease()
 {
     m_bandSumm.Release();
 [!if !NO_DXCC]
-    if (m_DxContext)
-        pref_free(m_DxContext);
-    m_DxContext = 0;
+    m_DxContext.Release();
 [!endif]
 }
 
@@ -127,14 +227,11 @@ HRESULT [!output MM_CLASS_NAME]::GetLayout(ConstBandPtr_t * b, ConstExfPtr_t * e
 [!else]
         * b = g_Bands;
 [!endif]
-        m_NumberOfMultBands = 0;
-        for (ConstBandPtr_t bandCountPtr = g_Bands;
+        m_NumberOfDupeSheetBands = 0;
+        for (ConstBandPtr_t bandCountPtr = *b;
             bandCountPtr->low >= 0;
             bandCountPtr += 1)
-            m_NumberOfMultBands += 1;
-[!if MULTI_MODE]
-        m_NumberOfMultBands /= static_cast<int>(NUMBER_OF_MODES_PER_MULT_BAND);
-[!endif]
+            m_NumberOfDupeSheetBands += 1;
     }
     if (s)
         *s = "Custom";  
@@ -143,10 +240,68 @@ HRESULT [!output MM_CLASS_NAME]::GetLayout(ConstBandPtr_t * b, ConstExfPtr_t * e
 
 HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 {
-    // Add your function implementation here.
-[!if PTS_COLUMN]
-    PTS(q) = "";
+	int points = 0;
+    short   Mult[BAND_SUMMARY_WIDTH];
+	memset(Mult, 0, sizeof(Mult));
+    int band = q->band;
+    if (band > m_NumberOfDupeSheetBands)
+        band = m_NumberOfDupeSheetBands;
+	band = DupeBandToMultBand(band);
+
+[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
+	int i;
 [!endif]
+[!if !NO_DXCC]
+    int  countryIndex = -1, newDxccFlag = 0;
+[!endif]
+[!if !NODXCC]
+    fCMULT(q) = "";
+[!endif]
+[!if PTS_COLUMN]
+    fPTS(q) = "";
+[!endif]
+
+    if (q->dupe == ' ')
+    {
+[!if !NO_DXCC]
+        //*********************************
+        //Process DXCC 
+        i = m_DxContext.FillQso(q, fCALL, fCPRF, fCOUNTRY, fAMBF);
+        if (i >= 0)
+        {
+            countryIndex = i;
+[!if DXCC_SINGLE_BAND]
+            Countries_t::iterator itor = m_Countries.find(countryIndex);
+            if (itor == m_Countries.end())
+                itor = m_Countries.insert(Countries_t::value_type(countryIndex, 0)).first;
+            newDxccFlag = !itor->second++;
+[!endif]
+[!if DXCC_MULTI_BAND]
+            Countries_t::iterator itor1 = m_Countries.find(band);
+            if (itor1 == m_Countries.end())
+                itor1 = m_Countries.insert(Countries_t::value_type(band, std::map<short,int>())).first;
+            std::map<short, int>::iterator itor2 = itor1->second.find(countryIndex);
+            if (itor2 == itor1->second.end())
+                itor2 = itor1->second.insert(std::map<short, int>::value_type(countryIndex, 0)).first;
+            newDxccFlag = !itor2->second++;
+[!endif]
+            if (newDxccFlag)
+            {
+	            char Buf[16];
+[!if DXCC_SINGLE_BAND]
+	            _itoa_s(++m_DxccMults,  Buf,  10);
+[!endif]
+[!if DXCC_MULTI_BAND]
+	            _itoa_s(++m_DxccMults[band],  Buf,  10);
+[!endif]
+                fCMULT(q) = Buf;
+                Mult[BAND_SUMMARY_MUL] += 1;
+                m_DxccContainer.InvalidateCountry(countryIndex);
+            }
+        }
+[!endif]
+    }
+
 [!if ASK_MODE]
     if (q->dupe == ' ')
     {   // record mode based on a qso
@@ -162,20 +317,127 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 [!endif]
     return S_OK;
 }
+
 HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 {
-    // Add your function implementation here.
+	int points = 0;
+    short   Mult[BAND_SUMMARY_WIDTH];
+	memset(Mult, 0, sizeof(Mult));
+    int band = q->band;
+    if (band > m_NumberOfDupeSheetBands)
+        band = m_NumberOfDupeSheetBands;
+	band = DupeBandToMultBand(band);
+
+[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
+	int i;
+[!endif]
+[!if !NO_DXCC]
+    int countryIndex = -1, newDxccFlag = 0;
+[!endif]
+
+    if (q->dupe == ' ')
+    {
+[!if !NO_DXCC]
+		i = m_DxContext.CountryFromQsoPrefix(q, fCPRF);
+        if (i >= 0)
+		{
+			countryIndex = i;
+[!if DXCC_SINGLE_BAND]
+            Countries_t::iterator itor = m_Countries.find(countryIndex);
+            if (itor != m_Countries.end())
+                newDxccFlag = ! --itor->second;
+[!endif]
+[!if DXCC_MULTI_BAND]
+            Countries_t::iterator itor1 = m_Countries.find(band);
+            if (itor1 != m_Countries.end())
+            {
+                std::map<short, int>::iterator itor2 = itor1->second.find(countryIndex);
+                if (itor2 != itor1->second.end())
+                    newDxccFlag = ! --itor2->second;
+            }
+[!endif]
+			if (newDxccFlag)
+			{
+[!if DXCC_SINGLE_BAND]
+				m_DxccMults -= 1;
+[!endif]
+[!if DXCC_MULTI_BAND]
+				m_DxccMults[band] -= 1;
+[!endif]
+				Mult[BAND_SUMMARY_MUL] -= 1;
+				m_DxccContainer.InvalidateCountry(countryIndex);
+			}
+		}
+[!endif]
+    }
     return S_OK;
 }
 HRESULT [!output MM_CLASS_NAME]::InitQsoData()
 {
-    // Add your function implementation here.
+[!if !NO_DXCC]
+    m_MyCountryIndex = m_DxContext.dxcc_Home();
+    m_Countries.clear();
+[!if DXCC_MULTI_BAND]
+	m_DxccMults.clear();
+[!else]
+    m_DxccMults = 0;
+[!endif]
+[!endif]
+
     return S_OK;
 }
-HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int Offset, int * Result, long RequestMask, char * Message)
+HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, long RequestMask, char * Message)
 {
+	int ret = -1;
+
+    int band = q->band;
+    if (band > m_NumberOfDupeSheetBands)
+        band = m_NumberOfDupeSheetBands;
+    band = DupeBandToMultBand(band);
+
+[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
+	int i;
+[!endif]
+	int j;
+	QsoPtr_t OldQ = 0;
+	if (!(RequestMask & WLOG_MULTICHECK_NOWRT))
+	{
+		//locate any previous QSO with this station...
+		unsigned long QsoNumber;
+		for (j = 0; j < m_NumberOfDupeSheetBands; j += 1)
+		{
+			if (m_Parent->SearchDupeSheet(q, j, 
+						0,
+						&QsoNumber) == S_OK)
+			{
+				OldQ = GetQsoIth(QsoNumber);
+				break;
+			}
+		}
+	}
+    
+[!if !NO_DXCC]
+	//DXCC country processing
+    if ((fCALL == p) ||  /*call sign*/
+        (fAMBF == p))    /*or country tag*/
+    {
+	    bool ambig(false);
+		bool NewCountry(false);
+        i = m_DxContext.CheckQso(q, !(RequestMask & WLOG_MULTICHECK_NOWRT),
+            fCALL, fCOUNTRY, fCPRF, fAMBF, ambig);
+		if (!ambig)
+		{
+            NewCountry = get_MultWorked(DXCC_MULT_ID, i, band) == S_FALSE ? 1 : 0;
+            if (ret <= 0)
+                ret = NewCountry ? 1 : 0;
+		}
+        if (NewCountry && (RequestMask == WLOG_MULTICHECK_MSGSET))
+            ::LoadString(g_hInstance, IDS_NEWCOUNTRY_MSG, Message, MAX_MULT_MESSAGE_LENGTH);
+	}
+[!endif]    
     return S_OK;
 }
+
 HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 {
 [!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
@@ -222,7 +484,7 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 					new $$MM_CLASS_NAME$$NamedDispEntry(
 								m_pNamedMults,
 								m_NamedDisplay,
-								m_NumberOfMultBands,
+								NumberOfMultBands(),
 								this);
 [!endif]
 [!if NAMEDMULT_SINGLE_BAND]
@@ -233,8 +495,8 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 [!endif]
 		}
 	}
-[!endif]
 
+[!endif]
 [!if !NO_ZONE]
 	if (m_ZoneDisplay)
     {
@@ -247,7 +509,7 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
                                 g_ZoneList,
                                 DIM(g_ZoneList),
                                 m_ZoneDisplay,
-								m_NumberOfMultBands,
+								NumberOfMultBands(),
 								this);
 [!endif]
 [!if ZONE_SINGLE_BAND]
@@ -271,7 +533,7 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 			m_AygDisplayEntry = new
 				$$MM_CLASS_NAME$$AygDispEntry(this,
 [!if AYGMULT_MULTI_BAND]
-								m_NumberOfMultBands,
+								NumberOfMultBands(),
 [!endif]
 [!if AYGMULT_SINGLE_BAND]
 								1,
@@ -279,12 +541,12 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 								m_AygDisplay);
 		}
 	}
-[!endif]
 
+[!endif]
 [!if !NO_DXCC]
-    m_DxccContainer.InitializeEntry(m_cList);
+    m_DxccContainer.InitializeEntry(m_DxContext.cList());
 [!if DXCC_MULTI_BAND]
-	m_DxccContainer.SetMults(this, m_NumberOfMultBands);
+	m_DxccContainer.SetMults(this, NumberOfMultBands());
 [!endif]
 [!if DXCC_SINGLE_BAND]
 	m_DxccContainer.SetMults(this);
@@ -334,7 +596,17 @@ HRESULT [!output MM_CLASS_NAME]::DupeSheetTitle(int DupeSheet, char * Title, int
 }
 HRESULT [!output MM_CLASS_NAME]::TallyPrintQso(QsoPtr_t q)
 {
-    // Add your function implementation here.
+    int Mul=0, Pts = 0;
+    if (q->dupe == ' ')
+    {
+        m_PageQsos += 1;
+[!if !NO_DXCC]
+		if (isdigit(*fCMULT(q)))
+			Mul += 1;
+[!endif]
+        m_PageMultipliers += Mul;
+        m_PageQsoPoints += Pts;
+    }
     return S_OK;
 }
 HRESULT [!output MM_CLASS_NAME]::FormatPageSumm(char * Buf, int BufLength)
@@ -461,10 +733,10 @@ HRESULT [!output MM_CLASS_NAME]::Load(IStorage *p)  {
         hr = E_UNEXPECTED; // Loaded a version higher than we know of.
     ULONG bytesread;
 #if _MSC_VER >= 1800
-    static_assert(sizeof(m_NumberOfMultBands) == 4, "fix serialize");
+    static_assert(sizeof(m_NumberOfDupeSheetBands) == 4, "use 4 byte type");
 #endif
     if (SUCCEEDED(hr))
-        hr = pStream->Read(&m_NumberOfMultBands, sizeof(m_NumberOfMultBands), &bytesread);
+        hr = pStream->Read(&m_NumberOfDupeSheetBands, sizeof(m_NumberOfDupeSheetBands), &bytesread);
     return hr; 
 }
 
@@ -477,7 +749,7 @@ HRESULT [!output MM_CLASS_NAME]::Save(IStorage *p, BOOL fSameAsLoad)  {
         hr = m_qsoFields.Save(gArchiveVersion, pStream);
     ULONG written;
     if (SUCCEEDED(hr))
-        hr = pStream->Write(&m_NumberOfMultBands, sizeof(m_NumberOfMultBands), &written);
+        hr = pStream->Write(&m_NumberOfDupeSheetBands, sizeof(m_NumberOfDupeSheetBands), &written);
     if (SUCCEEDED(hr))
         hr = p->SetClass(__uuidof([!output COCLASS]));
     if (SUCCEEDED(hr))

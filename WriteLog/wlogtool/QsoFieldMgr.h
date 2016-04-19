@@ -182,6 +182,8 @@ public:
         // read this field
         operator const char *() const { return m_dest; }
 
+        bool empty() const { return m_dest[0] == 0;   }
+
     protected:
         friend class CQsoField;
         accessor(unsigned wid, char *dest) :m_wid(wid), m_dest(dest){}

@@ -25,7 +25,7 @@ QsoPtr_t MmdCom::GetQsoIth(long Index)
 {
 	QsoPtr_t TestQ;
 	if (Parent && Index >= 0)
-			Parent->QsoIth((unsigned short)Index, &TestQ);
+			Parent->QsoIth((unsigned long)Index, &TestQ);
 	else
 			TestQ = 0;
 	return TestQ;

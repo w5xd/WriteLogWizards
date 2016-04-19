@@ -9,6 +9,7 @@
 [!if !NO_DXCC||!NO_ZONE]
 #include "dxcclist.h"
 #include "dxpref.h"
+#include "CountryLookupHelper.h"
 [!endif]
 [!if !NO_DXCC]
 #include "MultDisplayEntryImpl.h"
@@ -53,6 +54,9 @@ public:
 [!if MULTI_MODE]
 		BAND_SUMMARY_CW,
 		BAND_SUMMARY_PHONE,
+[!if RTTY]
+		BAND_SUMMARY_RTTY,
+[!endif]
 		//TODO--if there are more modes....
 [!else ]
 		BAND_SUMMARY_QSO,
@@ -136,18 +140,46 @@ protected:
     static const unsigned gArchiveVersion;
     IWriteLog *m_Parent; // NOT REF COUNTED
     CComPtr<IWlogBandSumm> m_bandSumm;
+    // Qso exchange field access support *********
     CQsoFieldMgr    m_qsoFields; // must construct before CQsoField's
-    CQsoCallField   CALL;
+    CQsoCallField   fCALL;
 [!if RST_IN_EXCHANGE]
-    CQsoField    SNT;
-    CQsoField    RST;
+    CQsoField    fSN;
+    CQsoField    fRS;
 [!endif]
 [!if NR_IN_EXCHANGE]
-    CQsoField    NR;
+    CQsoField    fNR;
+[!endif]
+[!if !NO_NAMEDMULT]
+    CQsoField    fRCVD;
+[!endif]
+[!if !NO_ZONE]
+    CQsoField    fZN;
+[!endif]
+[!if !NO_AYGMULT]
+    CQsoField    fAYG;
+[!endif]
+[!if !NO_DXCC]
+    CQsoField    fCOUNTRY;
+    CQsoField    fAMBF;
+    CQsoField    fCPRF;
+[!endif]
+[!if !NO_NAMEDMULT]
+    CQsoField    fMLT;
+[!endif]
+[!if !NO_DXCC]
+    CQsoField    fCMULT;
+[!endif]
+[!if !NO_ZONE]
+    CQsoField    fZMULT;
+[!endif]
+[!if !NO_AYGMULT]
+    CQsoField    fAYGMULT;
 [!endif]
 [!if PTS_COLUMN]
-    CQsoField    PTS;
+    CQsoField    fPTS;
 [!endif]
+    // *******************************************
 [!if ASK_MODE]
 enum {
     ASK_MODE_CW, ASK_MODE_PH
@@ -156,9 +188,9 @@ enum {
     [!endif]
     } m_ModeSelected;
 [!endif]
-/************
-Multiplier support
-************/
+    /************
+    Multiplier support
+    ************/
 [!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
 	CComPtr<IMultDisplayContainer>	m_MultDispContainer;
     enum {
@@ -170,26 +202,45 @@ Multiplier support
 
 [!if !NO_DXCC]
 	//DXCC Multiplier support
-	DxContext_t						m_DxContext;
-	struct country_stru				*m_cList;
+	CCountryLookupHelper			m_DxContext;
     int								m_MyCountryIndex;
 	CDxDispContainerHelper<[!output MM_CLASS_NAME],
         CDxccDisplayHelper<[!output MM_CLASS_NAME], DXCC_MULT_ID> >
         m_DxccContainer;
 [!if DXCC_SINGLE_BAND]
-	std::map<short,int>				m_Countries;
+    typedef std::map<short, int> Countries_t;
+	Countries_t				m_Countries;
 	int					            m_DxccMults;
 [!endif]
 [!if DXCC_MULTI_BAND]
-	std::map<short, std::map<short, int> >	m_Countries;
-	std::map<short, int>				m_DxccMults;
+    typedef std::map<short, std::map<short, int> > Countries_t;
+	Countries_t	m_Countries;
+    typedef std::map<short, int> DxccMults_t;
+	DxccMults_t				m_DxccMults;
     // DXCC
 [!endif]
 [!endif]
     int						m_PageQsos;
     int						m_PageQsoPoints;
     int						m_PageMultipliers;
-    int                     m_NumberOfMultBands;
+    int                     m_NumberOfDupeSheetBands;
+    // some helpers
+    int  NumberOfMultBands() const {
+        return m_NumberOfDupeSheetBands * static_cast<int>(NUMBER_OF_MODES_PER_MULT_BAND);
+    }
+    int DupeBandToMultBand(int band) {
+        return band / static_cast<int>(NUMBER_OF_MODES_PER_MULT_BAND);
+    }
+    QsoPtr_t GetQsoIth(unsigned long Index) const
+        {
+            QsoPtr_t TestQ;
+            if (m_Parent && Index >= 0)
+                m_Parent->QsoIth(Index, &TestQ);
+            else
+                TestQ = 0;
+            return TestQ;
+        }
+
 };
 
 OBJECT_ENTRY_AUTO(__uuidof([!output COCLASS]), [!output MM_CLASS_NAME])

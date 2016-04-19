@@ -94,6 +94,12 @@ END
 STRINGTABLE
 BEGIN
 	IDS_PROJNAME					"[!output PROJECT_NAME]"
+    IDS_FORMAT_PAGE_SUM     "Claimed QSOs: %d, points: %d, multipliers: %d this page."
+    IDS_WL_USERNAME         "[!output PROJECT_NAME]"
+    IDS_NOFILEYET           "Please fill in your TODO"
+	IDS_NEWCOUNTRY_MSG		"New Country"
+	IDS_NEWZONE_MSG			"New Zone"
+	IDS_AYG_MSG			    "New TODO"
 END
 
 IDR_[!output PROJECT_NAME_CAPS] REGISTRY "[!output PROJECT_NAME]Module.rgs"

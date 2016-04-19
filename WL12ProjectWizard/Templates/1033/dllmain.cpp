@@ -7,9 +7,11 @@
 
 C[!output PROJECT_NAME]Module _AtlModule;
 
+HINSTANCE g_hInstance;
+
 // DLL Entry Point
 extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {
-	hInstance;
+	g_hInstance = hInstance;
 	return _AtlModule.DllMain(dwReason, lpReserved); 
 }

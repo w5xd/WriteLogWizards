@@ -9,6 +9,12 @@
 #define IDC_MODESELCW                   103
 #define IDC_MODESELPHONE                104
 #define IDC_MODESELRTTY                 105
+#define IDS_FORMAT_PAGE_SUM             106
+#define IDS_WL_USERNAME                 107
+#define IDS_NOFILEYET                   108
+#define IDS_NEWCOUNTRY_MSG		        109
+#define IDS_NEWZONE_MSG			        110
+#define IDS_AYG_MSG			            111
 
 // Next default values for new objects
 //
@@ -17,6 +23,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        202
 #define _APS_NEXT_COMMAND_VALUE         32768
 #define _APS_NEXT_CONTROL_VALUE         202
-#define _APS_NEXT_SYMED_VALUE           106
+#define _APS_NEXT_SYMED_VALUE           112
 #endif
 #endif
