@@ -128,8 +128,12 @@ done using the software development environment published here, and with Visual 
 There are a couple of source code changes required in old modules to make them compile:
 <ol>
 <li> Place the old source code directory in the new Projects folder here.
-<li>The include path that used to be "..\\mmdcom" is now one directory further up "..\\..\\mmdcom".
-An easy way to accommodate is open the vcproj file and search and replace the old path for the new one.
+<li>The include path structure has changed. The easiest way to deal 
+with this is to edit only the .vcproj as text. Replace this: 
+<code>..\..\Wlogtool</code>
+with <code>..\..\WriteLog\Wlogtool</code>. Similarly, replace <code>..\..\include</code> 
+with <code>..\..\WriteLog\include</code>. This one is slightly different: <code>..\mmdcom</code> becomes
+<code>..\..\WriteLog\mmdcom</code>.
 <li>The clsid.c file won't compile anymore. Because it references headers that now only work in C++.
 Using the VS Solution explorer, rename it to clsid.cpp.
 <li>clsid.cpp still might not compile if the &lt;projectname&gt;mm.h file won't compile stand-alone.
