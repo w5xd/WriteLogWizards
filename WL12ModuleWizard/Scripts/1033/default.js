@@ -107,10 +107,11 @@ function OnFinish(selProj, selObj) {
         // Add header
         var strHeaderFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + ".h");
         wizard.AddSymbol("HEADER_FILE", strHeaderFile);
-        RenderAddTemplate(wizard, "object.h", strHeaderFile, selObj, true);
-
         // Add CPP
         var strImplFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + ".cpp");
+        wizard.AddSymbol("CPP_FILE", strImplFile);
+        
+        RenderAddTemplate(wizard, "object.h", strHeaderFile, selObj, true);
         RenderAddTemplate(wizard, "object.cpp", strImplFile, selObj, false);
 
         if (!wizard.FindSymbol("NO_DXCC")) {

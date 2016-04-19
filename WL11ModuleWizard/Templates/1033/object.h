@@ -15,14 +15,11 @@
 #include "MultDisplayEntryImpl.h"
 [!endif]
 
-
-using namespace ATL;
-
 // [!output MM_CLASS_NAME]
 
 class ATL_NO_VTABLE [!output MM_CLASS_NAME] :
-    public CComObjectRootEx<CComSingleThreadModel>,
-    public CComCoClass<[!output MM_CLASS_NAME], &CLSID_[!output COCLASS]>
+	public ATL::CComObjectRootEx<ATL::CComSingleThreadModel>,
+	public ATL::CComCoClass<[!output MM_CLASS_NAME], &CLSID_[!output COCLASS]>
     , public IWlogMulti
 [!if CABRILLO]
     , public IWlogCabrillo
@@ -70,13 +67,14 @@ public:
 		BAND_SUMMARY_WIDTH};
 
 [!if MULTI_MODE]
-    enum ModesPerBandEnum {MULT_MODE_PHONE, MULT_MODE_CW,[!if RTTY] MULT_MODE_RTTY,[!endif] NUMBER_OF_MODES_PER_MULT_BAND};		//TODO--If there are more modes
+    //TODO--If there are more modes
+    enum ModesPerBandEnum {MULT_MODE_PHONE, MULT_MODE_CW,[!if RTTY] MULT_MODE_RTTY,[!endif] NUMBER_OF_MODES_PER_MULT_BAND};		
 [!else]
     enum ModesPerBandEnum {NUMBER_OF_MODES_PER_MULT_BAND = 1};		
 [!endif ]
 
-    // IWlogMulti Methods
 public:
+    // IWlogMulti Methods
     STDMETHOD(GetLayout)(ConstBandPtr_t * b, ConstExfPtr_t * e, LPCSTR * s);
     STDMETHOD(QsoAdd)(QsoPtr_t q);
     STDMETHOD(QsoRem)(QsoPtr_t q);
@@ -108,8 +106,8 @@ public:
     STDMETHOD(FormatTxField)(QsoPtr_t q, short Field, char * Buf);
     STDMETHOD(GetRxFieldCount)(short * pCount);
     STDMETHOD(FormatRxField)(QsoPtr_t q, short Field, char * Buf);
-[!endif]
 
+[!endif]
 public:
     //IPersist
     STDMETHOD(GetClassID)(CLSID *pClassID);
@@ -122,10 +120,12 @@ public:
     STDMETHOD(HandsOffStorage)(void);
 
 [!if !NO_DXCC]
-public: // multipliers
+public: 
+	// query multiplier worked
     HRESULT get_MultWorked(int id, short Mult, short band);
 [!endif]
 protected:
+	// static contest data structure defintions
     static const struct exfa_stru g_Layout[];
 [!if !ASK_MODE]
     static const struct band_stru g_Bands[];
@@ -136,12 +136,18 @@ protected:
     static const struct band_stru g_BandsRy[];
 [!endif]
 [!endif]
-
     static const unsigned gArchiveVersion;
+
+	// connections to main WriteLog
     IWriteLog *m_Parent; // NOT REF COUNTED
     CComPtr<IWlogBandSumm> m_bandSumm;
-    // Qso exchange field access support *********
-    CQsoFieldMgr    m_qsoFields; // must construct before CQsoField's
+
+    // *******************************************
+    // Qso exchange field support ****************
+    CQsoFieldMgr    m_qsoFields; // here to construct BEFORE CQsoField's below
+	/* Each CQsoField MUST have an entry in enum ExfOrder_t in [!output CPP_FILE]
+	** The converse is not true, but any entries in g_Layout without a 
+	** corresponding CQsoField cannot be manipulated by this module. */
     CQsoCallField   fCALL;
 [!if RST_IN_EXCHANGE]
     CQsoField    fSN;
@@ -181,13 +187,14 @@ protected:
 [!endif]
     // *******************************************
 [!if ASK_MODE]
-enum {
+enum {	// otherwise identical single-mode contests
     ASK_MODE_CW, ASK_MODE_PH
     [!if RTTY]
     , ASK_MODE_RY
     [!endif]
     } m_ModeSelected;
 [!endif]
+
     /************
     Multiplier support
     ************/
@@ -199,9 +206,9 @@ enum {
 [!endif]
     };
 [!endif]
-
 [!if !NO_DXCC]
-	//DXCC Multiplier support
+
+	//DXCC Multiplier
 	CCountryLookupHelper			m_DxContext;
     int								m_MyCountryIndex;
 	CDxDispContainerHelper<[!output MM_CLASS_NAME],
@@ -209,27 +216,33 @@ enum {
         m_DxccContainer;
 [!if DXCC_SINGLE_BAND]
     typedef std::map<short, int> Countries_t;
-	Countries_t				m_Countries;
-	int					            m_DxccMults;
+	Countries_t	 m_Countries;
+	int          m_DxccMults;
 [!endif]
 [!if DXCC_MULTI_BAND]
     typedef std::map<short, std::map<short, int> > Countries_t;
 	Countries_t	m_Countries;
     typedef std::map<short, int> DxccMults_t;
-	DxccMults_t				m_DxccMults;
-    // DXCC
+	DxccMults_t	m_DxccMults;
 [!endif]
 [!endif]
+    /************
+    End Multiplier support
+    ************/
+
     int						m_PageQsos;
     int						m_PageQsoPoints;
     int						m_PageMultipliers;
     int                     m_NumberOfDupeSheetBands;
-    // some helpers
-    int  NumberOfMultBands() const {
-        return m_NumberOfDupeSheetBands * static_cast<int>(NUMBER_OF_MODES_PER_MULT_BAND);
-    }
+
+	// helper functions
+	// The DupeBand's are the frequency+mode ranges where you can work the station
     int DupeBandToMultBand(int band) {
         return band / static_cast<int>(NUMBER_OF_MODES_PER_MULT_BAND);
+    }
+	// The MultBand's are the frequency+mode ranges where they count as a mult 
+    int  NumberOfMultBands() const {
+        return m_NumberOfDupeSheetBands * static_cast<int>(NUMBER_OF_MODES_PER_MULT_BAND);
     }
     QsoPtr_t GetQsoIth(unsigned long Index) const
         {

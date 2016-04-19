@@ -8,12 +8,18 @@
 #include "AskModeDlg.h"
 [!endif]
 
+#define DIM(x) (sizeof(x) / sizeof(x[0])
+
 extern HINSTANCE g_hInstance;
 
 // [!output MM_CLASS_NAME]
 namespace {
     const int CALC_POS_LATER = -1;
     const int CALL_POS = -1;
+	/* TODO change the xyz_WID, as needed.
+	** Serialization support allows changing
+	** them even after a File/Save of old
+	** widths. */
 [!if RST_IN_EXCHANGE]
     const int RST_WID = 4;
 [!endif]
@@ -43,8 +49,8 @@ namespace {
 [!endif]
 }
 
-// order of the enum MUST match that in g_Layout
-    enum { CALL_IDX, 
+// order of the enum MUST match that in g_Layout (below)
+enum ExfOrder_t { CALL_IDX, 
 [!if RST_IN_EXCHANGE]
     SNT_IDX, RST_IDX,
 [!endif]
@@ -80,7 +86,9 @@ namespace {
 [!endif]    
     };
 
-const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =	//todo, Reorder, add/delete, etc.
+//TODO: Reorder, add/delete, etc.
+// EVERY ROW HERE MUST HAVE A CORRESDPONDING ENTRY IN enum ExfOrder_t
+const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =	
 {
     { "CALL", CALL_WID, CALL_POS, A_CALL | A_PRMPT | A_MULTI | A_NOTIFY },
 [!if RST_IN_EXCHANGE]
@@ -188,7 +196,11 @@ HRESULT [!output MM_CLASS_NAME]::FinalConstruct()
 {
     m_qsoFields.StaticInit(g_Layout);
 [!if !NO_DXCC]
-    HRESULT hr = m_DxContext.Init("DXCCDOS.DAT");	//TODO
+    HRESULT hr = m_DxContext.Init("DXCCDOS.DAT");
+	/*TODO:  DXCCDOS.DAT is DXCC country list
+	**       DXCCWAE.DAT is CQWW country list
+	**       CQZONE.DAT maps CALL to CQ zone
+	**       ITUZONE.DAT maps CALL to ITU zone.	*/
     if (FAILED(hr))
         return hr;
 [!endif]
@@ -206,7 +218,6 @@ void [!output MM_CLASS_NAME]::FinalRelease()
 // IWlogMulti Methods
 HRESULT [!output MM_CLASS_NAME]::GetLayout(ConstBandPtr_t * b, ConstExfPtr_t * e, LPCSTR * s)
 {
-    // Add your function implementation here.
     if (e)
         *e = m_qsoFields.GetLayout();
     if (b)
@@ -243,7 +254,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 	int points = 0;
     short   Mult[BAND_SUMMARY_WIDTH];
 	memset(Mult, 0, sizeof(Mult));
-    int band = q->band;
+    int band = q->band; // q->band is always a Dupe Band
     if (band > m_NumberOfDupeSheetBands)
         band = m_NumberOfDupeSheetBands;
 	band = DupeBandToMultBand(band);
@@ -383,28 +394,23 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
     m_DxccMults = 0;
 [!endif]
 [!endif]
-
     return S_OK;
 }
+
 HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, long RequestMask, char * Message)
 {
 	int ret = -1;
-
     int band = q->band;
     if (band > m_NumberOfDupeSheetBands)
         band = m_NumberOfDupeSheetBands;
     band = DupeBandToMultBand(band);
 
-[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
-	int i;
-[!endif]
-	int j;
 	QsoPtr_t OldQ = 0;
 	if (!(RequestMask & WLOG_MULTICHECK_NOWRT))
 	{
 		//locate any previous QSO with this station...
 		unsigned long QsoNumber;
-		for (j = 0; j < m_NumberOfDupeSheetBands; j += 1)
+		for (int j = 0; j < m_NumberOfDupeSheetBands; j += 1)
 		{
 			if (m_Parent->SearchDupeSheet(q, j, 
 						0,
@@ -423,7 +429,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
     {
 	    bool ambig(false);
 		bool NewCountry(false);
-        i = m_DxContext.CheckQso(q, !(RequestMask & WLOG_MULTICHECK_NOWRT),
+        int i = m_DxContext.CheckQso(q, !(RequestMask & WLOG_MULTICHECK_NOWRT),
             fCALL, fCOUNTRY, fCPRF, fAMBF, ambig);
 		if (!ambig)
 		{
@@ -434,6 +440,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
         if (NewCountry && (RequestMask == WLOG_MULTICHECK_MSGSET))
             ::LoadString(g_hInstance, IDS_NEWCOUNTRY_MSG, Message, MAX_MULT_MESSAGE_LENGTH);
 	}
+
 [!endif]    
     return S_OK;
 }
