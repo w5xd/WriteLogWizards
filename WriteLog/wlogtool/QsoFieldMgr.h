@@ -26,7 +26,7 @@ public:
             int thisPos = curPos;
             if (pExfStatic->at & A_CALL)
                 thisPos = -1;
-            m_fields.push_back(Field(pExfStatic->hdr, pExfStatic->wid, curPos, pExfStatic->at));
+            m_fields.push_back(Field(pExfStatic->hdr, pExfStatic->wid, thisPos, pExfStatic->at));
             if (thisPos >= 0)
                 curPos += pExfStatic->wid;
             pExfStatic++;

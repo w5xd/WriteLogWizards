@@ -61,8 +61,8 @@ public:
         bool canWriteIntoQso,
         CQsoField &fCALL,
         CQsoField &fCOUNTRY,
-        CQsoField &fAMBF,
         CQsoField &fCPRF,
+        CQsoField &fAMBF,
         bool &ambiguous) const
     {
         char  prefix[CALL_WID];  /*place to calc call sign prefix*/
@@ -71,7 +71,8 @@ public:
         int i = pref_find(m_DxContext, prefix);
         if (i < -1)      /*resolve ambiguous ?*/
         {
-            int j = pref_reso(m_DxContext, i, *fAMBF(q), &ambig);
+            char amb(*fAMBF(q));
+            int j = pref_reso(m_DxContext, i, amb, &ambig);
             if (ambig && canWriteIntoQso)
             {   // still ambigous
                 char buffer[64]; // build prompt
