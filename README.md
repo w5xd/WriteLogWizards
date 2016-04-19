@@ -119,3 +119,32 @@ and add the <module-name>.wxs file. The project also needs a Reference to WixUIE
 Edit the various TODO's in the two wxs files. (Or more wxs files if you put support more than one contest in your
 project). 
 
+<h2>Source code changes required for older modules</h2>
+There are a handful of bugs in the header files generated using the old Visual Studio 6 
+WriteLog contest wizard. It is recommended that any new work on those old modules be
+done using the software development environment published here, and with Visual Studio
+2008 (or VS 2013 if WL12 and later support is all that is desired.)
+
+There are a couple of source code changes required in old modules to make them compile:
+<ol>
+<li> Place the old source code directory in the new Projects folder here.
+<li>The include path that used to be "..\\mmdcom" is now one directory further up "..\\..\\mmdcom".
+An easy way to accommodate is open the vcproj file and search and replace the old path for the new one.
+<li>The clsid.c file won't compile anymore. Because it references headers that now only work in C++.
+Using the VS Solution explorer, rename it to clsid.cpp.
+<li>clsid.cpp still might not compile if the &lt;projectname&gt;mm.h file won't compile stand-alone.
+One simple way to fix this is to split out from &lt;projectname&gt;mm.h the bit that clsid.cpp needs
+into a separate file.
+<ul>
+<li>Create a new header file named, say, &lt;projectname&gt;guid.h.
+<li>Cut from &lt;projectname&gt;mm.h all the lines that look like this: <br/>
+<code>DEFINE_GUID(CLSID_EuRttyMmd, 0xC7212160, 0x7716, 0x101A,
+	0xAA, 0x54, 0x00, 0x60, 0x8C, 0x61, 0xD0, 0xB1);
+/* C7212160-7716-101A-AA54-00608C61D0B1 */
+</code>
+<li> and paste those lines into &lt;projectname&gt;guid.h
+<li> Update &lt;projectname&gt;mm.h to #include the new guid.h
+<li> Change clsid.cpp to #include the new guid.h <i>instead of</i> mm.h.
+</ul>
+</ol>
+
