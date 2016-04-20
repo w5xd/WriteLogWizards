@@ -70,7 +70,11 @@
     <ClCompile Include="Templates\1033\object.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Templates\1033\dialog.h" />
     <ClInclude Include="Templates\1033\object.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Templates\1033\dialog.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

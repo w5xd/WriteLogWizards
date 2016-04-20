@@ -88,6 +88,9 @@ function OnFinish(selProj, selObj) {
         // add RGS file resource
         var strRGSFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + ".rgs");
         var strRGSID = "IDR_" + strUpperShortName;
+        var strDLGID = "IDD_" + strUpperShortName + "_DLG";
+        var strDlgClassName = strShortName + "Dialog";
+        wizard.AddSymbol("MM_DLG_CLASS_NAME", strDlgClassName);
 
         RenderAddTemplate(wizard, "object.rgs", strRGSFile, false, false);
 
@@ -98,8 +101,13 @@ function OnFinish(selProj, selObj) {
         if (strSymbolValue == null) return;
         wizard.AddSymbol("RGS_ID", strSymbolValue.split("=").shift());
 
-        oResHelper.CloseResourceFile();
+        var strRCTemplFile = strTemplatePath +  "\\dialog.rc";
+        var strTemporaryResourceFile = RenderToTemporaryResourceFile(strRCTemplFile);
+        strSymbolValue = oResHelper.AddResource(strDLGID, strTemporaryResourceFile, "DIALOG");
+        if (strSymbolValue == null) return;
+        wizard.AddSymbol("IDD_DIALOGID", strSymbolValue.split("=").shift());
 
+        oResHelper.CloseResourceFile();
 
         // Render objco.idl and insert into strProject.idl
         AddCoclassFromFile(oCM, "objco.idl");
@@ -110,9 +118,13 @@ function OnFinish(selProj, selObj) {
         // Add CPP
         var strImplFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + ".cpp");
         wizard.AddSymbol("CPP_FILE", strImplFile);
-        
+        // Add Dialog header
+        var strDlgHeaderFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + "Dlg.h");
+        wizard.AddSymbol("DLG_HEADER_FILE", strDlgHeaderFile);
+
         RenderAddTemplate(wizard, "object.h", strHeaderFile, selObj, true);
         RenderAddTemplate(wizard, "object.cpp", strImplFile, selObj, false);
+        RenderAddTemplate(wizard, "dialog.h", strDlgHeaderFile, selObj, false);
 
         if (!wizard.FindSymbol("NO_DXCC")) {
             var strMulDBase = "MulDEntInc.cpp";

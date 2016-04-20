@@ -81,5 +81,13 @@
     <ClInclude Include="Templates\1033\object.h">
       <Filter>Template Files</Filter>
     </ClInclude>
+    <ClInclude Include="Templates\1033\dialog.h">
+      <Filter>Template Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Templates\1033\dialog.rc">
+      <Filter>Template Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

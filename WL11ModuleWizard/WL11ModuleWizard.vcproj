@@ -60,6 +60,14 @@
 			Filter="txt"
 			>
 			<File
+				RelativePath=".\Templates\1033\dialog.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Templates\1033\dialog.rc"
+				>
+			</File>
+			<File
 				RelativePath=".\Templates\1033\multdent.cpp"
 				>
 			</File>
