@@ -21,14 +21,20 @@
 class ATL_NO_VTABLE [!output MM_CLASS_NAME] :
 	public ATL::CComObjectRootEx<ATL::CComSingleThreadModel>,
 	public ATL::CComCoClass<[!output MM_CLASS_NAME], &CLSID_[!output COCLASS]>
+[!if RTTY]
+    , public IWlogMulti2
+[!else]
     , public IWlogMulti
+[!endif]
     , public IWlogScoreInfo
 [!if CABRILLO]
     , public IWlogCabrillo
 [!endif]
     , public IPersistStorage
 {
+[!if !NO_DXCC || !NO_ZONE || !NO_AYGMULT || !NO_NAMEDMULT]
     typedef CMultiplierMap MultiplierMap_t;
+[!endif]
 public:
     // ctor/dtor
     [!output MM_CLASS_NAME]();
@@ -39,6 +45,9 @@ public:
 
     BEGIN_COM_MAP([!output MM_CLASS_NAME])
         COM_INTERFACE_ENTRY(IWlogMulti)
+[!if RTTY]
+        COM_INTERFACE_ENTRY(IWlogMulti2)
+[!endif]
         COM_INTERFACE_ENTRY(IWlogScoreInfo)
 [!if CABRILLO]
         COM_INTERFACE_ENTRY(IWlogCabrillo)
@@ -100,6 +109,12 @@ public:
 	//IWlogScoreInfo--rate display support
 	STDMETHOD(MultsAndPts)(long *pMultCount, long *pPtsCount);
 	STDMETHOD(PtsForQso)(QsoPtr_t q, long *pPtsCount);
+
+[!if RTTY]
+    // IWlogMulti2  -- for RTTY
+    STDMETHOD(WhatsTheBestField)(QsoPtr_t q, const char *s, short *Offset);
+    STDMETHOD(IsCharOKHere)(QsoPtr_t q, char c, short Offset);
+[!endif]
 
 [!if CABRILLO]
     // IWlogCabrillo Methods
@@ -282,7 +297,7 @@ public:
     End Multiplier support
     ************/
 protected:
-
+    std::string             m_MyCallsign;
     std::map<short, int>		    m_BandPoints;
 	std::map<short, int>		    m_BandQsos;
     int						m_PageQsos;

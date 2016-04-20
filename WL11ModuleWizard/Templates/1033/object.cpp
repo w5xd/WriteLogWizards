@@ -277,7 +277,19 @@ void [!output MM_CLASS_NAME]::FinalRelease()
     m_DxContext.Release();
 [!endif]
 [!if !NO_ZONE]
+    m_ZoneDisplayEntry.Release();
     m_ZoneContext.Release();
+[!endif]
+[!if !NO_NAMED]
+    m_NamedDisplayEntry.Release();
+    m_NamedDisplay.Release();
+    m_pNamedMults.Release();
+[!endif]
+[!if !NO_AYGMULT]
+	if (m_AygDisplayEntry)
+		m_AygDisplayEntry->ReleasePage(); // break ref cycle
+    m_AygDisplayEntry.Release();
+    m_AygDisplay.Release();
 [!endif]
 }
 
@@ -1094,9 +1106,18 @@ HRESULT [!output MM_CLASS_NAME]::TallyPrintQso(QsoPtr_t q)
     }
     return S_OK;
 }
-HRESULT [!output MM_CLASS_NAME]::FormatPageSumm(char * Buf, int BufLength)
+HRESULT [!output MM_CLASS_NAME]::FormatPageSumm(char FAR *Buf, int BufLength)
 {
-    // Add your function implementation here.
+    char    FormatBuf[200];
+    char    RscBuf[200];
+    RscBuf[0] = 0;
+    LoadString(g_hInstance, IDS_FORMAT_PAGE_SUM, RscBuf, sizeof(RscBuf));
+    if (RscBuf[0])
+    {
+        wsprintf(FormatBuf, RscBuf, m_PageQsos, m_PageQsoPoints, m_PageMultipliers);
+        strncpy_s(Buf, BufLength, FormatBuf, BufLength-1);
+    }
+    m_PageQsos = m_PageQsoPoints = m_PageMultipliers = 0;
     return S_OK;
 }
 HRESULT [!output MM_CLASS_NAME]::SetDupeSheet(QsoPtr_t q, int * DupeSheet)
@@ -1104,10 +1125,25 @@ HRESULT [!output MM_CLASS_NAME]::SetDupeSheet(QsoPtr_t q, int * DupeSheet)
     // Add your function implementation here.
     return S_OK;
 }
-HRESULT [!output MM_CLASS_NAME]::GetAdifName(long, long, char * pName)
+HRESULT [!output MM_CLASS_NAME]::GetAdifName(long FieldId, long NameLen, char *Name)
 {
-    *pName = 0;
-    return S_FALSE;
+	*Name = 0;
+[!if RST_IN_EXCHANGE]
+	if (fSN == FieldId)
+		strncpy_s(Name, NameLen, "RST_SENT", NameLen);
+	else
+	if (fRS == FieldId)
+		strncpy_s(Name, NameLen, "RST_RCVD", NameLen);
+[!endif]
+[!if NR_IN_EXCHANGE]
+	if (fNR == FieldId)
+		strncpy_s(Name, NameLen, "SRX", NameLen);
+[!endif]
+	//TODO: ADIF FIELDS...
+	if (*Name)
+		return S_OK;
+	else
+		return S_FALSE;
 }
 
 [!if !NO_DXCC || !NO_ZONE || !NO_NAMEDMULT || !NO_AYGMULT]
@@ -1239,6 +1275,25 @@ int [!output MM_CLASS_NAME]::FindAyg(int AddNew, const char *c)
 }
 
 [!endif]
+
+[!if RTTY]
+//RTTY SUPPORT....
+HRESULT [!output MM_CLASS_NAME]::WhatsTheBestField(QsoPtr_t q, const char *s, short *Offset)
+{
+	//TODO
+    //		*Offset = CALL_POS;
+	//		return NOERROR;
+
+    return E_NOTIMPL;
+}
+
+HRESULT  [!output MM_CLASS_NAME]::IsCharOKHere(QsoPtr_t q, char c, short Offset)
+{
+    // todo
+    return E_NOTIMPL;
+}
+
+[!endif]
 [!if CABRILLO]
 // IWlogCabrillo Methods
 HRESULT [!output MM_CLASS_NAME]::ConfirmFieldsFilled(HWND w)
@@ -1248,8 +1303,8 @@ HRESULT [!output MM_CLASS_NAME]::ConfirmFieldsFilled(HWND w)
 }
 HRESULT [!output MM_CLASS_NAME]::SetCallsign(const char * Call)
 {
-    // Add your function implementation here.
-    return E_NOTIMPL;
+    m_MyCallsign = Call;
+	return S_OK;
 }
 HRESULT [!output MM_CLASS_NAME]::GetHeaderLineCount(short * pLines)
 {
@@ -1263,8 +1318,9 @@ HRESULT [!output MM_CLASS_NAME]::GetHeaderLine(short LineNumber, char * Buf)
 }
 HRESULT [!output MM_CLASS_NAME]::GetContestName(char * Buf)
 {
-    // Add your function implementation here.
-    return E_NOTIMPL;
+	strcpy_s(Buf, 80 /*per interface defintion */,
+        "[!output COCLASS]");	//TODO
+    return S_OK;
 }
 HRESULT [!output MM_CLASS_NAME]::GetClaimedScore(long * Score)
 {
@@ -1276,10 +1332,32 @@ HRESULT [!output MM_CLASS_NAME]::GetTxFieldCount(short * pCount)
     // Add your function implementation here.
     return E_NOTIMPL;
 }
-HRESULT [!output MM_CLASS_NAME]::FormatTxField(QsoPtr_t q, short Field, char * Buf)
+HRESULT [!output MM_CLASS_NAME]::FormatTxField(QsoPtr_t q, short Field, char *Buf)
 {
-    // Add your function implementation here.
-    return E_NOTIMPL;
+	*Buf = 0;
+	switch (Field)
+	{
+	case 0:
+		wsprintf(Buf, "%-13.13s ", m_MyCallsign.c_str());
+		break;
+[!if RST_IN_EXCHANGE]
+	case 1:
+		wsprintf(Buf, "%3.3s ", fSN(q));
+		break;
+[!endif]
+[!if !NO_NAMEDMULT]
+	case 0:	//TODO
+		wsprintf(Buf, "%-6.6s ", (const char *) m_MyMult);
+		break;
+[!endif]
+[!if NR_IN_EXCHANGE]
+	case 0:	//TODO
+		wsprintf(Buf, "%6d ", q->serial);
+		break;
+[!endif]
+	//TODO case xxxx
+	}
+	return E_NOTIMPL;
 }
 HRESULT [!output MM_CLASS_NAME]::GetRxFieldCount(short * pCount)
 {
@@ -1288,7 +1366,29 @@ HRESULT [!output MM_CLASS_NAME]::GetRxFieldCount(short * pCount)
 }
 HRESULT [!output MM_CLASS_NAME]::FormatRxField(QsoPtr_t q, short Field, char * Buf)
 {
-    // Add your function implementation here.
+	*Buf = 0;
+	switch (Field)
+	{
+	case 0:
+		wsprintf(Buf, "%-13.13s ", fCALL(q));
+		break;
+[!if RST_IN_EXCHANGE]
+	case 1:
+		wsprintf(Buf, "%3.3s ", fRS(q);
+		break;
+[!endif]
+[!if NR_IN_EXCHANGE]
+	case 0:	//TODO
+		wsprintf(Buf, "%6.6s ", fNR(q));
+		break;
+[!endif]
+[!if !NO_NAMEDMULT]
+	case 0:	//TODO
+		wsprintf(Buf, "%-6.6s ", fRCVD(q));
+		break;
+[!endif]
+	//TODO case xxxx
+	}
     return E_NOTIMPL;
 }
 [!endif]
