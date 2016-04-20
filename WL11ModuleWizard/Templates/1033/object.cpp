@@ -7,10 +7,25 @@
 [!if ASK_MODE]
 #include "AskModeDlg.h"
 [!endif]
+[!if !NO_ZONE]
+#include "DisplayEntryDefs.h"
+[!endif]
 
-#define DIM(x) (sizeof(x) / sizeof(x[0])
+#ifdef DIM // avoid compiler warnings
+#undef DIM
+#endif
+#define DIM(x) (sizeof(x) / sizeof(x[0]))
 
 extern HINSTANCE g_hInstance;
+[!if !NO_ZONE]
+
+static const struct StateDef_t (g_ZoneList[])=
+	{{"1"}, {"2"},  {"3"},  {"4"},  {"5"},  {"6"},  {"7"},  {"8"},  {"9"}, {"10"},
+	 {"11"}, {"12"}, {"13"}, {"14"}, {"15"}, {"16"}, {"17"}, {"18"}, {"19"}, {"20"},
+	 {"21"}, {"22"}, {"23"}, {"24"}, {"25"}, {"26"}, {"27"}, {"28"}, {"29"}, {"30"},
+	 {"31"}, {"32"}, {"33"}, {"34"}, {"35"}, {"36"}, {"37"}, {"38"}, {"39"}, {"40"},     
+	};
+[!endif]
 
 // [!output MM_CLASS_NAME]
 namespace {
@@ -165,7 +180,7 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
     , fCPRF(m_qsoFields, PREF_IDX)
 [!endif]
 [!if !NO_NAMEDMULT]
-    , fMULT(m_qsoFields, NAMEDMULT_IDX)
+    , fMLT(m_qsoFields, NAMEDMULT_IDX)
 [!endif]
 [!if !NO_DXCC]
     , fCMULT(m_qsoFields, COUNTRY_CM_IDX)
@@ -185,6 +200,15 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
 [!if DXCC_SINGLE_BAND]
     , m_DxccMults(0)
 [!endif]
+[!if ZONE_SINGLE_BAND]
+    , m_ZoneMults(0)
+[!endif]
+[!if AYGMULT_SINGLE_BAND]
+    , m_AygMults(0)
+[!endif]
+[!if NAMEDMULT_SINGLE_BAND]
+	, m_NamedMults(0)
+[!endif]
     , m_NumberOfDupeSheetBands(0)
 {}
 
@@ -195,8 +219,9 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
 HRESULT [!output MM_CLASS_NAME]::FinalConstruct()
 {
     m_qsoFields.StaticInit(g_Layout);
+    HRESULT hr = S_OK;
 [!if !NO_DXCC]
-    HRESULT hr = m_DxContext.Init("DXCCDOS.DAT");
+    hr = m_DxContext.Init("DXCCDOS.DAT");
 	/*TODO:  DXCCDOS.DAT is DXCC country list
 	**       DXCCWAE.DAT is CQWW country list
 	**       CQZONE.DAT maps CALL to CQ zone
@@ -204,7 +229,16 @@ HRESULT [!output MM_CLASS_NAME]::FinalConstruct()
     if (FAILED(hr))
         return hr;
 [!endif]
-    return S_OK;
+[!if !NO_ZONE]
+    hr = m_ZoneContext.Init("CQZONE.DAT");
+	/*TODO:  DXCCDOS.DAT is DXCC country list
+	**       DXCCWAE.DAT is CQWW country list
+	**       CQZONE.DAT maps CALL to CQ zone
+	**       ITUZONE.DAT maps CALL to ITU zone.	*/
+    if (FAILED(hr))
+        return hr;
+[!endif]
+    return hr;
 }
 
 void [!output MM_CLASS_NAME]::FinalRelease()
@@ -212,6 +246,9 @@ void [!output MM_CLASS_NAME]::FinalRelease()
     m_bandSumm.Release();
 [!if !NO_DXCC]
     m_DxContext.Release();
+[!endif]
+[!if !NO_ZONE]
+    m_ZoneContext.Release();
 [!endif]
 }
 
@@ -259,14 +296,14 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
         band = m_NumberOfDupeSheetBands;
 	band = DupeBandToMultBand(band);
 
-[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
-	int i;
-[!endif]
 [!if !NO_DXCC]
     int  countryIndex = -1, newDxccFlag = 0;
 [!endif]
-[!if !NODXCC]
+[!if !NO_DXCC]
     fCMULT(q) = "";
+[!endif]
+[!if !NO_ZONE]
+    fZMULT(q) = "";
 [!endif]
 [!if PTS_COLUMN]
     fPTS(q) = "";
@@ -277,24 +314,15 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 [!if !NO_DXCC]
         //*********************************
         //Process DXCC 
-        i = m_DxContext.FillQso(q, fCALL, fCPRF, fCOUNTRY, fAMBF);
+        int i = m_DxContext.FillQso(q, fCALL, fCPRF, fCOUNTRY, fAMBF);
         if (i >= 0)
         {
             countryIndex = i;
 [!if DXCC_SINGLE_BAND]
-            Countries_t::iterator itor = m_Countries.find(countryIndex);
-            if (itor == m_Countries.end())
-                itor = m_Countries.insert(Countries_t::value_type(countryIndex, 0)).first;
-            newDxccFlag = !itor->second++;
+            newDxccFlag = !m_Countries[countryIndex]++;
 [!endif]
 [!if DXCC_MULTI_BAND]
-            Countries_t::iterator itor1 = m_Countries.find(band);
-            if (itor1 == m_Countries.end())
-                itor1 = m_Countries.insert(Countries_t::value_type(band, std::map<short,int>())).first;
-            std::map<short, int>::iterator itor2 = itor1->second.find(countryIndex);
-            if (itor2 == itor1->second.end())
-                itor2 = itor1->second.insert(std::map<short, int>::value_type(countryIndex, 0)).first;
-            newDxccFlag = !itor2->second++;
+            newDxccFlag = !m_Countries[band][countryIndex]++;
 [!endif]
             if (newDxccFlag)
             {
@@ -310,12 +338,78 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
                 m_DxccContainer.InvalidateCountry(countryIndex);
             }
         }
-[!endif]
-    }
 
+[!endif]
+[!if !NO_ZONE]
+		//*********************************
+		//Process zones
+		int			newZoneFlag = 0;
+		int z = FindZone(fZN(q));
+		if (z == NUMZONES)
+		{
+            fZMULT(q) = "?";
+		}
+		else
+		{
+[!if ZONE_MULTI_BAND]
+			newZoneFlag = !(m_Zones[band][z]++);
+[!endif]
+[!if ZONE_SINGLE_BAND]
+			newZoneFlag = !(m_Zones[z]++);
+[!endif]
+		}
+		if (newZoneFlag)
+		{
+            char buf[8];
+[!if ZONE_MULTI_BAND]
+            _itoa_s(++m_ZoneMults[band], buf, 10);
+[!endif]
+[!if ZONE_SINGLE_BAND]
+            _itoa_s(++m_ZoneMults, buf, 10);
+[!endif]
+            fZMULT(q) = buf;
+			Mult[BAND_SUMMARY_MUL] += 1;
+			if (m_ZoneDisplay)
+				m_ZoneDisplay->Invalidate(i);
+		}
+
+[!endif]
+        //*********************************
+		//Process points and multiplier display
+		points = PointsForQso(q);
+[!if !MULTI_MODE && PTS_COLUMN]
+		Mult[BAND_SUMMARY_PTS] = points;
+[!endif]
+		m_BandPoints[band] += points;
+		m_BandQsos[band] += 1;
+[!if PTS_COLUMN]
+        if (points)
+        {
+            char buf[16];
+            _itoa_s(points, buf, 10);
+            fPTS(q) = buf;
+        }
+[!endif]
+		if (m_bandSumm)
+		{
+[!if MULTI_MODE]
+			if (q->mode == '3')
+				Mult[BAND_SUMMARY_CW] = 1;
+[!if RTTY]
+            else if  (q->mode == '6')
+				Mult[BAND_SUMMARY_RTTY] = 1;
+[!endif]
+			else
+				Mult[BAND_SUMMARY_PHONE] = 1;
+[!endif]
+			m_bandSumm->ContributeMultipliers(
+					band,
+					BAND_SUMMARY_WIDTH, 
+					Mult);
+			m_bandSumm->SetScore(Score());
+		}
 [!if ASK_MODE]
-    if (q->dupe == ' ')
-    {   // record mode based on a qso
+        // record mode based on a qso
         if (q->mode == '3')
             m_ModeSelected = ASK_MODE_CW;
 [!if RTTY]
@@ -324,8 +418,8 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 [!endif]
         else
             m_ModeSelected = ASK_MODE_PH;
-    }
 [!endif]
+    }
     return S_OK;
 }
 
@@ -339,33 +433,33 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
         band = m_NumberOfDupeSheetBands;
 	band = DupeBandToMultBand(band);
 
-[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
-	int i;
-[!endif]
 [!if !NO_DXCC]
     int countryIndex = -1, newDxccFlag = 0;
 [!endif]
 
     if (q->dupe == ' ')
     {
+[!if MULTI_MODE]
+		if (q->mode == '3')
+			Mult[BAND_SUMMARY_CW] = -1;
+[!if RTTY]
+        else if (q->mode == '6')
+			Mult[BAND_SUMMARY_RTTY] = -1;
+[!endif]
+		else
+			Mult[BAND_SUMMARY_PHONE] = -1;
+
+[!endif]
 [!if !NO_DXCC]
-		i = m_DxContext.CountryFromQsoPrefix(q, fCPRF);
+		int i = m_DxContext.CountryFromQsoPrefix(q, fCPRF);
         if (i >= 0)
 		{
 			countryIndex = i;
 [!if DXCC_SINGLE_BAND]
-            Countries_t::iterator itor = m_Countries.find(countryIndex);
-            if (itor != m_Countries.end())
-                newDxccFlag = ! --itor->second;
+            newDxccFlag = !--m_Countries[countryIndex];
 [!endif]
 [!if DXCC_MULTI_BAND]
-            Countries_t::iterator itor1 = m_Countries.find(band);
-            if (itor1 != m_Countries.end())
-            {
-                std::map<short, int>::iterator itor2 = itor1->second.find(countryIndex);
-                if (itor2 != itor1->second.end())
-                    newDxccFlag = ! --itor2->second;
-            }
+            newDxccFlag = !--m_Countries[band][countryIndex];
 [!endif]
 			if (newDxccFlag)
 			{
@@ -380,11 +474,69 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 			}
 		}
 [!endif]
+[!if !NO_ZONE]
+		int			newZoneFlag = 0;
+		int z = FindZone(fZN(q));
+		if (z == NUMZONES)
+		{
+		}
+		else
+		{
+[!if ZONE_MULTI_BAND]
+			newZoneFlag = !(--m_Zones[band][z]);
+[!endif]
+[!if ZONE_SINGLE_BAND]
+			newZoneFlag = !(--m_Zones[z]);
+[!endif]
+		}
+		if (newZoneFlag)
+		{
+[!if ZONE_MULTI_BAND]
+			--m_ZoneMults[band];
+[!endif]
+[!if ZONE_SINGLE_BAND]
+			--m_ZoneMults;
+[!endif]
+			Mult[BAND_SUMMARY_MUL] -= 1;
+			if (m_ZoneDisplay)
+				m_ZoneDisplay->Invalidate(i);
+		}
+
+[!endif]
+		points = PointsForQso(q);
+[!if !MULTI_MODE && PTS_COLUMN]
+		Mult[BAND_SUMMARY_PTS] = -points;
+[!endif]
+		m_BandPoints[band] -= points;
+		m_BandQsos[band] -= 1;
+		if (m_bandSumm)
+		{
+			m_bandSumm->ContributeMultipliers(
+					band,
+					BAND_SUMMARY_WIDTH, 
+					Mult);
+			m_bandSumm->SetScore(Score());
+		}    
     }
     return S_OK;
 }
 HRESULT [!output MM_CLASS_NAME]::InitQsoData()
 {
+[!if MULTI_MODE]
+	static const char * const band_Title[] =
+	{
+		"160m",
+		"80m",
+		"40m",
+		"20m",
+		"15m",
+		"10m",
+		"6m",
+		"2m"
+	};
+[!endif]
+    m_BandPoints.clear();
+    m_BandQsos.clear();
 [!if !NO_DXCC]
     m_MyCountryIndex = m_DxContext.dxcc_Home();
     m_Countries.clear();
@@ -394,6 +546,37 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
     m_DxccMults = 0;
 [!endif]
 [!endif]
+[!if !NO_ZONE]
+    m_Zones.clear();
+[!if ZONE_MULTI_BAND]
+    m_ZoneMults.clear();
+[!else]
+    m_ZoneMults = 0;
+[!endif]
+[!endif]
+
+    m_PageQsos = 0;
+    m_PageQsoPoints = 0;
+    m_PageMultipliers = 0;
+    if (m_bandSumm)
+    {
+[!if !NO_DXCC||!NO_NAMEDMULT||!NO_ZONE]
+		m_bandSumm->SetItemTitle(BAND_SUMMARY_MUL, "Mul");
+[!endif]
+[!if MULTI_MODE]
+		m_bandSumm->SetItemTitle(BAND_SUMMARY_CW, "CW");
+		m_bandSumm->SetItemTitle(BAND_SUMMARY_PHONE, "PH");
+[!if RTTY]
+		m_bandSumm->SetItemTitle(BAND_SUMMARY_RTTY, "RY");
+[!endif]
+		for (int i = 0; i < DIM(band_Title); i += 1)
+			m_bandSumm->SetBandTitle(i, band_Title[i]);
+[!else]
+[!if PTS_COLUMN]
+		m_bandSumm->SetItemTitle(BAND_SUMMARY_PTS, "Pts");
+[!endif]
+[!endif]
+    }       
     return S_OK;
 }
 
@@ -442,6 +625,55 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
 	}
 
 [!endif]    
+[!if !NO_ZONE]
+    //Zone processing*************
+    bool flagZone = false;
+	if (fCALL(q).empty())
+	{
+        if (!(RequestMask & WLOG_MULTICHECK_NOWRT))
+            fZN(q) = "";
+		ret = 0;
+	}
+	else if (fZN(q).empty())
+	{
+		if (fCALL == p)
+		{
+            bool canWrite = !(RequestMask & WLOG_MULTICHECK_NOWRT);
+			if (OldQ)
+			{
+                if (canWrite)
+                    fZN(q) = fZN(OldQ);
+                flagZone = true;
+			}
+			else
+			{
+                int i = m_ZoneContext.CheckQso(q, fCALL);
+                if ((i >= 0) && (i < NUMZONES))
+                {
+                    if (canWrite)
+                        fZN(q) = m_ZoneContext.cList()[i].country;
+                    flagZone = true;
+				}
+			}
+		}
+	}
+
+    if (flagZone || fZN == p)    /*zone*/
+	{
+		int NewZone = 0;
+        int i = FindZone(fZN(q));
+		if (i != NUMZONES)
+		{
+            NewZone = get_MultWorked(ZONE_MULT_ID, i, band) == S_FALSE ? 1 : 0;
+			if (ret <= 0)
+				ret = NewZone;
+			if (NewZone && (RequestMask == WLOG_MULTICHECK_MSGSET))
+				LoadString(g_hInstance, IDS_NEWZONE_MSG,
+							Message, MAX_MULT_MESSAGE_LENGTH);
+		}
+	}
+
+[!endif]
     return S_OK;
 }
 
@@ -482,26 +714,26 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
     }
 [!if !NO_NAMEDMULT]
     if (m_NamedDisplay)
-	{
-		if (!m_NamedDisplayEntry)
-		{
-			m_NamedDisplay->put_Title("TODO");
-			m_NamedDisplayEntry = 
+    {
+        if (!m_NamedDisplayEntry)
+        {
+            m_NamedDisplay->put_Title("TODO");
+            CComObject<CNamedDisplayHelper<[!output MM_CLASS_NAME], NAMED_MULT_ID> > *pTemp = 0;
+            if (SUCCEEDED(pTemp->CreateInstance(&pTemp)))
+            {
+                pTemp->Init(m_pNamedMults,
+                    m_NamedDisplay,
 [!if NAMEDMULT_MULTI_BAND]
-					new $$MM_CLASS_NAME$$NamedDispEntry(
-								m_pNamedMults,
-								m_NamedDisplay,
-								NumberOfMultBands(),
-								this);
+                    NumberOfMultBands(),
 [!endif]
 [!if NAMEDMULT_SINGLE_BAND]
-                    new CNamedMultDisplaySingleBand(
-                                m_sctCntArr,
-                                m_pNamedMults,
-                                m_NamedDisplay);
+                    1,
 [!endif]
-		}
-	}
+                this);
+                m_NamedDisplayEntry = pTemp;
+            }
+        }
+    }
 
 [!endif]
 [!if !NO_ZONE]
@@ -510,24 +742,21 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
         if (!m_ZoneDisplayEntry)
         {
             m_ZoneDisplay->put_Title("TODO");
-[!if ZONE_MULTI_BAND]
-            m_ZoneDisplayEntry = 
-                    new $$MM_CLASS_NAME$$ZoneDispEntry(
-                                g_ZoneList,
+            CComObject<CStateDisplayHelper<[!output MM_CLASS_NAME] , ZONE_MULT_ID> > *pTemp = 0;
+            if (SUCCEEDED(pTemp->CreateInstance(&pTemp)))
+            {
+                pTemp->Init(g_ZoneList,
                                 DIM(g_ZoneList),
                                 m_ZoneDisplay,
+[!if ZONE_MULTI_BAND]
 								NumberOfMultBands(),
-								this);
 [!endif]
 [!if ZONE_SINGLE_BAND]
-            m_ZoneDisplayEntry = 
-                    new $$MM_CLASS_NAME$$ZoneDispEntry(
-                                g_ZoneList,
-                                DIM(g_ZoneList),
-                                m_ZoneDisplay,
 								1,
-								this);
 [!endif]
+								this);
+                m_ZoneDisplayEntry = pTemp;
+            }
         }
     }
 [!endif]
@@ -537,15 +766,20 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 		if (!m_AygDisplayEntry)
 		{
 			m_AygDisplay->put_Title("TODO");
-			m_AygDisplayEntry = new
-				$$MM_CLASS_NAME$$AygDispEntry(this,
+            CComObject<CAygDisplayHelper<[!output MM_CLASS_NAME] , AYG_MULT_ID> > *pTemp = 0;
+            if (SUCCEEDED(pTemp->CreateInstance(&pTemp)))
+            {
+                pTemp->Init(
+                    this,
 [!if AYGMULT_MULTI_BAND]
-								NumberOfMultBands(),
+                    NumberOfMultBands(),
 [!endif]
 [!if AYGMULT_SINGLE_BAND]
-								1,
+                    1,
 [!endif]
-								m_AygDisplay);
+                    m_AygDisplay);
+                m_AygDisplayEntry = pTemp;
+            }
 		}
 	}
 
@@ -571,7 +805,11 @@ HRESULT [!output MM_CLASS_NAME]::Score(Configuration_Entry_t * Config, HWND Wind
 }
 HRESULT [!output MM_CLASS_NAME]::GetModuleData(long * Data)
 {
-    *Data = MODULE_DATA_NOBSM;
+    *Data =
+[!if MULTI_MODE]
+		MODULE_DATA_NOBSM |
+[!endif]
+		MODULE_DATA_SCORE;
     return S_OK;
 }
 HRESULT [!output MM_CLASS_NAME]::SetMMParent(IWriteLog *p)
@@ -611,6 +849,10 @@ HRESULT [!output MM_CLASS_NAME]::TallyPrintQso(QsoPtr_t q)
 		if (isdigit(*fCMULT(q)))
 			Mul += 1;
 [!endif]
+[!if !NO_ZONE]
+		if (isdigit(*fZMULT(q)))
+			Mul += 1;
+[!endif]
         m_PageMultipliers += Mul;
         m_PageQsoPoints += Pts;
     }
@@ -632,7 +874,7 @@ HRESULT [!output MM_CLASS_NAME]::GetAdifName(long, long, char * pName)
     return S_FALSE;
 }
 
-[!if !NO_DXCC]
+[!if !NO_DXCC || !NO_ZONE || !NO_NAMEDMULT || !NO_AYGMULT]
 // multipliers
 HRESULT [!output MM_CLASS_NAME]::get_MultWorked(int id, short Mult, short band)
 {
@@ -640,33 +882,81 @@ HRESULT [!output MM_CLASS_NAME]::get_MultWorked(int id, short Mult, short band)
     {
 [!if DXCC_SINGLE_BAND]
     case DXCC_MULT_ID:
-        {
-            std::map<short, int>::iterator itor = m_Countries.find(Mult);
-            if (itor == m_Countries.end())
-                return S_FALSE;
-            return itor->second != 0 ? S_OK : S_FALSE;
-        }
+            return m_Countries.worked(Mult) ? S_OK : S_FALSE;
 [!endif]
 [!if DXCC_MULTI_BAND]
     case DXCC_MULT_ID:
-        {
-            std::map<short, std::map<short, int> >::iterator itor1 = m_Countries.find(band);
-            if (itor1 == m_Countries.end())
-                return S_FALSE;
-            std::map<short, int>::iterator itor2 = itor1->second.find(Mult);
-            if (itor2 == itor1->second.end())
-                return S_FALSE;
-            return itor2->second != 0 ? S_OK : S_FALSE;
-        }
+            return m_Countries.worked(band,Mult) ? S_OK : S_FALSE;
+[!endif]
+[!if ZONE_SINGLE_BAND]
+    case ZONE_MULT_ID:
+            return m_Zones.worked(Mult) ? S_OK : S_FALSE;
+[!endif]
+[!if ZONE_MULTI_BAND]
+    case ZONE_MULT_ID:
+            return m_Zones.worked(band,Mult) ? S_OK : S_FALSE;
+[!endif]
+[!if NAMEDMULT_SINGLE_BAND]
+    case NAMED_MULT_ID:
+            return m_sctCntArr.worked(Mult) ? S_OK : S_FALSE;
+[!endif]
+[!if NAMEDMULT_MULTI_BAND]
+    case NAMED_MULT_ID:
+            return m_sctCntArr.worked(band,Mult) ? S_OK : S_FALSE;
+[!endif]
+[!if AYGMULT_SINGLE_BAND]
+    case AYG_MULT_ID:
+            return m_AygStatus.worked(Mult) ? S_OK : S_FALSE;
+[!endif]
+[!if AYGMULT_MULTI_BAND]
+    case AYG_MULT_ID:
+            return m_AygStatus.worked(band,Mult) ? S_OK : S_FALSE;
 [!endif]
     default:
         break;
     }
     return E_INVALIDARG;
 }
+
 [!endif]
+[!if !NO_AYGMULT]
+HRESULT [!output MM_CLASS_NAME]::get_MultTitle(int ID, short Mult, const char **Title)
+{
+    if (Mult < static_cast<int>(m_AygDisplayNames.size()))
+    {
+        *Title = m_AygDisplayNames[Mult].c_str();
+        return S_OK;
+    }
+    return E_INVALIDARG;
+}
 
+[!endif]
+long [!output MM_CLASS_NAME]::PointsForQso(QsoPtr_t q)
+{
+	return 1;	//TODO
+}
 
+long [!output MM_CLASS_NAME]::Score()
+{
+	//TODO
+	return 0;
+}
+
+[!if !NO_ZONE]
+int [!output MM_CLASS_NAME]::FindZone(    /*returns zone index*/
+	 const char *c)
+{
+    int retval=0;
+    while (*c)
+    {
+        retval *= 10; retval += *(c++) - '0'; 
+    }
+    retval -= 1;    /*reduce to zero index*/
+    if ((retval > NUMZONES) || (retval<0)) retval = NUMZONES;
+    return retval;
+}
+
+[!endif]
 [!if CABRILLO]
 // IWlogCabrillo Methods
 HRESULT [!output MM_CLASS_NAME]::ConfirmFieldsFilled(HWND w)
@@ -720,6 +1010,61 @@ HRESULT [!output MM_CLASS_NAME]::FormatRxField(QsoPtr_t q, short Field, char * B
     return E_NOTIMPL;
 }
 [!endif]
+
+//IWlogScoreInfo
+HRESULT [!output MM_CLASS_NAME]::MultsAndPts(long *pMultCount, long *pPtsCount)
+{
+	int i;
+	//TODO--Check if score really is mults * pts here...
+	// *pMultCount = total of mults in the log
+	long Mults = 0;
+[!if DXCC_MULTI_BAND || NAMEDMULT_MULTI_BAND || ZONE_MULTI_BAND || AYGMULT_MULTI_BAND]
+	for (i = 0; i < NumberOfMultBands(); i += 1)
+	{
+[!if DXCC_MULTI_BAND]
+		Mults += m_DxccMults[i];
+[!endif]
+[!if NAMEDMULT_MULTI_BAND]
+		Mults += m_NamedMults[i];
+[!endif]
+[!if ZONE_MULTI_BAND]
+		Mults += m_ZoneMults[i];
+[!endif]
+[!if AYGMULT_MULTI_BAND]
+		Mults += m_AygMults[i];
+[!endif]
+	}
+[!endif]
+
+[!if DXCC_SINGLE_BAND]
+	Mults += m_DxccMults;
+[!endif]
+[!if NAMEDMULT_SINGLE_BAND]
+	Mults += m_NamedMults;
+[!endif]
+[!if ZONE_SINGLE_BAND]
+	Mults += m_ZoneMults;
+[!endif]
+[!if AYGMULT_SINGLE_BAND]
+	Mults += m_AygMults;
+[!endif]
+
+	// *pPtsCount = total points in the log
+	long Points = 0;
+	for (i = 0; i < NumberOfMultBands(); i += 1)
+	{
+		Points += m_BandPoints[i];
+	}
+	*pPtsCount = Points;
+	*pMultCount = Mults;
+	return S_OK;
+}
+
+HRESULT [!output MM_CLASS_NAME]::PtsForQso(QsoPtr_t q, long *pPtsCount)
+{
+	*pPtsCount = PointsForQso(q);
+	return S_OK;
+}
 
 //IPersist
 HRESULT [!output MM_CLASS_NAME]::GetClassID(CLSID *pClassID)  { *pClassID = __uuidof([!output COCLASS]);  return S_OK; }

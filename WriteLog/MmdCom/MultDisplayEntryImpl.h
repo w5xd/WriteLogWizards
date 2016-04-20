@@ -17,15 +17,17 @@ public:
     END_COM_MAP()
 
     DECLARE_PROTECT_FINAL_CONSTRUCT()
-    HRESULT FinalConstruct()    {    }
+    HRESULT FinalConstruct()    { 
+        return S_OK;
+    }
     void FinalRelease()    {    }
 
     void Init(
-        T *p,
         const struct StateDef_t *States,
         int NumStates,
         IMultDisplayPage *m,
-        int bands)
+        int bands,
+        T *p)
     {
         m_Module = p; 
         m_States = States;
@@ -187,4 +189,125 @@ public:
             }
         }
     }
+};
+
+template <class T, int ID>
+class CNamedDisplayHelper : public CComObjectRootEx<CComSingleThreadModel>
+    , public IMultDisplayEntry
+{
+protected:
+    ~CNamedDisplayHelper() {}
+public:
+    CNamedDisplayHelper() : m_Module(0){}
+
+    BEGIN_COM_MAP(CNamedDisplayHelper)
+        COM_INTERFACE_ENTRY(IMultDisplayEntry)
+    END_COM_MAP()
+
+    DECLARE_PROTECT_FINAL_CONSTRUCT()
+    HRESULT FinalConstruct()    { 
+        return S_OK;
+    }
+    void FinalRelease()    {    }
+
+    void Init(
+		IWlNamedMult *States, 
+            IMultDisplayPage *m,
+            int bands,
+			T *p)
+    {
+	    m_Module = p;
+	    short Count;
+	    short ColCount;
+        m_NamedMult = States;
+	    States->get_ColumnCount(&ColCount);
+	    m->put_ColumnCount(ColCount);
+	    States->get_MultCount(&Count);
+        m->put_MultCount(Count);
+        m->put_BandCount(bands);
+        m->put_LookupFcn(this);
+    }
+
+    // IMultDisplayEntry
+    STDMETHODIMP get_MultTitle(short Mult, const char **Title)
+    { return m_NamedMult->get_MultTitle(Mult, (unsigned char **)Title);    }
+
+    STDMETHODIMP get_Column(short Mult, short *Column)
+    { return m_NamedMult->get_Column(Mult, Column);    }
+
+    STDMETHODIMP get_ColumnTitle(short Column, const char **Title)
+    { return m_NamedMult->get_ColumnTitle(Column, (unsigned char **)Title);    }
+
+    STDMETHODIMP get_MultWorked(short Mult, short band)
+    {  return m_Module->get_MultWorked(ID, Mult, band);    }
+
+protected:
+    T *m_Module;
+	IWlNamedMult *m_NamedMult;    
+};
+
+template <class T, int ID>
+class CAygDisplayHelper : public CComObjectRootEx<CComSingleThreadModel>
+    , public IMultDisplayEntry
+{
+protected:
+    ~CAygDisplayHelper() {}
+public:
+    CAygDisplayHelper() : m_MultCount(0){}
+
+    BEGIN_COM_MAP(CAygDisplayHelper)
+        COM_INTERFACE_ENTRY(IMultDisplayEntry)
+    END_COM_MAP()
+
+    DECLARE_PROTECT_FINAL_CONSTRUCT()
+    HRESULT FinalConstruct()    {
+        return S_OK;
+    }
+    void FinalRelease()    {    }
+
+    void Init(T *mm,
+					int bands,
+						IMultDisplayPage *m)
+    {
+	    m_Page = m;
+	    m_Module = mm;
+	    m_MultCount = m_Module->AygCount();
+        m->put_MultCount(m_MultCount);
+        m->put_BandCount(bands);
+        m->put_LookupFcn(this);
+    }
+
+    STDMETHODIMP get_MultWorked(short Mult, short band)
+    {  return m_Module->get_MultWorked(ID, Mult, band);     }
+
+    STDMETHODIMP get_MultTitle(short Mult, const char **Title)
+    { return m_Module->get_MultTitle(ID, Mult, Title);    }
+
+    STDMETHODIMP get_Column(short Mult, short *Column)
+    {        return E_NOTIMPL;    }
+
+    STDMETHODIMP get_ColumnTitle(short Column, const char **Title)
+    {        return E_NOTIMPL;    }
+    
+    void ReleasePage()	//out-of-band for clearing circular reference
+    {	    m_Page.Release();    }
+
+    void Invalidate(int)
+    {
+	    if (m_Page)
+	    {
+		    if (m_MultCount < m_Module->AygCount())
+		    {
+			    m_MultCount = m_Module->AygCount();
+			    m_Page->put_MultCount(m_MultCount);
+		    }
+		    m_Page->Invalidate(i);
+	    }
+    }
+
+protected:
+    CComPtr<IMultDisplayPage> m_Page;
+    T *m_Module;
+	int		m_MultCount;
+
 };

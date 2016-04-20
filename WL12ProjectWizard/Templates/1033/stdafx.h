@@ -23,5 +23,6 @@
 #include <atlcom.h>
 #include <atlctl.h>
 #include <map>
+#include <string>
 
 using namespace ATL;

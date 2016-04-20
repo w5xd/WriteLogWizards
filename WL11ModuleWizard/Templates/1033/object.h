@@ -11,8 +11,9 @@
 #include "dxpref.h"
 #include "CountryLookupHelper.h"
 [!endif]
-[!if !NO_DXCC]
+[!if !NO_DXCC || !NO_ZONE || !NO_AYGMULT || !NO_NAMEDMULT]
 #include "MultDisplayEntryImpl.h"
+#include "MultiplierMap.h"
 [!endif]
 
 // [!output MM_CLASS_NAME]
@@ -21,11 +22,13 @@ class ATL_NO_VTABLE [!output MM_CLASS_NAME] :
 	public ATL::CComObjectRootEx<ATL::CComSingleThreadModel>,
 	public ATL::CComCoClass<[!output MM_CLASS_NAME], &CLSID_[!output COCLASS]>
     , public IWlogMulti
+    , public IWlogScoreInfo
 [!if CABRILLO]
     , public IWlogCabrillo
 [!endif]
     , public IPersistStorage
 {
+    typedef CMultiplierMap MultiplierMap_t;
 public:
     // ctor/dtor
     [!output MM_CLASS_NAME]();
@@ -36,6 +39,7 @@ public:
 
     BEGIN_COM_MAP([!output MM_CLASS_NAME])
         COM_INTERFACE_ENTRY(IWlogMulti)
+        COM_INTERFACE_ENTRY(IWlogScoreInfo)
 [!if CABRILLO]
         COM_INTERFACE_ENTRY(IWlogCabrillo)
 [!endif]
@@ -71,7 +75,7 @@ public:
     enum ModesPerBandEnum {MULT_MODE_PHONE, MULT_MODE_CW,[!if RTTY] MULT_MODE_RTTY,[!endif] NUMBER_OF_MODES_PER_MULT_BAND};		
 [!else]
     enum ModesPerBandEnum {NUMBER_OF_MODES_PER_MULT_BAND = 1};		
-[!endif ]
+[!endif]
 
 public:
     // IWlogMulti Methods
@@ -92,6 +96,10 @@ public:
     STDMETHOD(FormatPageSumm)(char * Buf, int BufLength);
     STDMETHOD(SetDupeSheet)(QsoPtr_t q, int * DupeSheet);
     STDMETHOD(GetAdifName)(long, long, char * pName);
+
+	//IWlogScoreInfo--rate display support
+	STDMETHOD(MultsAndPts)(long *pMultCount, long *pPtsCount);
+	STDMETHOD(PtsForQso)(QsoPtr_t q, long *pPtsCount);
 
 [!if CABRILLO]
     // IWlogCabrillo Methods
@@ -119,7 +127,7 @@ public:
     STDMETHOD(SaveCompleted)(IStorage *pStgNew);
     STDMETHOD(HandsOffStorage)(void);
 
-[!if !NO_DXCC]
+[!if !NO_DXCC || !NO_ZONE || !NO_NAMEDMULT ||!NO_AYGMULT]
 public: 
 	// query multiplier worked
     HRESULT get_MultWorked(int id, short Mult, short band);
@@ -156,32 +164,6 @@ protected:
 [!if NR_IN_EXCHANGE]
     CQsoField    fNR;
 [!endif]
-[!if !NO_NAMEDMULT]
-    CQsoField    fRCVD;
-[!endif]
-[!if !NO_ZONE]
-    CQsoField    fZN;
-[!endif]
-[!if !NO_AYGMULT]
-    CQsoField    fAYG;
-[!endif]
-[!if !NO_DXCC]
-    CQsoField    fCOUNTRY;
-    CQsoField    fAMBF;
-    CQsoField    fCPRF;
-[!endif]
-[!if !NO_NAMEDMULT]
-    CQsoField    fMLT;
-[!endif]
-[!if !NO_DXCC]
-    CQsoField    fCMULT;
-[!endif]
-[!if !NO_ZONE]
-    CQsoField    fZMULT;
-[!endif]
-[!if !NO_AYGMULT]
-    CQsoField    fAYGMULT;
-[!endif]
 [!if PTS_COLUMN]
     CQsoField    fPTS;
 [!endif]
@@ -204,7 +186,36 @@ enum {	// otherwise identical single-mode contests
 [!if !NO_DXCC]
             DXCC_MULT_ID,
 [!endif]
+[!if !NO_ZONE]
+            ZONE_MULT_ID,
+[!endif]
+[!if !NO_NAMEDMULT]
+            NAMED_MULT_ID,
+[!endif]
+[!if !NO_AYGMULT]
+            AYG_MULT_ID,
+[!endif]
     };
+
+[!endif]
+[!if !NO_NAMEDMULT]
+	//Named multiplier support...
+	short							m_NumNamed;
+	CComPtr<IWlNamedMult>			m_pNamedMults;
+	CComPtr<IMultDisplayPage>		m_NamedDisplay;
+	CComPtr<IMultDisplayEntry>		m_NamedDisplayEntry;
+    CQsoField    fRCVD;
+    CQsoField    fMLT;
+[!if NAMEDMULT_MULTI_BAND]
+	CMultiplierMapByBand		m_sctCntArr;     /*number of time worked each multiplier*/
+	MultiplierMap_t		m_NamedMults;
+[!endif]
+[!if NAMEDMULT_SINGLE_BAND]
+	MultiplierMap_t		m_sctCntArr;		//Numer of times we've worked each multiplier
+	int		m_NamedMults;
+[!endif]
+    int FindNamed(char *c);
+
 [!endif]
 [!if !NO_DXCC]
 
@@ -214,26 +225,80 @@ enum {	// otherwise identical single-mode contests
 	CDxDispContainerHelper<[!output MM_CLASS_NAME],
         CDxccDisplayHelper<[!output MM_CLASS_NAME], DXCC_MULT_ID> >
         m_DxccContainer;
+    CQsoField    fCOUNTRY;
+    CQsoField    fAMBF;
+    CQsoField    fCPRF;
+    CQsoField    fCMULT;
 [!if DXCC_SINGLE_BAND]
-    typedef std::map<short, int> Countries_t;
-	Countries_t	 m_Countries;
+    typedef MultiplierMap_t Countries_t;
 	int          m_DxccMults;
 [!endif]
 [!if DXCC_MULTI_BAND]
-    typedef std::map<short, std::map<short, int> > Countries_t;
-	Countries_t	m_Countries;
-    typedef std::map<short, int> DxccMults_t;
+    typedef CMultiplierMapByBand Countries_t;
+    typedef MultiplierMap_t DxccMults_t;
 	DxccMults_t	m_DxccMults;
 [!endif]
+	Countries_t	m_Countries;
+    // end DXCC
+[!endif]
+[!if !NO_ZONE]
+
+	//Zone multiplier support
+    enum { NUMZONES = 40 };    // TODO
+	CCountryLookupHelper			m_ZoneContext;
+	CComPtr<IMultDisplayPage>		m_ZoneDisplay;
+	CComPtr<IMultDisplayEntry>		m_ZoneDisplayEntry;
+    CQsoField    fZN;
+    CQsoField    fZMULT;
+[!if ZONE_MULTI_BAND]
+    typedef CMultiplierMapByBand Zones_t;
+    typedef MultiplierMap_t ZoneMults_t;
+	ZoneMults_t				m_ZoneMults;
+[!endif]
+[!if ZONE_SINGLE_BAND]
+    typedef MultiplierMap_t Zones_t;
+	int				    m_ZoneMults;
+[!endif]
+	Zones_t   	 	m_Zones;
+	static int FindZone(const char *c);
+	//end Zone
+
+[!endif]
+[!if !NO_AYGMULT]
+	//As You Go (AYG) multiplier support
+	CComPtr<IMultDisplayPage>			m_AygDisplay;
+	CAygDisplayHelper<[!output MM_CLASS_NAME] , AYG_MULT_ID>   *m_AygDisplayEntry;
+	std::vector<std::string>	m_AygDisplayNames;
+    CQsoField    fAYG;
+    CQsoField    fAYGMULT;
+[!if AYGMULT_MULTI_BAND]
+	CMultiplierMapByBand		m_AygStatus;
+	MultiplierMap_t		m_AygMults;
+[!endif]
+[!if AYGMULT_SINGLE_BAND]
+	MultiplierMap_t		m_AygStatus;
+	int		m_AygMults;
+[!endif]
+	int		FindAyg(int, const char *c);
+public:
+    int     AygCount() const {        return m_AygDisplayNames.size();    }
+    HRESULT get_MultTitle(int ID, short Mult, const char **Title);
 [!endif]
     /************
     End Multiplier support
     ************/
+protected:
 
+    MultiplierMap_t		    m_BandPoints;
+	MultiplierMap_t		    m_BandQsos;
     int						m_PageQsos;
     int						m_PageQsoPoints;
     int						m_PageMultipliers;
     int                     m_NumberOfDupeSheetBands;
+
+    // Methods
+    long PointsForQso(QsoPtr_t q);
+    long Score();
 
 	// helper functions
 	// The DupeBand's are the frequency+mode ranges where you can work the station
