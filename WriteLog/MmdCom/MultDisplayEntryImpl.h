@@ -3,16 +3,24 @@
 #include "DisplayEntryDefs.h"
 #include "MultDEnt.h"
 
+/* IMultDisplayEntry implementations
+** These help with display of:
+**    Zones:              CZoneDisplayHelper
+**    DXCC country :      CDxDisplayHelper (which also has a CDxDispContainerHelper)
+**    Named list of mults: CNamedDisplayHelper
+**    Named list computed on-the-go: CAygDisplayHelper
+*/
+
 template <class T, int ID>
-class CStateDisplayHelper : public CComObjectRootEx<CComSingleThreadModel>
+class CZoneDisplayHelper : public CComObjectRootEx<CComSingleThreadModel>
     , public IMultDisplayEntry
 {
 protected:
-    ~CStateDisplayHelper() {}
+    ~CZoneDisplayHelper() {}
 public:
-    CStateDisplayHelper() : m_States(0), m_NumStates(0){}
+    CZoneDisplayHelper() : m_Zones(0), m_NumZones(0){}
 
-    BEGIN_COM_MAP(CStateDisplayHelper)
+    BEGIN_COM_MAP(CZoneDisplayHelper)
         COM_INTERFACE_ENTRY(IMultDisplayEntry)
     END_COM_MAP()
 
@@ -23,16 +31,16 @@ public:
     void FinalRelease()    {    }
 
     void Init(
-        const struct StateDef_t *States,
-        int NumStates,
+        const struct StateDef_t *Zones,
+        int NumZones,
         IMultDisplayPage *m,
         int bands,
         T *p)
     {
         m_Module = p; 
-        m_States = States;
-        m_NumStates = NumStates;
-        m->put_MultCount(NumStates);
+        m_Zones = Zones;
+        m_NumZones = NumZones;
+        m->put_MultCount(NumZones);
         m->put_BandCount(bands);
         m->put_LookupFcn(this);
     }
@@ -40,7 +48,7 @@ public:
     // IMultDisplayEntry
     STDMETHODIMP get_MultTitle(short Mult, const char **Title)
     {        
-        *Title = m_States[Mult].Name;
+        *Title = m_Zones[Mult].Name;
         return S_OK;
     }
 
@@ -54,9 +62,9 @@ public:
     {        return m_Module->get_MultWorked(ID, Mult, band);    }
 
 protected:
-	const struct StateDef_t *m_States;
+	const struct StateDef_t *m_Zones;
     T *m_Module;
-	int			m_NumStates;
+	int			m_NumZones;
 };
 
 template <class T, int ID = 0>
@@ -198,7 +206,7 @@ class CNamedDisplayHelper : public CComObjectRootEx<CComSingleThreadModel>
 protected:
     ~CNamedDisplayHelper() {}
 public:
-    CNamedDisplayHelper() : m_Module(0){}
+    CNamedDisplayHelper() : m_Module(0), m_NamedMult(0){}
 
     BEGIN_COM_MAP(CNamedDisplayHelper)
         COM_INTERFACE_ENTRY(IMultDisplayEntry)
@@ -253,7 +261,7 @@ class CAygDisplayHelper : public CComObjectRootEx<CComSingleThreadModel>
 protected:
     ~CAygDisplayHelper() {}
 public:
-    CAygDisplayHelper() : m_MultCount(0){}
+    CAygDisplayHelper() : m_MultCount(0), m_Module(0){}
 
     BEGIN_COM_MAP(CAygDisplayHelper)
         COM_INTERFACE_ENTRY(IMultDisplayEntry)
@@ -292,7 +300,7 @@ public:
     void ReleasePage()	//out-of-band for clearing circular reference
     {	    m_Page.Release();    }
 
-    void Invalidate(int)
+    void Invalidate(int i)
     {
 	    if (m_Page)
 	    {

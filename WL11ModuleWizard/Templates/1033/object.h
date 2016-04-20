@@ -169,7 +169,7 @@ protected:
 [!endif]
     // *******************************************
 [!if ASK_MODE]
-enum {	// otherwise identical single-mode contests
+enum {	// identical rules, but different modes on different weekends
     ASK_MODE_CW, ASK_MODE_PH
     [!if RTTY]
     , ASK_MODE_RY
@@ -182,24 +182,14 @@ enum {	// otherwise identical single-mode contests
     ************/
 [!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
 	CComPtr<IMultDisplayContainer>	m_MultDispContainer;
-    enum {
-[!if !NO_DXCC]
-            DXCC_MULT_ID,
-[!endif]
-[!if !NO_ZONE]
-            ZONE_MULT_ID,
-[!endif]
-[!if !NO_NAMEDMULT]
-            NAMED_MULT_ID,
-[!endif]
-[!if !NO_AYGMULT]
-            AYG_MULT_ID,
-[!endif]
+    enum {  // ID's to distinguish the IMultDisplayEntry implementations
+         [!if !NO_DXCC]DXCC_MULT_ID,[!endif][!if !NO_ZONE]ZONE_MULT_ID,[!endif][!if !NO_NAMEDMULT] NAMED_MULT_ID,[!endif][!if !NO_AYGMULT] AYG_MULT_ID,[!endif]
     };
 
 [!endif]
 [!if !NO_NAMEDMULT]
 	//Named multiplier support...
+	char							m_MyMult[7];
 	short							m_NumNamed;
 	CComPtr<IWlNamedMult>			m_pNamedMults;
 	CComPtr<IMultDisplayPage>		m_NamedDisplay;
@@ -207,14 +197,15 @@ enum {	// otherwise identical single-mode contests
     CQsoField    fRCVD;
     CQsoField    fMLT;
 [!if NAMEDMULT_MULTI_BAND]
-	CMultiplierMapByBand		m_sctCntArr;     /*number of time worked each multiplier*/
+	CMultiplierMapByBand		m_Named;     /*number of time worked each multiplier*/
 	MultiplierMap_t		m_NamedMults;
 [!endif]
 [!if NAMEDMULT_SINGLE_BAND]
-	MultiplierMap_t		m_sctCntArr;		//Numer of times we've worked each multiplier
+	MultiplierMap_t		m_Named;		//Numer of times we've worked each multiplier
 	int		m_NamedMults;
 [!endif]
-    int FindNamed(char *c);
+    int FindNamed(const char *c);
+    // end named
 
 [!endif]
 [!if !NO_DXCC]
@@ -267,8 +258,9 @@ enum {	// otherwise identical single-mode contests
 [!if !NO_AYGMULT]
 	//As You Go (AYG) multiplier support
 	CComPtr<IMultDisplayPage>			m_AygDisplay;
-	CAygDisplayHelper<[!output MM_CLASS_NAME] , AYG_MULT_ID>   *m_AygDisplayEntry;
-	std::vector<std::string>	m_AygDisplayNames;
+	CComPtr<CAygDisplayHelper<[!output MM_CLASS_NAME] , AYG_MULT_ID> >   m_AygDisplayEntry;
+    typedef std::vector<std::string> AygNames_t;
+	AygNames_t	m_AygDisplayNames;
     CQsoField    fAYG;
     CQsoField    fAYGMULT;
 [!if AYGMULT_MULTI_BAND]
@@ -283,14 +275,16 @@ enum {	// otherwise identical single-mode contests
 public:
     int     AygCount() const {        return m_AygDisplayNames.size();    }
     HRESULT get_MultTitle(int ID, short Mult, const char **Title);
+    // end AYG
+
 [!endif]
     /************
     End Multiplier support
     ************/
 protected:
 
-    MultiplierMap_t		    m_BandPoints;
-	MultiplierMap_t		    m_BandQsos;
+    std::map<short, int>		    m_BandPoints;
+	std::map<short, int>		    m_BandQsos;
     int						m_PageQsos;
     int						m_PageQsoPoints;
     int						m_PageMultipliers;
@@ -300,7 +294,7 @@ protected:
     long PointsForQso(QsoPtr_t q);
     long Score();
 
-	// helper functions
+	// other helper functions
 	// The DupeBand's are the frequency+mode ranges where you can work the station
     int DupeBandToMultBand(int band) {
         return band / static_cast<int>(NUMBER_OF_MODES_PER_MULT_BAND);

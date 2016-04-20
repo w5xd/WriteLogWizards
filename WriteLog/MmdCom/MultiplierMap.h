@@ -1,7 +1,8 @@
 #pragma once
+/* helper subclasses of std::map that enable a lookup without adding
+** entries */
 class CMultiplierMap : public std::map<short, int>
 {
-    // don't add an entry on failure to find
 public:
     bool worked(short m) const
     {

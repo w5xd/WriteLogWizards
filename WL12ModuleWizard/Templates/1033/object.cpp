@@ -10,6 +10,9 @@
 [!if !NO_ZONE]
 #include "DisplayEntryDefs.h"
 [!endif]
+[!if !NO_AYGMULT]
+#include <algorithm>
+[!endif]
 
 #ifdef DIM // avoid compiler warnings
 #undef DIM
@@ -64,7 +67,8 @@ namespace {
 [!endif]
 }
 
-// order of the enum MUST match that in g_Layout (below)
+/*order of the enum MUST match that in g_Layout (below) and 
+** there MUST be an enum for each row in g_Layout */
 enum ExfOrder_t { CALL_IDX, 
 [!if RST_IN_EXCHANGE]
     SNT_IDX, RST_IDX,
@@ -101,8 +105,19 @@ enum ExfOrder_t { CALL_IDX,
 [!endif]    
     };
 
-//TODO: Reorder, add/delete, etc.
+
 // EVERY ROW HERE MUST HAVE A CORRESDPONDING ENTRY IN enum ExfOrder_t
+// TODO: you may reorder these, as long as you reorder the enum above to match.
+// You may add items (removal might not be as easy) as long as you add a
+// corresponding entry to the enum above.
+// Changing ONLY the WIDTH field(s) is auto-magically handled by the wizard-generated
+// code, whether you make such a change before or after users have done
+// a File/Save.
+//
+// If you add/delete/change anything else AFTER users have done File/Save of your module,
+// then you have to update Load/Save to to figure out what to do...
+// ..or, change your GUID in the project idl file and those old files will
+// no longer auto-magically load this module.
 const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =	
 {
     { "CALL", CALL_WID, CALL_POS, A_CALL | A_PRMPT | A_MULTI | A_NOTIFY },
@@ -238,6 +253,20 @@ HRESULT [!output MM_CLASS_NAME]::FinalConstruct()
     if (FAILED(hr))
         return hr;
 [!endif]
+[!if !NO_NAMEDMULT]
+    hr = m_pNamedMults.CoCreateInstance(__uuidof(NmdMul),
+        0, CLSCTX_SERVER);
+	// TODO--you must create an INI file, make sure its in WriteLog's 
+	// \programs folder, and make sure the following names it correctly.
+    if (SUCCEEDED(hr))
+        hr = m_pNamedMults->put_FileName((const unsigned char *)"[!output COCLASS].INI");
+    if (SUCCEEDED(hr))
+        m_pNamedMults->Init((const unsigned char *)"[!output COCLASS]");
+	if (SUCCEEDED(hr))
+	    hr = m_pNamedMults->get_MultCount(&m_NumNamed);
+	m_MyMult[0] = 0;
+[!endif]
+
     return hr;
 }
 
@@ -314,10 +343,10 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 [!if !NO_DXCC]
         //*********************************
         //Process DXCC 
-        int i = m_DxContext.FillQso(q, fCALL, fCPRF, fCOUNTRY, fAMBF);
-        if (i >= 0)
+        int dx = m_DxContext.FillQso(q, fCALL, fCPRF, fCOUNTRY, fAMBF);
+        if (dx >= 0)
         {
-            countryIndex = i;
+            countryIndex = dx;
 [!if DXCC_SINGLE_BAND]
             newDxccFlag = !m_Countries[countryIndex]++;
 [!endif]
@@ -340,15 +369,46 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
         }
 
 [!endif]
+
+[!if !NO_NAMEDMULT]
+		//*********************************
+		//Processed named multipliers
+		int newNamedMultFlag = 0;
+		int nm = FindNamed(fRCVD(q));
+		if (nm == m_NumNamed)
+			fMLT(q) = "?";
+		else 
+		{
+[!if NAMEDMULT_MULTI_BAND]
+			newNamedMultFlag = !(m_Named[band][nm]++);
+[!endif]
+[!if NAMEDMULT_SINGLE_BAND]
+			newNamedMultFlag = !(m_Named[nm]++);
+[!endif]
+		}
+		if (newNamedMultFlag)
+		{
+            char buf[8];
+[!if NAMEDMULT_MULTI_BAND]
+			_itoa_s(++m_NamedMults[band], buf, 10);
+[!endif]
+[!if NAMEDMULT_SINGLE_BAND]
+			_itoa_s(++m_NamedMults, buf, 10);
+[!endif]
+            fMLT(q) = buf;
+			Mult[BAND_SUMMARY_MUL] += 1;
+			if (m_NamedDisplay)
+				m_NamedDisplay->Invalidate(nm);
+		}
+
+[!endif]
 [!if !NO_ZONE]
 		//*********************************
 		//Process zones
 		int			newZoneFlag = 0;
 		int z = FindZone(fZN(q));
 		if (z == NUMZONES)
-		{
             fZMULT(q) = "?";
-		}
 		else
 		{
 [!if ZONE_MULTI_BAND]
@@ -370,11 +430,42 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
             fZMULT(q) = buf;
 			Mult[BAND_SUMMARY_MUL] += 1;
 			if (m_ZoneDisplay)
-				m_ZoneDisplay->Invalidate(i);
+				m_ZoneDisplay->Invalidate(z);
 		}
 
 [!endif]
-        //*********************************
+[!if !NO_AYGMULT]
+		//*********************************
+		//Process multiplier list built as you go...
+		int	newAygFlag = 0;
+		int ayg = FindAyg(TRUE, fAYG(q));
+		if (ayg < 0)
+			fAYGMULT(q) = "?";
+		else
+		{
+[!if AYGMULT_MULTI_BAND]
+			newAygFlag = !(m_AygStatus[ayg][band]++);
+[!endif]
+[!if AYGMULT_SINGLE_BAND]
+			newAygFlag = !(m_AygStatus[ayg]++);
+[!endif]
+		}
+		if (newAygFlag)
+		{
+            char buf[8];
+[!if AYGMULT_MULTI_BAND]
+            _itoa_s(++m_AygMults[band], buf, 10);
+[!endif]
+[!if AYGMULT_SINGLE_BAND]
+            _itoa_s(++m_AygMults, buf, 10);
+[!endif]
+            fAYGMULT(q) = buf;
+			Mult[BAND_SUMMARY_MUL] += 1;
+			if (m_AygDisplayEntry)
+				m_AygDisplayEntry->Invalidate(ayg);
+		}
+[!endif]
+//*********************************
 		//Process points and multiplier display
 		points = PointsForQso(q);
 [!if !MULTI_MODE && PTS_COLUMN]
@@ -450,6 +541,32 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 			Mult[BAND_SUMMARY_PHONE] = -1;
 
 [!endif]
+[!if !NO_NAMEDMULT]
+		int newNamedMultFlag = 0;
+		int nm = FindNamed(fRCVD(q));
+		if (nm != m_NumNamed)
+		{
+[!if NAMEDMULT_MULTI_BAND]
+			newNamedMultFlag = !(--m_Named[band][nm]);
+[!endif]
+[!if NAMEDMULT_SINGLE_BAND]
+			newNamedMultFlag = !(--m_Named[nm]);
+[!endif]
+		}
+		if (newNamedMultFlag)
+		{
+[!if NAMEDMULT_MULTI_BAND]
+			m_NamedMults[band] -= 1;
+[!endif]
+[!if NAMEDMULT_SINGLE_BAND]
+			m_NamedMults += 1;
+[!endif]
+			Mult[BAND_SUMMARY_MUL] -= 1;
+			if (m_NamedDisplay)
+				m_NamedDisplay->Invalidate(nm);
+		}
+
+[!endif]
 [!if !NO_DXCC]
 		int i = m_DxContext.CountryFromQsoPrefix(q, fCPRF);
         if (i >= 0)
@@ -473,14 +590,12 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 				m_DxccContainer.InvalidateCountry(countryIndex);
 			}
 		}
+
 [!endif]
 [!if !NO_ZONE]
 		int			newZoneFlag = 0;
 		int z = FindZone(fZN(q));
-		if (z == NUMZONES)
-		{
-		}
-		else
+		if (z != NUMZONES)
 		{
 [!if ZONE_MULTI_BAND]
 			newZoneFlag = !(--m_Zones[band][z]);
@@ -499,11 +614,39 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 [!endif]
 			Mult[BAND_SUMMARY_MUL] -= 1;
 			if (m_ZoneDisplay)
-				m_ZoneDisplay->Invalidate(i);
+				m_ZoneDisplay->Invalidate(z);
 		}
 
 [!endif]
-		points = PointsForQso(q);
+[!if !NO_AYGMULT]
+		//*********************************
+		//Process multiplier list built as you go...
+		int	newAygFlag = 0;
+		int ayg = FindAyg(FALSE, fAYG(q));
+		if ((ayg >= 0) && ( ayg < static_cast<int>(m_AygDisplayNames.size())))
+		{
+[!if AYGMULT_MULTI_BAND]
+			newAygFlag = !(--m_AygStatus[ayg][band]);
+[!endif]
+[!if AYGMULT_SINGLE_BAND]
+			newAygFlag = !(--m_AygStatus[ayg]);
+[!endif]
+		}
+		if (newAygFlag)
+		{
+[!if AYGMULT_MULTI_BAND]
+			--m_AygMults[band];
+[!endif]
+[!if AYGMULT_SINGLE_BAND]
+			--m_AygMults;
+[!endif]
+			Mult[BAND_SUMMARY_MUL] -= 1;
+			if (m_AygDisplayEntry)
+				m_AygDisplayEntry->Invalidate(ayg);
+		}
+
+[!endif]
+points = PointsForQso(q);
 [!if !MULTI_MODE && PTS_COLUMN]
 		Mult[BAND_SUMMARY_PTS] = -points;
 [!endif]
@@ -537,6 +680,15 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
 [!endif]
     m_BandPoints.clear();
     m_BandQsos.clear();
+[!if!NO_NAMEDMULT]
+    m_Named.clear();
+[!if NAMEDMULT_MULTI_BAND]
+    m_NamedMults.clear();
+[!else]
+    m_NamedMults = 0;
+[!endif]
+
+[!endif]
 [!if !NO_DXCC]
     m_MyCountryIndex = m_DxContext.dxcc_Home();
     m_Countries.clear();
@@ -545,6 +697,7 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
 [!else]
     m_DxccMults = 0;
 [!endif]
+
 [!endif]
 [!if !NO_ZONE]
     m_Zones.clear();
@@ -553,8 +706,18 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
 [!else]
     m_ZoneMults = 0;
 [!endif]
+
+[!endif]
+[!if !NO_AYGMULT]
+    m_AygDisplayNames.clear();
+    m_AygStatus.clear();
+[!if AYGMULT_MULTI_BAND]
+    m_AygMults.clear();
+[!else]
+    m_AygMults = 0;
 [!endif]
 
+[!endif]
     m_PageQsos = 0;
     m_PageQsoPoints = 0;
     m_PageMultipliers = 0;
@@ -588,8 +751,10 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
         band = m_NumberOfDupeSheetBands;
     band = DupeBandToMultBand(band);
 
+    bool canWrite = !(RequestMask & WLOG_MULTICHECK_NOWRT);
+
 	QsoPtr_t OldQ = 0;
-	if (!(RequestMask & WLOG_MULTICHECK_NOWRT))
+	if (canWrite)
 	{
 		//locate any previous QSO with this station...
 		unsigned long QsoNumber;
@@ -604,7 +769,8 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
 			}
 		}
 	}
-    
+
+   
 [!if !NO_DXCC]
 	//DXCC country processing
     if ((fCALL == p) ||  /*call sign*/
@@ -612,7 +778,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
     {
 	    bool ambig(false);
 		bool NewCountry(false);
-        int i = m_DxContext.CheckQso(q, !(RequestMask & WLOG_MULTICHECK_NOWRT),
+        int i = m_DxContext.CheckQso(q, canWrite,
             fCALL, fCOUNTRY, fCPRF, fAMBF, ambig);
 		if (!ambig)
 		{
@@ -620,11 +786,46 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
             if (ret <= 0)
                 ret = NewCountry ? 1 : 0;
 		}
-        if (NewCountry && (RequestMask == WLOG_MULTICHECK_MSGSET))
+        if (NewCountry && canWrite)
             ::LoadString(g_hInstance, IDS_NEWCOUNTRY_MSG, Message, MAX_MULT_MESSAGE_LENGTH);
 	}
 
-[!endif]    
+[!endif]   
+[!if !NO_NAMEDMULT]
+	//***NAMED MULTIPLIER PROCESSING
+	//If its a CALL and the RCVD_POS not filled in...
+    bool flagNamed(false);
+    if ((fCALL == p) && fRCVD(q).empty()) 
+    {
+        if (OldQ)
+		{
+            if (canWrite)
+                fRCVD(q) = fRCVD(OldQ);
+			flagNamed = true;
+		}
+    }
+    if (fCALL == p)
+	{
+		ret = 0;
+	}
+	else if (flagNamed || fRCVD == p)      /*or received*/
+    {
+       int n = FindNamed(fRCVD(q));
+	   if (n != m_NumNamed)
+	   {
+		   if (ret <= 0)
+		   {
+[!if NAMEDMULT_MULTI_BAND]
+            ret = m_Named.worked(band, n) ? 0 : 1;
+[!endif]
+[!if NAMEDMULT_SINGLE_BAND]
+            ret = m_Named.worked(n) ? 0 : 1;
+[!endif]
+		   }
+	   }
+	}
+
+[!endif]
 [!if !NO_ZONE]
     //Zone processing*************
     bool flagZone = false;
@@ -638,7 +839,6 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
 	{
 		if (fCALL == p)
 		{
-            bool canWrite = !(RequestMask & WLOG_MULTICHECK_NOWRT);
 			if (OldQ)
 			{
                 if (canWrite)
@@ -647,11 +847,11 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
 			}
 			else
 			{
-                int i = m_ZoneContext.CheckQso(q, fCALL);
-                if ((i >= 0) && (i < NUMZONES))
+                int z = m_ZoneContext.CheckQso(q, fCALL);
+                if ((z >= 0) && (z < NUMZONES))
                 {
                     if (canWrite)
-                        fZN(q) = m_ZoneContext.cList()[i].country;
+                        fZN(q) = m_ZoneContext.cList()[z].country;
                     flagZone = true;
 				}
 			}
@@ -661,19 +861,55 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
     if (flagZone || fZN == p)    /*zone*/
 	{
 		int NewZone = 0;
-        int i = FindZone(fZN(q));
-		if (i != NUMZONES)
+        int z = FindZone(fZN(q));
+		if (z != NUMZONES)
 		{
-            NewZone = get_MultWorked(ZONE_MULT_ID, i, band) == S_FALSE ? 1 : 0;
+            NewZone = get_MultWorked(ZONE_MULT_ID, z, band) == S_FALSE ? 1 : 0;
 			if (ret <= 0)
 				ret = NewZone;
-			if (NewZone && (RequestMask == WLOG_MULTICHECK_MSGSET))
+			if (NewZone && canWrite)
 				LoadString(g_hInstance, IDS_NEWZONE_MSG,
 							Message, MAX_MULT_MESSAGE_LENGTH);
 		}
 	}
 
 [!endif]
+[!if !NO_AYGMULT]
+	//As You Go multiplier processing.....
+    bool flagAyg(false);
+	if (fCALL == p)
+    {
+        std::string aygVal;
+        if (OldQ)
+            aygVal = fAYG(OldQ);
+        if (fCALL(q).empty() || fAYG(q).empty())
+        {
+            if (canWrite)
+                fAYG(q) = aygVal.c_str();
+        }
+        if (!aygVal.empty())
+            flagAyg = true;
+	}
+
+    if (flagAyg || fAYG == p)    /*this multiplier*/
+	{
+		int NewAyg = 0;
+		int ayg = FindAyg(FALSE, fAYG(q));
+[!if AYGMULT_MULTI_BAND]
+		NewAyg = m_AygStatus.worked(band, ayg) ? 0 : 1;
+[!endif]
+[!if AYGMULT_SINGLE_BAND]
+		NewAyg = m_AygStatus.worked(ayg) ? 0 : 1;
+[!endif]
+		if (ret <= 0)
+			ret = NewAyg;
+		if (NewAyg && canWrite)
+			LoadString(g_hInstance, IDS_AYG_MSG,
+						Message, MAX_MULT_MESSAGE_LENGTH);
+	}
+
+[!endif]
+    *Result = ret;
     return S_OK;
 }
 
@@ -742,7 +978,7 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
         if (!m_ZoneDisplayEntry)
         {
             m_ZoneDisplay->put_Title("TODO");
-            CComObject<CStateDisplayHelper<[!output MM_CLASS_NAME] , ZONE_MULT_ID> > *pTemp = 0;
+            CComObject<CZoneDisplayHelper<[!output MM_CLASS_NAME] , ZONE_MULT_ID> > *pTemp = 0;
             if (SUCCEEDED(pTemp->CreateInstance(&pTemp)))
             {
                 pTemp->Init(g_ZoneList,
@@ -898,11 +1134,11 @@ HRESULT [!output MM_CLASS_NAME]::get_MultWorked(int id, short Mult, short band)
 [!endif]
 [!if NAMEDMULT_SINGLE_BAND]
     case NAMED_MULT_ID:
-            return m_sctCntArr.worked(Mult) ? S_OK : S_FALSE;
+            return m_Named.worked(Mult) ? S_OK : S_FALSE;
 [!endif]
 [!if NAMEDMULT_MULTI_BAND]
     case NAMED_MULT_ID:
-            return m_sctCntArr.worked(band,Mult) ? S_OK : S_FALSE;
+            return m_Named.worked(band,Mult) ? S_OK : S_FALSE;
 [!endif]
 [!if AYGMULT_SINGLE_BAND]
     case AYG_MULT_ID:
@@ -954,6 +1190,52 @@ int [!output MM_CLASS_NAME]::FindZone(    /*returns zone index*/
     retval -= 1;    /*reduce to zero index*/
     if ((retval > NUMZONES) || (retval<0)) retval = NUMZONES;
     return retval;
+}
+
+[!endif]
+[!if !NO_NAMEDMULT]
+
+int [!output MM_CLASS_NAME]::FindNamed(      /*returns index of multiplier*/
+	const char *c)
+{
+	short i;
+	if (m_pNamedMults->IndexFromName((const unsigned char *)c, &i) != S_OK)
+		return m_NumNamed;
+	return i;
+}
+
+[!endif]
+[!if !NO_AYGMULT]
+int [!output MM_CLASS_NAME]::FindAyg(int AddNew, const char *c)
+{
+	if (!*c)
+		return m_AygDisplayNames.size();
+
+    AygNames_t::iterator itor = std::lower_bound(m_AygDisplayNames.begin(),
+            m_AygDisplayNames.end(),
+            c);
+
+    if (itor != m_AygDisplayNames.end())
+    {
+        int i = itor - m_AygDisplayNames.begin();
+        if (*itor == std::string(c))
+            return i;
+        if (AddNew)
+        {
+            m_AygDisplayNames.insert(itor, c);
+            return i;
+        }
+        return m_AygDisplayNames.size();
+    }
+    else
+    {
+        if (AddNew)
+        {
+            m_AygDisplayNames.push_back(c);
+            return 0;
+        }
+    }
+    return m_AygDisplayNames.size();
 }
 
 [!endif]
