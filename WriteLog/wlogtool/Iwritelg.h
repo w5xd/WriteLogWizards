@@ -177,6 +177,9 @@ DECLARE_INTERFACE_(IWlogLineStatus, IUnknown)
 	STDMETHOD(SetLineStatus)(IUnknown FAR *, const char *, unsigned char *) PURE;
 };
 
+/* IWlogSaveSummary is deprecated. It was used generate txt and rtf
+** files. Pretty much all contests expect cabrillo now.
+*/
 DECLARE_INTERFACE_(IWlogSaveSummary, IUnknown)
 {
 	STDMETHOD(SaveTxt)( Configuration_Entry_t  *Config, const char *) PURE;
@@ -193,7 +196,6 @@ DECLARE_INTERFACE_(IWlogContestCommand, IUnknown)
 	** what string to put as the bottom entry WriteLog's "Contest" menu.
 	*/
 	STDMETHOD(GetCommandName)(char *s, short length) PURE;
-
 
 	/*
 	** When the user selects the bottom entry in the Contest menu,

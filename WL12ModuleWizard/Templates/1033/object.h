@@ -2,6 +2,9 @@
 #include "resource.h"       // main symbols
 
 #include "[!output MIDL_H_FILENAME]"
+/* Iwritelg.h documents the interfaces that contest modules
+** can optionally implement. The wizard does not generate code for all of
+** them. */
 #include "Iwritelg.h"
 #include "iwlogbsm.h"
 #include "QsoFieldMgr.h"
@@ -162,34 +165,32 @@ protected:
     static const unsigned gArchiveVersion;
 
 	// connections to main WriteLog
-    IWriteLog *m_Parent; // NOT REF COUNTED
-    CComPtr<IWlogBandSumm> m_bandSumm;
+    IWriteLog                     *m_Parent; // NOT REF COUNTED
+    CComPtr<IWlogBandSumm>         m_bandSumm;
 
     // *******************************************
     // Qso exchange field support ****************
-    CQsoFieldMgr    m_qsoFields; // here to construct BEFORE CQsoField's below
+    CQsoFieldMgr                   m_qsoFields; // here to construct BEFORE CQsoField's below
 	/* Each CQsoField MUST have an entry in enum ExfOrder_t in [!output CPP_FILE]
 	** The converse is not true, but any entries in g_Layout without a 
 	** corresponding CQsoField cannot be manipulated by this module. */
-    CQsoCallField   fCALL;
+    CQsoCallField                  fCALL;
 [!if RST_IN_EXCHANGE]
-    CQsoField    fSN;
-    CQsoField    fRS;
+    CQsoField                      fSN;
+    CQsoField                      fRS;
 [!endif]
 [!if NR_IN_EXCHANGE]
-    CQsoField    fNR;
+    CQsoField                      fNR;
 [!endif]
 [!if PTS_COLUMN]
-    CQsoField    fPTS;
+    CQsoField                      fPTS;
 [!endif]
     // *******************************************
 [!if ASK_MODE]
 enum {	// identical rules, but different modes on different weekends
-    ASK_MODE_CW, ASK_MODE_PH
-    [!if RTTY]
-    , ASK_MODE_RY
-    [!endif]
-    } m_ModeSelected;
+    ASK_MODE_CW, ASK_MODE_PH [!if RTTY], ASK_MODE_RY[!endif]
+
+    }                              m_ModeSelected;
 [!endif]
 
     /************
@@ -204,20 +205,20 @@ enum {	// identical rules, but different modes on different weekends
 [!endif]
 [!if !NO_NAMEDMULT]
 	//Named multiplier support...
-	char							m_MyMult[7];
+	std::string					    m_MyMult;
 	short							m_NumNamed;
 	CComPtr<IWlNamedMult>			m_pNamedMults;
 	CComPtr<IMultDisplayPage>		m_NamedDisplay;
 	CComPtr<IMultDisplayEntry>		m_NamedDisplayEntry;
-    CQsoField    fRCVD;
-    CQsoField    fMLT;
+    CQsoField                       fRCVD;
+    CQsoField                       fMLT;
 [!if NAMEDMULT_MULTI_BAND]
-	CMultiplierMapByBand		m_Named;     /*number of time worked each multiplier*/
-	MultiplierMap_t		m_NamedMults;
+	CMultiplierMapByBand		    m_Named;     /*number of time worked each multiplier*/
+	MultiplierMap_t		            m_NamedMults;
 [!endif]
 [!if NAMEDMULT_SINGLE_BAND]
-	MultiplierMap_t		m_Named;		//Numer of times we've worked each multiplier
-	int		m_NamedMults;
+	MultiplierMap_t		            m_Named;		//Numer of times we've worked each multiplier
+	int		                        m_NamedMults;
 [!endif]
     int FindNamed(const char *c);
     // end named
@@ -231,20 +232,20 @@ enum {	// identical rules, but different modes on different weekends
 	CDxDispContainerHelper<[!output MM_CLASS_NAME],
         CDxccDisplayHelper<[!output MM_CLASS_NAME], DXCC_MULT_ID> >
         m_DxccContainer;
-    CQsoField    fCOUNTRY;
-    CQsoField    fAMBF;
-    CQsoField    fCPRF;
-    CQsoField    fCMULT;
+    CQsoField                       fCOUNTRY;
+    CQsoField                       fAMBF;
+    CQsoField                       fCPRF;
+    CQsoField                       fCMULT;
 [!if DXCC_SINGLE_BAND]
     typedef MultiplierMap_t Countries_t;
-	int          m_DxccMults;
+	int                             m_DxccMults;
 [!endif]
 [!if DXCC_MULTI_BAND]
     typedef CMultiplierMapByBand Countries_t;
     typedef MultiplierMap_t DxccMults_t;
-	DxccMults_t	m_DxccMults;
+	DxccMults_t	                    m_DxccMults;
 [!endif]
-	Countries_t	m_Countries;
+	Countries_t	                    m_Countries;
     // end DXCC
 [!endif]
 [!if !NO_ZONE]
@@ -254,37 +255,38 @@ enum {	// identical rules, but different modes on different weekends
 	CCountryLookupHelper			m_ZoneContext;
 	CComPtr<IMultDisplayPage>		m_ZoneDisplay;
 	CComPtr<IMultDisplayEntry>		m_ZoneDisplayEntry;
-    CQsoField    fZN;
-    CQsoField    fZMULT;
+    CQsoField                       fZN;
+    CQsoField                       fZMULT;
 [!if ZONE_MULTI_BAND]
     typedef CMultiplierMapByBand Zones_t;
     typedef MultiplierMap_t ZoneMults_t;
-	ZoneMults_t				m_ZoneMults;
+	ZoneMults_t				        m_ZoneMults;
 [!endif]
 [!if ZONE_SINGLE_BAND]
     typedef MultiplierMap_t Zones_t;
-	int				    m_ZoneMults;
+	int				                m_ZoneMults;
 [!endif]
-	Zones_t   	 	m_Zones;
+	Zones_t   	 	                m_Zones;
 	static int FindZone(const char *c);
 	//end Zone
 
 [!endif]
 [!if !NO_AYGMULT]
 	//As You Go (AYG) multiplier support
-	CComPtr<IMultDisplayPage>			m_AygDisplay;
-	CComPtr<CAygDisplayHelper<[!output MM_CLASS_NAME] , AYG_MULT_ID> >   m_AygDisplayEntry;
+	CComPtr<IMultDisplayPage>		m_AygDisplay;
+	CComPtr<CAygDisplayHelper<[!output MM_CLASS_NAME] , AYG_MULT_ID> >   
+                                    m_AygDisplayEntry;
     typedef std::vector<std::string> AygNames_t;
-	AygNames_t	m_AygDisplayNames;
-    CQsoField    fAYG;
-    CQsoField    fAYGMULT;
+	AygNames_t	                    m_AygDisplayNames;
+    CQsoField                       fAYG;
+    CQsoField                       fAYGMULT;
 [!if AYGMULT_MULTI_BAND]
-	CMultiplierMapByBand		m_AygStatus;
-	MultiplierMap_t		m_AygMults;
+	CMultiplierMapByBand		    m_AygStatus;
+	MultiplierMap_t		            m_AygMults;
 [!endif]
 [!if AYGMULT_SINGLE_BAND]
-	MultiplierMap_t		m_AygStatus;
-	int		m_AygMults;
+	MultiplierMap_t		            m_AygStatus;
+	int		                        m_AygMults;
 [!endif]
 	int		FindAyg(int, const char *c);
 public:
@@ -297,13 +299,13 @@ public:
     End Multiplier support
     ************/
 protected:
-    std::string             m_MyCallsign;
+    std::string                     m_MyCallsign;
     std::map<short, int>		    m_BandPoints;
 	std::map<short, int>		    m_BandQsos;
-    int						m_PageQsos;
-    int						m_PageQsoPoints;
-    int						m_PageMultipliers;
-    int                     m_NumberOfDupeSheetBands;
+    int						        m_PageQsos;
+    int						        m_PageQsoPoints;
+    int						        m_PageMultipliers;
+    int                             m_NumberOfDupeSheetBands;
 
     // Methods
     long PointsForQso(QsoPtr_t q);
@@ -318,16 +320,14 @@ protected:
     int  NumberOfMultBands() const {
         return m_NumberOfDupeSheetBands * static_cast<int>(NUMBER_OF_MODES_PER_MULT_BAND);
     }
-    QsoPtr_t GetQsoIth(unsigned long Index) const
-        {
-            QsoPtr_t TestQ;
-            if (m_Parent && Index >= 0)
-                m_Parent->QsoIth(Index, &TestQ);
-            else
-                TestQ = 0;
-            return TestQ;
-        }
-
+    QsoPtr_t GetQsoIth(unsigned long Index) const {
+        QsoPtr_t TestQ;
+        if (m_Parent && Index >= 0)
+            m_Parent->QsoIth(Index, &TestQ);
+        else
+            TestQ = 0;
+        return TestQ;
+    }
 };
 
 OBJECT_ENTRY_AUTO(__uuidof([!output COCLASS]), [!output MM_CLASS_NAME])

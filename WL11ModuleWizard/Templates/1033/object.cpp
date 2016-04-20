@@ -265,7 +265,6 @@ HRESULT [!output MM_CLASS_NAME]::FinalConstruct()
         m_pNamedMults->Init((const unsigned char *)"[!output COCLASS]");
 	if (SUCCEEDED(hr))
 	    hr = m_pNamedMults->get_MultCount(&m_NumNamed);
-	m_MyMult[0] = 0;
 [!endif]
 
     return hr;
@@ -659,7 +658,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 		}
 
 [!endif]
-points = PointsForQso(q);
+        points = PointsForQso(q);
 [!if !MULTI_MODE && PTS_COLUMN]
 		Mult[BAND_SUMMARY_PTS] = -points;
 [!endif]
@@ -967,7 +966,7 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
         if (!m_NamedDisplayEntry)
         {
             m_NamedDisplay->put_Title("TODO");
-            CComObject<CNamedDisplayHelper<[!output MM_CLASS_NAME], NAMED_MULT_ID> > *pTemp = 0;
+            CComObject<CNamedDisplayHelper<[!output MM_CLASS_NAME], NAMED_MULT_ID> > *pTemp(0);
             if (SUCCEEDED(pTemp->CreateInstance(&pTemp)))
             {
                 pTemp->Init(m_pNamedMults,
@@ -991,7 +990,7 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
         if (!m_ZoneDisplayEntry)
         {
             m_ZoneDisplay->put_Title("TODO");
-            CComObject<CZoneDisplayHelper<[!output MM_CLASS_NAME] , ZONE_MULT_ID> > *pTemp = 0;
+            CComObject<CZoneDisplayHelper<[!output MM_CLASS_NAME] , ZONE_MULT_ID> > *pTemp(0);
             if (SUCCEEDED(pTemp->CreateInstance(&pTemp)))
             {
                 pTemp->Init(g_ZoneList,
@@ -1015,7 +1014,7 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 		if (!m_AygDisplayEntry)
 		{
 			m_AygDisplay->put_Title("TODO");
-            CComObject<CAygDisplayHelper<[!output MM_CLASS_NAME] , AYG_MULT_ID> > *pTemp = 0;
+            CComObject<CAygDisplayHelper<[!output MM_CLASS_NAME] , AYG_MULT_ID> > *pTemp(0);
             if (SUCCEEDED(pTemp->CreateInstance(&pTemp)))
             {
                 pTemp->Init(
@@ -1082,13 +1081,12 @@ HRESULT [!output MM_CLASS_NAME]::MatchedQso(QsoPtr_t New, QsoPtr_t Old)
 }
 HRESULT [!output MM_CLASS_NAME]::QsoSearch(QsoPtr_t NewQ, QsoPtr_t OldQ, int * IsGood)
 {
-    // TODO
+    if (IsGood)
+        *IsGood = 0;
     return S_OK;
 }
 HRESULT [!output MM_CLASS_NAME]::DupeSheetTitle(int DupeSheet, char * Title, int TitleLength)
 {
-    if (IsGood)
-        *IsGood = 0;
     return S_OK;
 }
 HRESULT [!output MM_CLASS_NAME]::TallyPrintQso(QsoPtr_t q)
@@ -1307,7 +1305,7 @@ HRESULT [!output MM_CLASS_NAME]::ConfirmFieldsFilled(HWND w)
 
 	if (1					//TODO
 [!if !NO_NAMEDMULT]
-		|| !m_MyMult[0]
+		|| m_MyMult.empty()
 [!endif]
 		)	
 	{
@@ -1366,7 +1364,7 @@ HRESULT [!output MM_CLASS_NAME]::FormatTxField(QsoPtr_t q, short Field, char *Bu
 [!endif]
 [!if !NO_NAMEDMULT]
 	case 0:	//TODO
-		wsprintf(Buf, "%-6.6s ", (const char *) m_MyMult);
+		wsprintf(Buf, "%-6.6s ", m_MyMult.c_str());
 		break;
 [!endif]
 [!if NR_IN_EXCHANGE]

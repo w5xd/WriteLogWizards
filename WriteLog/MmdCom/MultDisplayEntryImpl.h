@@ -18,7 +18,7 @@ class CZoneDisplayHelper : public CComObjectRootEx<CComSingleThreadModel>
 protected:
     ~CZoneDisplayHelper() {}
 public:
-    CZoneDisplayHelper() : m_Zones(0), m_NumZones(0){}
+    CZoneDisplayHelper() : m_Zones(0), m_NumZones(0), m_Module(0){}
 
     BEGIN_COM_MAP(CZoneDisplayHelper)
         COM_INTERFACE_ENTRY(IMultDisplayEntry)
@@ -63,7 +63,7 @@ public:
 
 protected:
 	const struct StateDef_t *m_Zones;
-    T *m_Module;
+    T           *m_Module;
 	int			m_NumZones;
 };
 
@@ -88,9 +88,7 @@ public:
     void FinalRelease()    {    }
 
     void Init(T *p)
-    {
-        m_Module = p;
-    }
+    {        m_Module = p;    }
 
     void Init(
         const struct country_stru *cList,
@@ -199,6 +197,8 @@ public:
     }
 };
 
+/* For the list-of-names Named multiplier display
+*/
 template <class T, int ID>
 class CNamedDisplayHelper : public CComObjectRootEx<CComSingleThreadModel>
     , public IMultDisplayEntry
@@ -254,6 +254,8 @@ protected:
 	IWlNamedMult *m_NamedMult;    
 };
 
+/* For the as-you-go multiplier display
+*/
 template <class T, int ID>
 class CAygDisplayHelper : public CComObjectRootEx<CComSingleThreadModel>
     , public IMultDisplayEntry

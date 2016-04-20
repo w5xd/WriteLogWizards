@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <!-- The WL Module wizard emits this file but does not add it to any project
-       TODO: add this to a WIX project
+       TODO: add this to a WIX project.
+       Its OK for multiple coclass's to name the same file. msi ref counts them.
   -->
   <Fragment>
     <DirectoryRef Id="WlPrograms">
@@ -20,7 +21,7 @@
     <DirectoryRef Id="WriteLogCommonAppData">
       <Component Id="COM_[!output PROJECT_NAME]_data" Win64="no" DiskId='1' Guid="{[!output WXS_COMPONENT_GUID_2]}">
         <!-- TODO ... and any data files
-        <File Source="<path to data file to go to ProgramData\WriteLog >" />
+        <File Source="<path to data file to install in ProgramData\WriteLog >" />
         -->
       </Component>
     </DirectoryRef>
