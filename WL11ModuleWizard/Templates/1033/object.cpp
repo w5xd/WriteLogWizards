@@ -119,6 +119,18 @@ enum ExfOrder_t { CALL_IDX,
 // then you have to update Load/Save to to figure out what to do...
 // ..or, change your GUID in the project idl file and those old files will
 // no longer auto-magically load this module.
+//
+// A_CALL must appear in EXACTLY ONE of the rows and is the callsign
+// A_NUMS only allows digits to be entered
+// A_PRMPT makes the column appear in the Entry Window (without it appears only in the Log Window)
+// A_RST invokes special processing for RST signal reports (and should be specified with A_NUMS)
+// A_OVERSTRIKE and A_TABONLY mean typing overstriks, and typing into the last character
+// leaves the cursor in this field. They can be changed later by the user
+// A_NOSPACE means typing SPACE moves the cursor to the next field rather than enter a space into the field.
+// A_REQUIRED in the absence of A_MULTI prevents a blank entry
+// A_REQUIRED in the presence of A_MULTI additional requires a run through MultiCheck with a return value >=0
+// A_MULTI causes a change in the field to be notified in MultiCheck
+// A_NOTIFY causes any user edit of the QSO to be notified over networked copies of WriteLog
 const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =	
 {
     { "CALL", CALL_WID, CALL_POS, A_CALL | A_PRMPT | A_MULTI | A_NOTIFY },
@@ -243,22 +255,21 @@ HRESULT [!output MM_CLASS_NAME]::FinalConstruct()
 	**       ITUZONE.DAT maps CALL to ITU zone.	*/
 [!endif]
 [!if !NO_DXCC]
-    hr = m_DxContext.Init("DXCCDOS.DAT");
-    if (FAILED(hr))
-        return hr;
+    if (SUCCEEDED(hr))
+        hr = m_DxContext.Init("DXCCDOS.DAT");
 [!endif]
 [!if !NO_ZONE]
-    hr = m_ZoneContext.Init("CQZONE.DAT");
-    if (FAILED(hr))
-        return hr;
+    if (SUCCEEDED(hr))
+        hr = m_ZoneContext.Init("CQZONE.DAT");
 [!endif]
 [!if !NO_NAMEDMULT]
-    hr = m_pNamedMults.CoCreateInstance(__uuidof(NmdMul),
-        0, CLSCTX_SERVER);
+    if (SUCCEEDED(hr))
+        hr = m_pNamedMults.CoCreateInstance(__uuidof(NmdMul),
+            0, CLSCTX_SERVER);
 	// TODO--you must create an INI file, make sure its in WriteLog's 
 	// \programs folder, and make sure the following names it correctly.
     if (SUCCEEDED(hr))
-        hr = m_pNamedMults->put_FileName(reinterpret_cast<const unsigned char *>("[!output COCLASS].INI"));
+        hr = m_pNamedMults->put_FileName(reinterpret_cast<const unsigned char *>("[!output COCLASS].ini"));
     if (SUCCEEDED(hr))
         m_pNamedMults->Init(reinterpret_cast<const unsigned char *>("[!output COCLASS]"));
 	if (SUCCEEDED(hr))
@@ -851,7 +862,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
        int n = FindNamed(fRCVD(q));
 	   if (n != m_NumNamed)
 	   {
-           int NamedWorked = get_MultWorked(ZONE_MULT_ID, n, band) == S_FALSE ? 1 : 0;
+           int NamedWorked = get_MultWorked(NAMED_MULT_ID, n, band) == S_FALSE ? 1 : 0;
 		   if (ret <= 0)
                ret = NamedWorked;
 		   if (NamedWorked && msgValid && (Message != 0))
@@ -1265,8 +1276,8 @@ HRESULT [!output MM_CLASS_NAME]::get_MultTitle(int ID, short Mult, const char **
         if (itor != m_AygDisplayNames.end())
         {
             *Title = itor->first.c_str();
-        return S_OK;
-    }
+            return S_OK;
+        }
     }
     return E_INVALIDARG;
 }
