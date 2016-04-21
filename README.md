@@ -123,9 +123,15 @@ project).
 There are a handful of bugs in the header files generated using the old Visual Studio 6 
 WriteLog contest wizard. It is recommended that any new work on those old modules be
 done using the software development environment published here, and with Visual Studio
-2008 (or VS 2013 if WL12 and later support is all that is desired.)
+2008 (or VS 2013 if WL12 and later support is all that is desired.) Start by placing
+the old module's source code in a folder under Projects in this wizard-supported directory
+tree. You will not run any of the wizards in order to rebuild an old project. This
+change is just to use the latest versions of the header files, which have some
+templates and preprocessor directives that have been improved since the VS 6 wizard 
+was deployed.
 
-There are a couple of source code changes required in old modules to make them compile:
+There are a couple of source code changes required in old modules to make them compile
+in this updated environment:
 <ol>
 <li> Place the old source code directory in the new Projects folder here.
 <li>The include path structure has changed. The easiest way to deal 
