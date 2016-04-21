@@ -338,9 +338,6 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 	band = DupeBandToMultBand(band);
 
 [!if !NO_DXCC]
-    int  countryIndex = -1, newDxccFlag = 0;
-[!endif]
-[!if !NO_DXCC]
     fCMULT(q) = "";
 [!endif]
 [!if !NO_ZONE]
@@ -358,12 +355,11 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
         int dx = m_DxContext.FillQso(q, fCALL, fCPRF, fCOUNTRY, fAMBF);
         if (dx >= 0)
         {
-            countryIndex = dx;
 [!if DXCC_SINGLE_BAND]
-            newDxccFlag = !m_Countries[countryIndex]++;
+            int newDxccFlag = !m_Countries[dx]++;
 [!endif]
 [!if DXCC_MULTI_BAND]
-            newDxccFlag = !m_Countries[band][countryIndex]++;
+            newDxccFlag = !m_Countries[band][dx]++;
 [!endif]
             if (newDxccFlag)
             {
@@ -376,7 +372,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 [!endif]
                 fCMULT(q) = Buf;
                 Mult[BAND_SUMMARY_MUL] += 1;
-                m_DxccContainer.InvalidateCountry(countryIndex);
+                m_DxccContainer.InvalidateCountry(dx);
             }
         }
 
@@ -477,7 +473,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 				m_AygDisplayEntry->Invalidate(ayg);
 		}
 [!endif]
-//*********************************
+        //*********************************
 		//Process points and multiplier display
 		points = PointsForQso(q);
 [!if !MULTI_MODE && PTS_COLUMN]
@@ -536,10 +532,6 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
         band = m_NumberOfDupeSheetBands;
 	band = DupeBandToMultBand(band);
 
-[!if !NO_DXCC]
-    int countryIndex = -1, newDxccFlag = 0;
-[!endif]
-
     if (q->dupe == ' ')
     {
 [!if MULTI_MODE]
@@ -580,15 +572,14 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 
 [!endif]
 [!if !NO_DXCC]
-		int i = m_DxContext.CountryFromQsoPrefix(q, fCPRF);
-        if (i >= 0)
+		int dx = m_DxContext.CountryFromQsoPrefix(q, fCPRF);
+        if (dx >= 0)
 		{
-			countryIndex = i;
 [!if DXCC_SINGLE_BAND]
-            newDxccFlag = !--m_Countries[countryIndex];
+            int newDxccFlag = !--m_Countries[dx];
 [!endif]
 [!if DXCC_MULTI_BAND]
-            newDxccFlag = !--m_Countries[band][countryIndex];
+            newDxccFlag = !--m_Countries[band][dx];
 [!endif]
 			if (newDxccFlag)
 			{
@@ -599,7 +590,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 				m_DxccMults[band] -= 1;
 [!endif]
 				Mult[BAND_SUMMARY_MUL] -= 1;
-				m_DxccContainer.InvalidateCountry(countryIndex);
+				m_DxccContainer.InvalidateCountry(dx);
 			}
 		}
 
@@ -820,7 +811,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
 	{
 		ret = 0;
 	}
-	else if (flagNamed || fRCVD == p)      /*or received*/
+	if (flagNamed || fRCVD == p)      /*or received*/
     {
        int n = FindNamed(fRCVD(q));
 	   if (n != m_NumNamed)
@@ -843,7 +834,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
     bool flagZone = false;
 	if (fCALL(q).empty())
 	{
-        if (!(RequestMask & WLOG_MULTICHECK_NOWRT))
+        if (canWrite)
             fZN(q) = "";
 		ret = 0;
 	}
@@ -894,12 +885,9 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
         std::string aygVal;
         if (OldQ)
             aygVal = fAYG(OldQ);
-        if (fCALL(q).empty() || fAYG(q).empty())
-        {
-            if (canWrite)
-                fAYG(q) = aygVal.c_str();
-        }
-        if (!aygVal.empty())
+        if (fAYG(q).empty() && canWrite)
+            fAYG(q) = aygVal.c_str();
+        if (!fAYG(q).empty())
             flagAyg = true;
 	}
 
@@ -931,7 +919,7 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
     if (!m_MultDispContainer)
     {
         if (SUCCEEDED(m_MultDispContainer.CoCreateInstance(
-            OLESTR("writelog.multdisp"), 0, CLSCTX_ALL)))
+            L"writelog.multdisp", 0, CLSCTX_ALL)))
 		{
 [!if !NO_NAMEDMULT]
             m_MultDispContainer->MakeDisplay(1, 0,
@@ -1095,6 +1083,10 @@ HRESULT [!output MM_CLASS_NAME]::TallyPrintQso(QsoPtr_t q)
     if (q->dupe == ' ')
     {
         m_PageQsos += 1;
+[!if !NO_NAMEDMULT]
+        if (isdigit(*fMLT(q)))
+			Mul += 1;
+[!endif]
 [!if !NO_DXCC]
 		if (isdigit(*fCMULT(q)))
 			Mul += 1;
@@ -1102,6 +1094,15 @@ HRESULT [!output MM_CLASS_NAME]::TallyPrintQso(QsoPtr_t q)
 [!if !NO_ZONE]
 		if (isdigit(*fZMULT(q)))
 			Mul += 1;
+[!endif]
+[!if !NO_AYGMULT]
+		if (isdigit(*fAYGMULT(q)))
+			Mul += 1;
+[!endif]
+[!endif]
+        Pts = atoi(fPTS(q));
+[!else]
+		Pts = PointsForQso(q);
 [!endif]
         m_PageMultipliers += Mul;
         m_PageQsoPoints += Pts;
