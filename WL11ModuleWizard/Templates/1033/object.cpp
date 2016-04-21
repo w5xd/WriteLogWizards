@@ -455,7 +455,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 		else
 		{
 [!if AYGMULT_MULTI_BAND]
-			newAygFlag = !(m_AygStatus[ayg][band]++);
+			newAygFlag = !(m_AygStatus[band][ayg]++);
 [!endif]
 [!if AYGMULT_SINGLE_BAND]
 			newAygFlag = !(m_AygStatus[ayg]++);
@@ -644,7 +644,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 		if ((ayg >= 0) && ( ayg < static_cast<int>(m_AygDisplayNames.size())))
 		{
 [!if AYGMULT_MULTI_BAND]
-			newAygFlag = !(--m_AygStatus[ayg][band]);
+			newAygFlag = !(--m_AygStatus[band][ayg]);
 [!endif]
 [!if AYGMULT_SINGLE_BAND]
 			newAygFlag = !(--m_AygStatus[ayg]);
@@ -730,6 +730,7 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
 [!if !NO_AYGMULT]
     m_AygDisplayNames.clear();
     m_AygStatus.clear();
+    m_AygIdxToName.clear();
 [!if AYGMULT_MULTI_BAND]
     m_AygMults.clear();
 [!else]
@@ -750,7 +751,7 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
 ** contains a mode (like CW, SSB, PH or RTTY, or RY)
 ** Then the score broadcast assumes the row applies
 ** only to one mode. */
-[!if !NO_DXCC||!NO_NAMEDMULT||!NO_ZONE]
+[!if !NO_DXCC||!NO_NAMEDMULT||!NO_ZONE||!NO_AYGMULT]
 		m_bandSumm->SetItemTitle(BAND_SUMMARY_MUL, "Mul");
 [!endif]
 [!if MULTI_MODE]
@@ -1258,10 +1259,14 @@ HRESULT [!output MM_CLASS_NAME]::get_MultWorked(int id, short Mult, short band)
 [!if !NO_AYGMULT]
 HRESULT [!output MM_CLASS_NAME]::get_MultTitle(int ID, short Mult, const char **Title)
 {
-    if (Mult < static_cast<int>(m_AygDisplayNames.size()))
+    if ((Mult >= 0) && (Mult < static_cast<int>(m_AygIdxToName.size())))
     {
-        *Title = m_AygDisplayNames[Mult].c_str();
+        AygNames_t::iterator itor = m_AygIdxToName[Mult];
+        if (itor != m_AygDisplayNames.end())
+        {
+            *Title = itor->first.c_str();
         return S_OK;
+    }
     }
     return E_INVALIDARG;
 }
@@ -1308,31 +1313,21 @@ int [!output MM_CLASS_NAME]::FindNamed(      /*returns index of multiplier*/
 [!if !NO_AYGMULT]
 int [!output MM_CLASS_NAME]::FindAyg(int AddNew, const char *c)
 {
-	if (!*c)
-		return m_AygDisplayNames.size();
+	if (!*c) return m_AygDisplayNames.size();
 
-    AygNames_t::iterator itor = std::lower_bound(m_AygDisplayNames.begin(),
-            m_AygDisplayNames.end(),
-            c);
-
+    AygNames_t::iterator itor = m_AygDisplayNames.find(c);
     if (itor != m_AygDisplayNames.end())
-    {
-        int i = itor - m_AygDisplayNames.begin();
-        if (*itor == std::string(c))
-            return i;
-        if (AddNew)
-        {
-            m_AygDisplayNames.insert(itor, c);
-            return i;
-        }
-        return m_AygDisplayNames.size();
-    }
+        return itor->second;
     else
     {
         if (AddNew)
         {
-            m_AygDisplayNames.push_back(c);
-            return 0;
+            unsigned nextIdx = m_AygIdxToName.size();
+            m_AygIdxToName.push_back(
+                m_AygDisplayNames.insert(
+                AygNames_t::value_type(c, nextIdx)
+                ).first);
+            return nextIdx;
         }
     }
     return m_AygDisplayNames.size();

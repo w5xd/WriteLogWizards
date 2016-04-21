@@ -276,8 +276,10 @@ enum {	// identical rules, but different modes on different weekends
 	CComPtr<IMultDisplayPage>		m_AygDisplay;
 	CComPtr<CAygDisplayHelper<[!output MM_CLASS_NAME] , AYG_MULT_ID> >   
                                     m_AygDisplayEntry;
-    typedef std::vector<std::string> AygNames_t;
-	AygNames_t	                    m_AygDisplayNames;
+    typedef std::map<std::string, short> AygNames_t;
+	AygNames_t	                    m_AygDisplayNames; 
+    std::vector<AygNames_t::iterator>
+                                    m_AygIdxToName;
     CQsoField                       fAYG;
     CQsoField                       fAYGMULT;
 [!if AYGMULT_MULTI_BAND]
