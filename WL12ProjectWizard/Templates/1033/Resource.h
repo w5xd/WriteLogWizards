@@ -15,6 +15,7 @@
 #define IDS_NEWCOUNTRY_MSG		        109
 #define IDS_NEWZONE_MSG			        110
 #define IDS_AYG_MSG			            111
+#define IDS_NEWNAMED_MSG                112
 
 // Next default values for new objects
 //
@@ -23,6 +24,6 @@
 #define _APS_NEXT_RESOURCE_VALUE        202
 #define _APS_NEXT_COMMAND_VALUE         32768
 #define _APS_NEXT_CONTROL_VALUE         202
-#define _APS_NEXT_SYMED_VALUE           112
+#define _APS_NEXT_SYMED_VALUE           113
 #endif
 #endif

@@ -8,9 +8,6 @@
 typedef const struct band_stru FAR * ConstBandPtr_t;
 typedef const struct exfa_stru FAR* ConstExfPtr_t;
 
-#define MODULE_DATA_SCORE 1
-#define MODULE_DATA_NOBSM 2
-
 #define MAX_MULT_MESSAGE_LENGTH 100
 
 #ifdef __cplusplus
@@ -53,6 +50,9 @@ DECLARE_INTERFACE_(IWlogExf3, IWlogExf2)
    STDMETHOD(SetHeader)(THIS_ char *pHeader) PURE;
     // pHeader is a new header string for the field. 
 };
+
+#define MODULE_DATA_SCORE 1 // Enables WriteLog's Contest/Parameter-Setup menu item.
+#define MODULE_DATA_NOBSM 2 // WriteLog has first column QSO count in its bandsummary UNLESS module sets this in GetModuleData
 
 DECLARE_INTERFACE_(IWriteLog, IUnknown)
 {
@@ -228,6 +228,8 @@ DECLARE_INTERFACE_(IWlogContestCommand, IUnknown)
 	STDMETHOD(ExecuteCommand)(const char *) PURE;
 };
 
+#define WLOG_CABRILLO_MAXCONTESTNAMELEN 80
+#define WLOG_CABRILLO_MAXFIELDLENGTH 128
 DECLARE_INTERFACE_(IWlogCabrillo, IUnknown)
 {
 	//opportunity for multiplier module to put up a box asking for info

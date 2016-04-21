@@ -236,21 +236,19 @@ HRESULT [!output MM_CLASS_NAME]::FinalConstruct()
 {
     m_qsoFields.StaticInit(g_Layout);
     HRESULT hr = S_OK;
-[!if !NO_DXCC]
-    hr = m_DxContext.Init("DXCCDOS.DAT");
-	/*TODO:  DXCCDOS.DAT is DXCC country list
-	**       DXCCWAE.DAT is CQWW country list
+[!if !NO_DXCC || !NO_ZONE]
+	/*TODO:  DXCCDOS.DAT maps call into DXCC country list
+	**       DXCCWAE.DAT maps call into CQWW country list
 	**       CQZONE.DAT maps CALL to CQ zone
 	**       ITUZONE.DAT maps CALL to ITU zone.	*/
+[!endif]
+[!if !NO_DXCC]
+    hr = m_DxContext.Init("DXCCDOS.DAT");
     if (FAILED(hr))
         return hr;
 [!endif]
 [!if !NO_ZONE]
     hr = m_ZoneContext.Init("CQZONE.DAT");
-	/*TODO:  DXCCDOS.DAT is DXCC country list
-	**       DXCCWAE.DAT is CQWW country list
-	**       CQZONE.DAT maps CALL to CQ zone
-	**       ITUZONE.DAT maps CALL to ITU zone.	*/
     if (FAILED(hr))
         return hr;
 [!endif]
@@ -260,9 +258,9 @@ HRESULT [!output MM_CLASS_NAME]::FinalConstruct()
 	// TODO--you must create an INI file, make sure its in WriteLog's 
 	// \programs folder, and make sure the following names it correctly.
     if (SUCCEEDED(hr))
-        hr = m_pNamedMults->put_FileName((const unsigned char *)"[!output COCLASS].INI");
+        hr = m_pNamedMults->put_FileName(reinterpret_cast<const unsigned char *>("[!output COCLASS].INI"));
     if (SUCCEEDED(hr))
-        m_pNamedMults->Init((const unsigned char *)"[!output COCLASS]");
+        m_pNamedMults->Init(reinterpret_cast<const unsigned char *>("[!output COCLASS]"));
 	if (SUCCEEDED(hr))
 	    hr = m_pNamedMults->get_MultCount(&m_NumNamed);
 [!endif]
@@ -296,6 +294,10 @@ void [!output MM_CLASS_NAME]::FinalRelease()
 // IWlogMulti Methods
 HRESULT [!output MM_CLASS_NAME]::GetLayout(ConstBandPtr_t * b, ConstExfPtr_t * e, LPCSTR * s)
 {
+    /* Called by WriteLog on its File/New
+    ** Note that it is NOT called on File/Open.
+    ** On File/Open, this module must recover its state on its Load() method.
+    */
     if (e)
         *e = m_qsoFields.GetLayout();
     if (b)
@@ -329,6 +331,7 @@ HRESULT [!output MM_CLASS_NAME]::GetLayout(ConstBandPtr_t * b, ConstExfPtr_t * e
 
 HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 {
+    /* The given QSO is being added to the log. Tally its multipliers  */
 	int points = 0;
     short   Mult[BAND_SUMMARY_WIDTH];
 	memset(Mult, 0, sizeof(Mult));
@@ -519,11 +522,23 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
             m_ModeSelected = ASK_MODE_PH;
 [!endif]
     }
+
+	// If the multiplier module returns S_FALSE, WriteLog completely
+	// resorts all QSOs (by calling InitQsoData and QsoAdd for each QSO).
+	// So the module will get called again on QsoAdd and it had better NOT
+	// return S_FALSE the second time else an infinite recursion results.
     return S_OK;
 }
 
 HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 {
+    /* The given QSO is being removed from the log. remove its contribution to mutlipliers.
+    ** When the user edits a QSO already in the log, we get a QsoRem of the old
+    ** followed by QsoAdd of the new. Note that this can make multiplier tallies out
+    ** of order. For example, editing an early QSO that was not a mult in such a
+    ** way that it becomes a mult will cause the log to show an earlier QSO 
+    ** with a higher multiplier tally than a later one. This is fixed if the user
+    ** does Contest/Recalc. */
 	int points = 0;
     short   Mult[BAND_SUMMARY_WIDTH];
 	memset(Mult, 0, sizeof(Mult));
@@ -668,6 +683,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 }
 HRESULT [!output MM_CLASS_NAME]::InitQsoData()
 {
+/* Set our state to no multipliers nor QSOs.*/
 [!if MULTI_MODE]
 	static const char * const band_Title[] =
 	{
@@ -726,6 +742,14 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
     m_PageMultipliers = 0;
     if (m_bandSumm)
     {
+/* The titles we put in the band summary are important 
+** The real time score broadcast makes assumptions about
+** what titles are multipliers and what are points 
+** and what are QSO counts. 
+** The same thing with SetBandTitle. If the band's title
+** contains a mode (like CW, SSB, PH or RTTY, or RY)
+** Then the score broadcast assumes the row applies
+** only to one mode. */
 [!if !NO_DXCC||!NO_NAMEDMULT||!NO_ZONE]
 		m_bandSumm->SetItemTitle(BAND_SUMMARY_MUL, "Mul");
 [!endif]
@@ -746,33 +770,47 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
     return S_OK;
 }
 
-HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, long RequestMask, char * Message)
+HRESULT [!output MM_CLASS_NAME]::MultiCheck(
+    QsoPtr_t q,     // is the QSO being checked
+    int p,          // denotes the field in the QSO (its the value in the exfa_stru.pl member)
+    int * Result,   // is where to write -1, 0, +1 for Unknown, no mult, new mult
+    long RequestMask, // flag whether can write into the QSO
+    char * Message  // is a place to overide the message being asked for
+    )
 {
+/* WriteLog calls here a lot. 
+** When the user is typing into WriteLog's Entry Window
+** When packet spots come in, a hidden qso data structure (i.e. one
+** that the user is not aware of) gets offered to the multiplier module here
+** so that multiplier checking can be added to packet spots. And such
+** checking is called on a per-band basis for spots. That is, when the
+** user types, we only get called with q->band set to the one he is logging
+** qso's on. But when a packet spot is checked, we get called repeatedly with q->band
+** set to all possible values. */
+
 	int ret = -1;
     int band = q->band;
     if (band > m_NumberOfDupeSheetBands)
         band = m_NumberOfDupeSheetBands;
     band = DupeBandToMultBand(band);
 
-    bool canWrite = !(RequestMask & WLOG_MULTICHECK_NOWRT);
+    bool canWrite = (RequestMask & WLOG_MULTICHECK_NOWRT) == 0;
+    bool msgValid = (RequestMask & WLOG_MULTICHECK_MSGSET) != 0;
 
-	QsoPtr_t OldQ = 0;
+	QsoPtr_t OldQ(0);
 	if (canWrite)
 	{
 		//locate any previous QSO with this station...
 		unsigned long QsoNumber;
 		for (int j = 0; j < m_NumberOfDupeSheetBands; j += 1)
 		{
-			if (m_Parent->SearchDupeSheet(q, j, 
-						0,
-						&QsoNumber) == S_OK)
+			if (m_Parent->SearchDupeSheet(q, j, 0, &QsoNumber) == S_OK)
 			{
 				OldQ = GetQsoIth(QsoNumber);
 				break;
 			}
 		}
 	}
-
    
 [!if !NO_DXCC]
 	//DXCC country processing
@@ -781,16 +819,15 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
     {
 	    bool ambig(false);
 		bool NewCountry(false);
-        int i = m_DxContext.CheckQso(q, canWrite,
-            fCALL, fCOUNTRY, fCPRF, fAMBF, ambig);
+        int i = m_DxContext.CheckQso(q, canWrite,  fCALL, fCOUNTRY, fCPRF, fAMBF, ambig);
 		if (!ambig)
-		{
+		{   // The DXCC database can map a given call to more than one DXCC country. 
             NewCountry = get_MultWorked(DXCC_MULT_ID, i, band) == S_FALSE ? 1 : 0;
             if (ret <= 0)
                 ret = NewCountry ? 1 : 0;
+            if ((Message != 0) && NewCountry && msgValid)
+                ::LoadString(g_hInstance, IDS_NEWCOUNTRY_MSG, Message, MAX_MULT_MESSAGE_LENGTH);
 		}
-        if (NewCountry && canWrite)
-            ::LoadString(g_hInstance, IDS_NEWCOUNTRY_MSG, Message, MAX_MULT_MESSAGE_LENGTH);
 	}
 
 [!endif]   
@@ -802,29 +839,22 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
     {
         if (OldQ)
 		{
-            if (canWrite)
+            if (canWrite)    // fill in new field from old qso
                 fRCVD(q) = fRCVD(OldQ);
-			flagNamed = true;
+            if (!fRCVD(q).empty())
+			    flagNamed = true; // and check whether fRCVD is new mult
 		}
     }
-    if (fCALL == p)
-	{
-		ret = 0;
-	}
 	if (flagNamed || fRCVD == p)      /*or received*/
     {
        int n = FindNamed(fRCVD(q));
 	   if (n != m_NumNamed)
 	   {
+           int NamedWorked = get_MultWorked(ZONE_MULT_ID, n, band) == S_FALSE ? 1 : 0;
 		   if (ret <= 0)
-		   {
-[!if NAMEDMULT_MULTI_BAND]
-            ret = m_Named.worked(band, n) ? 0 : 1;
-[!endif]
-[!if NAMEDMULT_SINGLE_BAND]
-            ret = m_Named.worked(n) ? 0 : 1;
-[!endif]
-		   }
+               ret = NamedWorked;
+		   if (NamedWorked && msgValid && (Message != 0))
+			    LoadString(g_hInstance, IDS_NEWNAMED_MSG, Message, MAX_MULT_MESSAGE_LENGTH);
 	   }
 	}
 
@@ -844,7 +874,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
 		{
 			if (OldQ)
 			{
-                if (canWrite)
+                if (canWrite) // fill in fZN from OldQ
                     fZN(q) = fZN(OldQ);
                 flagZone = true;
 			}
@@ -863,16 +893,14 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
 
     if (flagZone || fZN == p)    /*zone*/
 	{
-		int NewZone = 0;
         int z = FindZone(fZN(q));
 		if (z != NUMZONES)
 		{
-            NewZone = get_MultWorked(ZONE_MULT_ID, z, band) == S_FALSE ? 1 : 0;
+            int NewZone = get_MultWorked(ZONE_MULT_ID, z, band) == S_FALSE ? 1 : 0;
 			if (ret <= 0)
 				ret = NewZone;
-			if (NewZone && canWrite)
-				LoadString(g_hInstance, IDS_NEWZONE_MSG,
-							Message, MAX_MULT_MESSAGE_LENGTH);
+			if (NewZone && msgValid && (Message != 0))
+				LoadString(g_hInstance, IDS_NEWZONE_MSG, Message, MAX_MULT_MESSAGE_LENGTH);
 		}
 	}
 
@@ -885,7 +913,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
         std::string aygVal;
         if (OldQ)
             aygVal = fAYG(OldQ);
-        if (fAYG(q).empty() && canWrite)
+        if (fAYG(q).empty() && canWrite) // fill in fAYG from OldQ
             fAYG(q) = aygVal.c_str();
         if (!fAYG(q).empty())
             flagAyg = true;
@@ -903,18 +931,24 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(QsoPtr_t q, int p, int * Result, lon
 [!endif]
 		if (ret <= 0)
 			ret = NewAyg;
-		if (NewAyg && canWrite)
-			LoadString(g_hInstance, IDS_AYG_MSG,
-						Message, MAX_MULT_MESSAGE_LENGTH);
+		if (NewAyg && msgValid && (Message != 0))
+			LoadString(g_hInstance, IDS_AYG_MSG,	Message, MAX_MULT_MESSAGE_LENGTH);
 	}
 
 [!endif]
-    *Result = ret;
+    *Result = ret; // -1, 0, +1 for Unknown, no mult, new mult
     return S_OK;
 }
 
 HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 {
+/* There are two very different architectures available here.
+** The old style is to simply put up a modal (or modeless)
+** dialog box with Window as parent.
+** But if WriteLog is to display the multiplier list
+** in its dockable windows, then the module must
+** CoCreateInstance of progid writelog.multdisp.
+*/
 [!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
     if (!m_MultDispContainer)
     {
@@ -1034,15 +1068,28 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 [!endif]
     return S_OK;
 }
-HRESULT [!output MM_CLASS_NAME]::Score(Configuration_Entry_t * Config, HWND Window, unsigned QsoNum, const char * TargetDir)
+HRESULT [!output MM_CLASS_NAME]::Score( // not a good name anymore. "ParameterSetup" would be better
+    Configuration_Entry_t * Config,     // archaic
+    HWND Window,                        // parent window for your dialog
+    unsigned QsoNum,                    // number of QSOs in the log now
+    const char * TargetDir              // folder containing the current .wl file
+    )
 {
-    // TODO
+    /* The name of this function is archaic. It is called from WriteLog on its Contest/Parameter-Setup menu entry.
+    ** It is a good place to have code to put up a parameter selection dialog for this module.
+    ** The Config, QsoNum and TargetDir parameters are valid in all WL versions up to 12.05, but it is not
+    ** especially useful to support them. They were part of an architecture that enabled text substitution by the module
+    ** into a txt/rtf file that had the contest summary. Cabrillo has put an end to any need for that.
+    */
+    // TODO Put up a parameter selection dialog.
     [!output MM_DLG_CLASS_NAME] Dlg;
     Dlg.DoModal(Window);
     return S_OK;
 }
 HRESULT [!output MM_CLASS_NAME]::GetModuleData(long * Data)
 {
+// MODULE_DATA_SCORE   Enables WriteLog's Contest/Parameter-Setup menu item.
+// MODULE_DATA_NOBSM   WriteLog has first column QSO count in its bandsummary UNLESS module sets this in GetModuleData
     *Data =
 [!if MULTI_MODE]
 		MODULE_DATA_NOBSM |
@@ -1052,14 +1099,17 @@ HRESULT [!output MM_CLASS_NAME]::GetModuleData(long * Data)
 }
 HRESULT [!output MM_CLASS_NAME]::SetMMParent(IWriteLog *p)
 {
-    m_Parent = p;
+    m_Parent = p; // NOT refcounted. WriteLog holds a ref on us.
     m_bandSumm.Release();
     wlshr_GetSumm(p, &m_bandSumm);
     return S_OK;
 }
-HRESULT [!output MM_CLASS_NAME]::TranslateAccelerator(MSG *, short)
+HRESULT [!output MM_CLASS_NAME]::TranslateAccelerator(MSG *, short /* obsolete. always 1 */)
 {
-    // TODO
+    /* WriteLog calls here on all keyboard events.
+    ** If the module processes the message (the keyboard event) then it returns S_OK
+    ** and WriteLog does NOT process the keyboard event: EVEN IF THE USER HAS SETUP
+    ** that key as a keyboard shortcut! This behavior MUST be documented to the user.   */
     return E_NOTIMPL;
 }
 HRESULT [!output MM_CLASS_NAME]::MatchedQso(QsoPtr_t New, QsoPtr_t Old)
@@ -1073,10 +1123,25 @@ HRESULT [!output MM_CLASS_NAME]::QsoSearch(QsoPtr_t NewQ, QsoPtr_t OldQ, int * I
         *IsGood = 0;
     return S_OK;
 }
+HRESULT [!output MM_CLASS_NAME]::SetDupeSheet(QsoPtr_t q, int * DupeSheet)
+{
+	// WriteLog maintains as many separate dupe sheets as the multiplier
+	// module needs. Only QSOs that have matching DupeSheet values are
+	// duped against each other.
+    // This supports, for example, VHF rovers. The do NOT need to start a
+    // new .wl file on changing grid square. Instead, they enter a different
+    // transmitted grid square the module tells WL to create a new dupe
+    // sheet for that grid square.
+    // TODO
+   if (DupeSheet)
+      *DupeSheet = 0;
+    return S_OK;
+}
 HRESULT [!output MM_CLASS_NAME]::DupeSheetTitle(int DupeSheet, char * Title, int TitleLength)
 {
     return S_OK;
 }
+
 HRESULT [!output MM_CLASS_NAME]::TallyPrintQso(QsoPtr_t q)
 {
     int Mul=0, Pts = 0;
@@ -1123,12 +1188,7 @@ HRESULT [!output MM_CLASS_NAME]::FormatPageSumm(char FAR *Buf, int BufLength)
     m_PageQsos = m_PageQsoPoints = m_PageMultipliers = 0;
     return S_OK;
 }
-HRESULT [!output MM_CLASS_NAME]::SetDupeSheet(QsoPtr_t q, int * DupeSheet)
-{
-   if (DupeSheet)
-      *DupeSheet = 0;
-    return S_OK;
-}
+
 HRESULT [!output MM_CLASS_NAME]::GetAdifName(long FieldId, long NameLen, char *Name)
 {
 	*Name = 0;
@@ -1239,7 +1299,7 @@ int [!output MM_CLASS_NAME]::FindNamed(      /*returns index of multiplier*/
 	const char *c)
 {
 	short i;
-	if (m_pNamedMults->IndexFromName((const unsigned char *)c, &i) != S_OK)
+	if (m_pNamedMults->IndexFromName(reinterpret_cast<const unsigned char *>(c), &i) != S_OK)
 		return m_NumNamed;
 	return i;
 }
@@ -1300,8 +1360,10 @@ HRESULT  [!output MM_CLASS_NAME]::IsCharOKHere(QsoPtr_t q, char c, short Offset)
 [!endif]
 [!if CABRILLO]
 // IWlogCabrillo Methods
+// See Iwritelg.h for more detailed documentation
 HRESULT [!output MM_CLASS_NAME]::ConfirmFieldsFilled(HWND w)
 {
+   	//opportunity for multiplier module to put up a box asking for info before Cabrillo export
 	char buf[256];
 
 	if (1					//TODO
@@ -1319,7 +1381,8 @@ HRESULT [!output MM_CLASS_NAME]::ConfirmFieldsFilled(HWND w)
 	return S_OK;
 }
 HRESULT [!output MM_CLASS_NAME]::SetCallsign(const char * Call)
-{
+{   // We need to put CALL into Cabrillo but we might not have it
+    // but WriteLog does. It tells us the call here
     m_MyCallsign = Call;
 	return S_OK;
 }
@@ -1335,7 +1398,7 @@ HRESULT [!output MM_CLASS_NAME]::GetHeaderLine(short LineNumber, char * Buf)
 }
 HRESULT [!output MM_CLASS_NAME]::GetContestName(char * Buf)
 {
-	strcpy_s(Buf, 80 /*per interface defintion */,
+	strcpy_s(Buf, WLOG_CABRILLO_MAXCONTESTNAMELEN,
         "[!output COCLASS]");	//TODO
     return S_OK;
 }
