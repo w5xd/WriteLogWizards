@@ -362,7 +362,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
             int newDxccFlag = !m_Countries[dx]++;
 [!endif]
 [!if DXCC_MULTI_BAND]
-            newDxccFlag = !m_Countries[band][dx]++;
+            int newDxccFlag = !m_Countries[band][dx]++;
 [!endif]
             if (newDxccFlag)
             {
@@ -594,7 +594,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
             int newDxccFlag = !--m_Countries[dx];
 [!endif]
 [!if DXCC_MULTI_BAND]
-            newDxccFlag = !--m_Countries[band][dx];
+            int newDxccFlag = !--m_Countries[band][dx];
 [!endif]
 			if (newDxccFlag)
 			{
