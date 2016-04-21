@@ -1099,7 +1099,7 @@ HRESULT [!output MM_CLASS_NAME]::TallyPrintQso(QsoPtr_t q)
 		if (isdigit(*fAYGMULT(q)))
 			Mul += 1;
 [!endif]
-[!endif]
+[!if PTS_COLUMN]
         Pts = atoi(fPTS(q));
 [!else]
 		Pts = PointsForQso(q);
