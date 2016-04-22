@@ -77,6 +77,8 @@ Edit that last file, the .vsz file to correct the absolute path:
 </pre>There is no need to copy the files out of your git work area: just point the .vsz file to the appropriate subdirectory.
 <p>Now File/New Project in Visual Studio 2008 should show this:</p>
 <p align="center"><img width="70%" alt="ProjectNew2008.png" src="ProjectNew2008.png"/></p>
+<p>In order for the directory structure to match that assumed by the module wizard, when creating a
+new project, browse to the Projects directory in this repo, and turn <b>off</b> that <i>Create Directory for solution</i> check box.</p>
 <p>The deployment of the WL12 wizard is the same, except substitute to WL12 for WL11, and substitute 2013 for 2008.</p>
 <h4>Deploy the ModuleWizard</h4>
 Getting a new item into the Visual Studio Add/New-Item menu apparently cannot be done
