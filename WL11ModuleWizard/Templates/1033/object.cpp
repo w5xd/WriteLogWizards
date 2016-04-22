@@ -1206,14 +1206,14 @@ HRESULT [!output MM_CLASS_NAME]::GetAdifName(long FieldId, long NameLen, char *N
 	*Name = 0;
 [!if RST_IN_EXCHANGE]
 	if (fSN == FieldId)
-		strncpy_s(Name, NameLen, "RST_SENT", NameLen);
+		strncpy_s(Name, NameLen, "RST_SENT", NameLen-1);
 	else
 	if (fRS == FieldId)
-		strncpy_s(Name, NameLen, "RST_RCVD", NameLen);
+		strncpy_s(Name, NameLen, "RST_RCVD", NameLen-1);
 [!endif]
 [!if NR_IN_EXCHANGE]
 	if (fNR == FieldId)
-		strncpy_s(Name, NameLen, "SRX", NameLen);
+		strncpy_s(Name, NameLen, "SRX", NameLen-1);
 [!endif]
 	//TODO: ADIF FIELDS...
 	if (*Name)
@@ -1378,10 +1378,13 @@ HRESULT [!output MM_CLASS_NAME]::ConfirmFieldsFilled(HWND w)
 [!endif]
 		)	
 	{
-		::LoadString(g_hInstance, IDS_NOFILEYET, buf, sizeof(buf));
 		if (w)
+		{
+			char buf[256];
+			::LoadString(g_hInstance, IDS_NOFILEYET, buf, sizeof(buf));
 			MessageBox(w, buf, "WriteLog", 0); 
-		
+		}
+	
 		return S_FALSE;
 	}
 	return S_OK;
@@ -1408,10 +1411,10 @@ HRESULT [!output MM_CLASS_NAME]::GetContestName(char * Buf)
         "[!output COCLASS]");	//TODO
     return S_OK;
 }
-HRESULT [!output MM_CLASS_NAME]::GetClaimedScore(long * Score)
+HRESULT [!output MM_CLASS_NAME]::GetClaimedScore(long * pScore)
 {
-    // TODO
-    return E_NOTIMPL;
+    *pScore = Score();
+    return S_OK;
 }
 HRESULT [!output MM_CLASS_NAME]::GetTxFieldCount(short * pCount)
 {
@@ -1429,7 +1432,7 @@ HRESULT [!output MM_CLASS_NAME]::FormatTxField(QsoPtr_t q, short Field, char *Bu
 		break;
 [!if RST_IN_EXCHANGE]
 	case 1:
-		wsprintf(Buf, "%3.3s ", fSN(q));
+		wsprintf(Buf, "%3.3s ", static_cast<const char *>(fSN(q)));
 		break;
 [!endif]
 [!if !NO_NAMEDMULT]
@@ -1442,10 +1445,14 @@ HRESULT [!output MM_CLASS_NAME]::FormatTxField(QsoPtr_t q, short Field, char *Bu
 		wsprintf(Buf, "%6d ", q->serial);
 		break;
 [!endif]
+     // Sent serial number example
+    case 0:
+		wsprintf(Buf, "%4d ", q->serial);
+
 #endif
 	//TODO case xxxx
     default:
-        break;
+        return E_INVALIDARG;
 	}
 	return E_NOTIMPL;
 }
@@ -1461,27 +1468,27 @@ HRESULT [!output MM_CLASS_NAME]::FormatRxField(QsoPtr_t q, short Field, char * B
 	{
 #if 0 // TODO
 	case 0:
-		wsprintf(Buf, "%-13.13s ", fCALL(q));
+		wsprintf(Buf, "%-13.13s ", static_cast<const char *>(fCALL(q)));
 		break;
 [!if RST_IN_EXCHANGE]
 	case 1:
-		wsprintf(Buf, "%3.3s ", fRS(q));
+		wsprintf(Buf, "%3.3s ", static_cast<const char *>(fRS(q)));
 		break;
 [!endif]
 [!if NR_IN_EXCHANGE]
 	case 0:	//TODO
-		wsprintf(Buf, "%6.6s ", fNR(q));
+		wsprintf(Buf, "%6.6s ", static_cast<const char *>(fNR(q)));
 		break;
 [!endif]
 [!if !NO_NAMEDMULT]
 	case 0:	//TODO
-		wsprintf(Buf, "%-6.6s ", fRCVD(q));
+		wsprintf(Buf, "%-6.6s ", static_cast<const char *>(fRCVD(q)));
 		break;
 [!endif]
 #endif
 	//TODO case xxxx
     default:
-        break;
+        return E_INVALIDARG;
 	}
     return E_NOTIMPL;
 }
