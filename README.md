@@ -79,7 +79,8 @@ Edit that last file, the .vsz file to correct the absolute path:
 <p align="center"><img width="70%" alt="ProjectNew2008.png" src="ProjectNew2008.png"/></p>
 <p>The deployment of the WL12 wizard is the same, except substitute to WL12 for WL11, and substitute 2013 for 2008.</p>
 <h4>Deploy the ModuleWizard</h4>
-Getting a new item into the Visual Studio Add/New-Item menu requires administrator privilege. 
+Getting a new item into the Visual Studio Add/New-Item menu apparently cannot be done
+in My Documents like a project wizard. Its deployment requires administrator privilege. 
 You must create files in the Visual Studio installation directory. The directory to find is:
 <pre><code>C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcprojectitems</code>
 </pre>In that vcprojectitems directory, you need two things: <ul>
