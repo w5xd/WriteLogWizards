@@ -181,6 +181,7 @@ public:
 
         // read this field
         operator const char *() const { return m_dest; }
+        const char *str() const { return m_dest;  }
 
         bool empty() const { return m_dest[0] == 0;   }
 

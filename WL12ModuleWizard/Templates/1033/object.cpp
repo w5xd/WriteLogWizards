@@ -1370,7 +1370,6 @@ HRESULT  [!output MM_CLASS_NAME]::IsCharOKHere(QsoPtr_t q, char c, short Offset)
 HRESULT [!output MM_CLASS_NAME]::ConfirmFieldsFilled(HWND w)
 {
    	//opportunity for multiplier module to put up a box asking for info before Cabrillo export
-	char buf[256];
 
 	if (1					//TODO
 [!if !NO_NAMEDMULT]
@@ -1432,7 +1431,7 @@ HRESULT [!output MM_CLASS_NAME]::FormatTxField(QsoPtr_t q, short Field, char *Bu
 		break;
 [!if RST_IN_EXCHANGE]
 	case 1:
-		wsprintf(Buf, "%3.3s ", static_cast<const char *>(fSN(q)));
+		wsprintf(Buf, "%3.3s ", fSN(q).str());
 		break;
 [!endif]
 [!if !NO_NAMEDMULT]
@@ -1468,21 +1467,21 @@ HRESULT [!output MM_CLASS_NAME]::FormatRxField(QsoPtr_t q, short Field, char * B
 	{
 #if 0 // TODO
 	case 0:
-		wsprintf(Buf, "%-13.13s ", static_cast<const char *>(fCALL(q)));
+		wsprintf(Buf, "%-13.13s ", fCALL(q).str());
 		break;
 [!if RST_IN_EXCHANGE]
 	case 1:
-		wsprintf(Buf, "%3.3s ", static_cast<const char *>(fRS(q)));
+		wsprintf(Buf, "%3.3s ", fRS(q).str());
 		break;
 [!endif]
 [!if NR_IN_EXCHANGE]
 	case 0:	//TODO
-		wsprintf(Buf, "%6.6s ", static_cast<const char *>(fNR(q)));
+		wsprintf(Buf, "%6.6s ", fNR(q).str());
 		break;
 [!endif]
 [!if !NO_NAMEDMULT]
 	case 0:	//TODO
-		wsprintf(Buf, "%-6.6s ", static_cast<const char *>(fRCVD(q)));
+		wsprintf(Buf, "%-6.6s ", fRCVD(q).str());
 		break;
 [!endif]
 #endif
