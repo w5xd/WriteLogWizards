@@ -98,6 +98,36 @@ That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, 
 <p align="center"><img  alt="AddNewItem.png" src="AddNewItem.png"/></p>
 <p align="center"><img width="70%" alt="AddContest.png" src="AddContest.png"/></p>
 The Add New Item may be repeated in order to support more than one contest from a single .DLL. For the WL12 wizard, use the files in WL12ModuleWizard and use the Visual Studio 2013 installation directory, but otherwise all is the same.
+The module wizard presents these options.
+<p align="center"><img alt="WLModuleWizard.png" src="WLModuleWizard.png" /></p>
+<ul>
+<li><i>Rtty Support</i> adds the interfaces that the RttyRite window needs to fully 
+support highlighting and clicking into WriteLog's Entry Window.
+<li><i>Cabrillo Support</i> adds enough cabrillo support for basic export.
+<li><i>NR in exchange</i>  instructs the wizard to add an NR column to the log.
+<li><i>Pts Column</i> adds a column to the log to display the points claimed for each QSO.
+<li><i>RST in exchange</i> adds sent/received RST columns to the log.
+<li><i>Mode support</i> selects among 3 choices.
+<ol><li><i>compiled-in</i> The modes (CW/SSB/RTTY) are decided at compile time. Many RTTY contests are examples.
+   <li><i>ask at startup</i> For a given weekend, only one mode (or set of modes) is allowed,
+   but you need to ask the user which. Think ARRL SS CW versus SSB.
+   <li><i>multi-mode</i> means that the contest rules are that on a given frequency band,
+   contestants can make separate QSOs for credit on multiple modes. Think IARU HF.
+</ol>
+<li><i>Contest Display Name</i> is what the user will see in the WriteLog Select Contest list.
+<li><i>DXCC</i> means the contest counts DXCC countries as multipliers, and the wizard
+generates code for the case of countries as mults once per contest, or once per band.
+<li><i>Zones</i> means the contest counts zones as multipliers. The wizard generates
+support for zones 1 - 40 (per CQ zones) but you can change this to use ITU zones instead.
+<li><i>Mults as you go</i> means that every unique string logged for a field is
+a separate multiplier, but you don't know when the contest starts what
+they're going to be. This can be used for logging those contests where the
+"headquarters stations" are their own multipliers. WPX also works this way.
+<li><i>Named Mults</i> means there is a list of strings (like state names, or whatever)
+that are the multipliers for the contest. You will need to create (and distribute)
+an INI file that has the multipliers in it along with any ALIAS names you want
+to all refer to the same multiplier
+</ul>
 
 <h2>Installer support</h2>
 The wizards described above generate code for a WIX installation using the kits available at http://wixtoolset.org/. Installing the WIX tool set after Visual Studio will result in Visual Studio support for WIX installer projects. While 
