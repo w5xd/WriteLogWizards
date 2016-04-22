@@ -62,7 +62,7 @@ almost identical for the two versions. There is more than one way to accomplish 
 is one that works and is minimally intrusive on your system.
 
 For all four wizards is is not necessary to use Visual Studio to File/Open-Project of any of the
-.sln/.vcproj/.vcxproj files in the repo <code>WL</code><i>nnProject/Module</i><code>Wizard/</code> folders. Doing so MIGHT cause VS to auto-magically 
+.sln/.vcproj/.vcxproj files in the repo Wizard/ folders. Doing so MIGHT cause VS to auto-magically 
 deploy the wizard in your <code><i>&lt;MyDocuments&gt;</i></code> folder, which might or might not conflict with the instructions below. Of course, if you don't like the way the wizards work, you are welcome to change them to suit yourself.
 
 <h4>Deploy the Project Wizard</h4>
