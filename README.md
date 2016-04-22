@@ -94,7 +94,7 @@ Into that newly created LocalItems folder, copy these three files:<ol>
 <li>WL11ModuleWizard.vsdir
 <li>WL11ModuleWizard.vsz
 </ol>
-That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work area: just point that vsz file to the appropriate subdirectory in the work area. Once installed, and in Visual Studio with a WL project open, a right mouse clock on the project looks like this:
+That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work area: just point that vsz file to the appropriate subdirectory in your fetched copy of this git repo. Once installed, and in Visual Studio with a WL project open, a right mouse clock on the project looks like this:
 <p align="center"><img  alt="AddNewItem.png" src="AddNewItem.png"/></p>
 <p align="center"><img width="70%" alt="AddContest.png" src="AddContest.png"/></p>
 The Add New Item may be repeated in order to support more than one contest from a single .DLL. For the WL12 wizard, use the files in WL12ModuleWizard and use the Visual Studio 2013 installation directory, but otherwise all is the same.
