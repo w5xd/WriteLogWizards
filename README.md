@@ -114,7 +114,6 @@ support highlighting and clicking into WriteLog's Entry Window.
    <li><i>multi-mode</i> means that the contest rules are that on a given frequency band,
    contestants can make separate QSOs for credit on multiple modes. Think IARU HF.
 </ol>
-<li><i>Contest Display Name</i> is what the user will see in the WriteLog Select Contest list.
 <li><i>DXCC</i> means the contest counts DXCC countries as multipliers, and the wizard
 generates code for the case of countries as mults once per contest, or once per band.
 <li><i>Zones</i> means the contest counts zones as multipliers. The wizard generates
@@ -127,6 +126,11 @@ they're going to be. This can be used for logging those contests where the
 that are the multipliers for the contest. You will need to create (and distribute)
 an INI file that has the multipliers in it along with any ALIAS names you want
 to all refer to the same multiplier
+<li><i>Contest Display Name</i> is what the user will see in the WriteLog Select Contest list.
+<li><i>Class Name</i> is the name of the C++ class to be generated. The wizard has to generate
+a name for the corresponding COM coclass which it does this way: if you start the name of the 
+class with a "C" (capital C) then the coclass is the name of the C++ class with no leading C. 
+Otherwise, the name of the coclass is the name of the C++ class with CoClass appended
 </ul>
 
 <h2>Installer support</h2>
