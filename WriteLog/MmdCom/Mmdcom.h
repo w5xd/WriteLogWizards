@@ -513,6 +513,16 @@ public:
 
 };
 
+template <class T>
+class CWlogCabrilloSettings : public CWlogEmbeddable<IWlogCabrilloSettings, T>
+{
+public:
+	CWlogCabrilloSettings(T *p) : CWlogEmbeddable<IWlogCabrilloSettings, T>(p){};
+    STDMETHOD(SelectionForThisCategory)( HWND w, const char *pCategoryName, const char *pSelection)
+    {
+        return m_Parent->SelectionForThisCategory(w, pCategoryName, pSelection);
+    }
+};
 
 #endif
 #endif                               
