@@ -390,7 +390,10 @@ DECLARE_INTERFACE_(IWlogCabrilloSettings, IUnknown)
 
 	STDMETHOD(SelectionForThisCategory)(THIS_ HWND hWnd, 
 			const char *pCategoryName,	const char *pSelectedValue);
-	// if the module returns anything other than S_OK, the writing of the cabrillo does NOT
+	// if the module returns S_OK, WL continues
+	// if the module returns S_FALSE, WL does MessageBeep and places the focus on
+	// the control that produced the "problem" result, and does not write the file
+	// if the module returns any failure code, the writing of the cabrillo does NOT
 	// happen and the module is reponsible for putting up a dialog box on parent hWnd
 	// telling the user why.
 };
