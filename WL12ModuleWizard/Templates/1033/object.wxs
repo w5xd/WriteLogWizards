@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <!-- The WL Module wizard emits this file but does not add it to any project
-       TODO: add this to a WIX project.
-       Its NOT OK for multiple coclass's to name the same file. msi ref counts them.
-       if you have multiple coclass's in your dll, you have to merge the various wxs files into one.
-       For most cases, that means copying the <RegistryValue... entries from one wxs to the other,
-       and deleting the one that lost those entries.
+       TODO: add this wxs file to a WIX project.
+       TODO: add <ComponentRef Id="COM_[!output COCLASS]_reg"/> to your <Feature> in product.wxs
+       TODO: add <ComponentRef Id="COM_[!output COCLASS]_data"/> to your <Feature> in product.wxs
   -->
   <Fragment>
     <DirectoryRef Id="WlPrograms">
-      <Component Id = "COM_[!output COCLASS].dll" DiskId = '1' Win64='no' Guid = "{[!output WXS_COMPONENT_GUID_1]}">
-        <File Checksum = "yes"  Source = "..\[!output PROJECT_NAME]\Release\[!output PROJECT_NAME].dll" Id='COM_[!output COCLASS]_dllfile'/>
+      <Component Id = "COM_[!output COCLASS]_reg" DiskId = '1' Win64='no' Guid = "{[!output WXS_COMPONENT_GUID_1]}">
         <RegistryValue Root = "HKCR"
                        Key = "CLSID\{[!output CLSID_REGISTRY_FORMAT]}\Implemented Categories\{C7212159-7716-101A-AA54-00608C61D0B1}"
                        Type = "string" Value = "" />
@@ -21,11 +18,13 @@
       </Component>
     </DirectoryRef>
 
+    <!--If your module has no data files, this entire DirectoryRef and contained Component may be deleted-->
     <DirectoryRef Id="WriteLogCommonAppData">
       <Component Id="COM_[!output COCLASS]_data" Win64="no" DiskId='1' Guid="{[!output WXS_COMPONENT_GUID_2]}">
         <!-- TODO ... and any data files
         <File Id='COM_[!output COCLASS]_data' Source="<path to data file to install in ProgramData\WriteLog >" />
         -->
+        <CreateFolder/> <!--The directory should already be there. but without this directive WIX won't compile-->
       </Component>
     </DirectoryRef>
   </Fragment>

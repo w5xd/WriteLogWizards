@@ -354,6 +354,9 @@ function CreateGUIDs() {
         strRawGUID = wizard.CreateGuid();
         strFormattedGUID = wizard.FormatGuid(strRawGUID, 0);
         wizard.AddSymbol("INSTALLER_UPGRADECODE", strFormattedGUID);
+        strRawGUID = wizard.CreateGuid();
+        strFormattedGUID = wizard.FormatGuid(strRawGUID, 0);
+        wizard.AddSymbol("WXS_COMPONENT_GUID", strFormattedGUID);
     }
     catch (e) {
         throw e;

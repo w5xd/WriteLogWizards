@@ -55,6 +55,9 @@
       <Directory Id="ProgramFilesFolder" Name="PFiles">
         <Directory Id="INSTALLDIR" Name="WriteLog">
           <Directory Id="WlPrograms" Name="Programs">
+              <Component Id = "COM_[!output PROJECT_NAME_CAPS].dll" Win64='no' Guid = "{[!output WXS_COMPONENT_GUID]}">
+                <File Checksum = "yes"  Source = "..\[!output PROJECT_NAME]\Release\[!output PROJECT_NAME].dll" />
+              </Component>
           </Directory>
         </Directory>
       </Directory>
@@ -69,7 +72,9 @@
              Level="1">
       <Feature Id="FeatureID_01" AllowAdvertise='no' Absent='allow'
                           Title="TODO CONTEST TITLE" Level='1'>
-        <ComponentRef Id="COM_TODO.dll"/> <!--Id comes from the wxs snippets emited by ModuleWizard-->
+        <ComponentRef Id="COM_[!output PROJECT_NAME_CAPS].dll"/>
+        <ComponentRef Id="COM_xyz_reg"/>     <!--TODO Id comes from the wxs snippets emited by ModuleWizard-->
+        <ComponentRef Id="COM_xyz_data"/>   <!--DITTO-->
       </Feature>
     </Feature>
 
