@@ -57,14 +57,18 @@ public:
     int dxcc_Home()
     {        return ::dxcc_Home(m_DxContext);    }
 
-    int CheckQso(QsoPtr_t q,
-        CQsoField &fCALL)
+    int CheckCall(const char *pCall) const
     {
         char prefix[CALL_WID];
-        pref_calc(m_DxContext, prefix, fCALL(q));
+        pref_calc(m_DxContext, prefix, pCall);
         return pref_find(m_DxContext, prefix);
     }
 
+    int CheckQso(QsoPtr_t q,
+        CQsoField &fCALL) const
+    {
+        return CheckCall(fCALL(q));
+    }
 
     int CheckQso (QsoPtr_t q,
         bool canWriteIntoQso,
