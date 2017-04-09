@@ -87,13 +87,14 @@ in My Documents like a project wizard. Its deployment requires administrator pri
 You must create files in the Visual Studio installation directory. The directory to find is:
 <pre><code>C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcprojectitems</code>
 </pre>In that vcprojectitems directory, you need two things: <ul>
-<li>Create a folder named <code>LocalItems</code>.
-<li>Into that same vcprojectitems folder, copy the file (unchanged) from this repo: <code>WL11ModuleWizard/LocalItems/LocalItems.vsdir</code>.
+<li>Create a folder named <code>LocalItems</code>.</li>
+<li>Into that same vcprojectitems folder, copy the file (unchanged) from this repo: 
+<code>WL11ModuleWizard/Deploy/LocalItems/LocalItems.vsdir</code>.</li>
 </ul>
-Into that newly created LocalItems folder, copy these three files:<ol>
-<li>WL11ModuleWizard.ico
-<li>WL11ModuleWizard.vsdir
-<li>WL11ModuleWizard.vsz
+Also into that newly created LocalItems folder, copy these three files:<ol>
+<li>WL11ModuleWizard.ico</li>
+<li>WL11ModuleWizard.vsdir</li>
+<li>WL11ModuleWizard.vsz</li>
 </ol>
 That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work area: just point that vsz file to the appropriate subdirectory in your fetched copy of this git repo. Once installed, and in Visual Studio with a WL project open, a right mouse click on the project looks like this:
 <p align="center"><img  alt="AddNewItem.png" src="AddNewItem.png"/></p>
