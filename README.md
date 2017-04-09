@@ -91,7 +91,7 @@ You must create files in the Visual Studio installation directory. The directory
 <li>Into that same vcprojectitems folder, copy the file (unchanged) from this repo: 
 <code>WL11ModuleWizard/Deploy/LocalItems/LocalItems.vsdir</code>.</li>
 </ul>
-Also into that newly created LocalItems folder, copy these three files:<ol>
+And then into that newly created LocalItems folder, copy these three files:<ol>
 <li>WL11ModuleWizard.ico</li>
 <li>WL11ModuleWizard.vsdir</li>
 <li>WL11ModuleWizard.vsz</li>
