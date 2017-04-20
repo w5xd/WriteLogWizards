@@ -149,5 +149,47 @@ public:
 	void SetMults(const int *);
 };
 
+template <class GRIDENTRY, int ID, short BANDOFFSET=0>
+class CGridEntryMultDispPage : public CMultDisplayEntryBase
+{
+public:
+    CGridEntryMultDispPage() : m_GridEntry(0)
+    {    }
+
+    void Init(
+        IMultDisplayPage2 *m,
+        short bands,
+        short bandColorOffset,
+        GRIDENTRY *p,
+        short columnCount = static_cast<short>(18 * 10),
+        short gridcount = (short)(18 * 18 * 10 * 10)
+        )
+    {
+        m_GridEntry = p; 
+        m->put_MultCount(gridcount);
+        m->put_ColumnCount(columnCount);
+        m->put_BandCount(bands);
+        m->put_BandColorOffset(bandColorOffset);
+        m->put_LookupFcn(this);
+    }
+
+    // IMultDisplayEntry
+    STDMETHODIMP get_MultTitle(short Mult, const char **Title)
+    {    
+        if (!m_GridEntry)
+            return E_UNEXPECTED;
+        return m_GridEntry->get_MultTitle(Mult, Title);    
+    }
+
+    STDMETHODIMP get_MultWorked(short Mult, short band)
+    {
+        if (!m_GridEntry)
+            return E_UNEXPECTED;
+        return m_GridEntry->get_MultWorked(ID, Mult, band + BANDOFFSET);    
+    }
+
+    GRIDENTRY *m_GridEntry;
+};
+
 
 #endif                   

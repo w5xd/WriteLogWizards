@@ -54,6 +54,7 @@ const OLECHAR * CRemWlogE::m_rgszMethods[] = {
    OLESTR("PushCall"),
    OLESTR("GetEntryId"),
    OLESTR("NewSpots2"),
+   OLESTR("SetKeyboardFocus"),
 };
 
 const OLECHAR * CRemWlog::m_rgszMethods[] = {
@@ -82,6 +83,7 @@ const OLECHAR * CRemWlog::m_rgszMethods[] = {
    OLESTR("SetFKeyMsgVoice"),
    OLESTR("GetFKeyMsgVoice"),
    OLESTR("ModifyBlacklist"),
+   OLESTR("GetEntry"),
 };
 
 static DISPID Put = DISPID_PROPERTYPUT;
@@ -1062,6 +1064,19 @@ void CRemWlogE::SetAsReturn(void)
 		  &g_dispparamsNoArgs, 0, NULL, NULL);
 }
 
+void CRemWlogE::SetKeyboardFocus(void)
+{
+    HRESULT hresult;
+    TestDispId(IMETH_CREMWLOGE_SETKEYBOARDFOCUS);
+     hresult = m_pdisp->Invoke(
+		  m_rgdispid[IMETH_CREMWLOGE_SETKEYBOARDFOCUS],
+		  IID_NULL,
+		  LOCALE_SYSTEM_DEFAULT,
+		  DISPATCH_METHOD,
+		  &g_dispparamsNoArgs, 0, NULL, NULL);
+}
+
+
 HRESULT CRemWlogE::DupeCheckList(VARIANT Call,
 							VARIANT Rx, VARIANT Tx, VARIANT Mode, VARIANT &res)
 {
@@ -1346,6 +1361,40 @@ CRemWlogE FAR *CRemWlog::GetCurrentEntry()
 CRemWlogE FAR *CRemWlog::GetFocusEntry()
 {
 	 return Entry(IMETH_CREMWLOG_GETFOCENTRY);
+}
+
+CRemWlogE FAR *CRemWlog::GetEntry(short v)
+{
+    HRESULT hresult;
+    VARIANT varResult;
+    VARIANTARG varg;
+    DISPPARAMS dispparams;
+
+    V_VT(&varg) = VT_I2;
+    V_I2(&varg) = v;
+
+    dispparams.cArgs = 1;
+    dispparams.cNamedArgs = 0;
+    dispparams.rgvarg = &varg;
+
+    VariantInit(&varResult);
+    TestDispId(IMETH_CREMWLOG_GETENTRY);
+    hresult = m_pdisp->Invoke(
+        m_rgdispid[IMETH_CREMWLOG_GETENTRY],
+        IID_NULL,
+        LOCALE_SYSTEM_DEFAULT,
+        DISPATCH_METHOD,
+        &dispparams, &varResult, NULL, NULL);
+
+    if (hresult != NOERROR)
+        return 0;
+
+    CRemWlogE FAR *NewEntry = 0;
+    IDispatch *Dispatch;
+    if ((Dispatch = V_DISPATCH(&varResult)) != 0)
+        NewEntry = new CRemWlogE(Dispatch);
+    VariantClear(&varResult);
+    return NewEntry;
 }
 
 void CRemWlog::TestDispId(int X)

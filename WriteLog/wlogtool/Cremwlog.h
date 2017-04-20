@@ -50,6 +50,7 @@ public:
     short GetEntryId();
     void NewSpots(bool singleBand, int count, const char **,  double *,  double *,  short *, const char **,
         const char **);
+    void SetKeyboardFocus();
 
     IUnknown FAR *UnknownInterface();
 
@@ -97,6 +98,7 @@ private:
     IMETH_CREMWLOGE_PUSHCALL,
     IMETH_CREMWLOGE_GETENTRYID,
     IMETH_CREMWLOGE_NEWSPOTS,
+    IMETH_CREMWLOGE_SETKEYBOARDFOCUS,
     IMETH_CREMWLOGE_MAX
     };
 
@@ -125,6 +127,7 @@ public:
     CRemWlogE FAR *CreateEntry();
     CRemWlogE FAR *GetCurrentEntry();
     CRemWlogE FAR *GetFocusEntry();
+    CRemWlogE FAR *GetEntry(short);
 
     BSTR GetMemMsg(short);
 	BSTR GetFKeyMsgDigital(short);
@@ -190,6 +193,7 @@ private:
 	IMETH_CREMWLOG_SETFKEYMSGVOICE,
 	IMETH_CREMWLOG_GETFKEYMSGVOICE,
     IMETH_CREMWLOG_MODIFYBLACKLIST,
+    IMETH_CREMWLOG_GETENTRY,
     IMETH_CREMWLOG_MAX
     };
 
