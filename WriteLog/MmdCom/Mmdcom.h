@@ -408,10 +408,10 @@ public:
 };
 
 template <class T>
-class CWlogMultiGridSquare : public CWlogEmbeddable<IWlogMultiGridSquare, T>
+class CWlogMultiGridSquare : public CWlogEmbeddable<IWlogMultiGridSquare2, T>
 {
 public:
-	CWlogMultiGridSquare(T *p) : CWlogEmbeddable<IWlogMultiGridSquare, T>(p){};
+	CWlogMultiGridSquare(T *p) : CWlogEmbeddable<IWlogMultiGridSquare2, T>(p){};
 	STDMETHOD(GetGridSquares)(QsoPtr_t q, char *pHisSquare, char *pMySquare)
 	{
 		return m_Parent->GetGridSquares(q, pHisSquare, pMySquare);
