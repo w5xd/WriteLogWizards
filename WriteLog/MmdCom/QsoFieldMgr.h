@@ -161,6 +161,8 @@ public:
     bool operator == (int pos) const
     {  return pos == m_mgr.PosFromIdx(m_which);  }
 
+    unsigned FieldNumber() const {return m_mgr.PosFromIdx(m_which);    }
+
     unsigned width() const {  return m_mgr.WidFromIdx(m_which);  }
 
     // given a QsoPtr_t we can read/write the characters of the field.
