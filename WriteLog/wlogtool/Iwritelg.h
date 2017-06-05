@@ -389,7 +389,7 @@ DECLARE_INTERFACE_(IWlogCabrilloSettings, IUnknown)
 	//	"ASSISTED"
 
 	STDMETHOD(SelectionForThisCategory)(THIS_ HWND hWnd, 
-			const char *pCategoryName,	const char *pSelectedValue);
+			const char *pCategoryName,	const char *pSelectedValue) PURE;
 	// if the module returns S_OK, WL continues
 	// if the module returns S_FALSE, WL does MessageBeep and places the focus on
 	// the control that produced the "problem" result, and does not write the file
