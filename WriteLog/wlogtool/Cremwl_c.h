@@ -84,6 +84,7 @@ const OLECHAR * CRemWlog::m_rgszMethods[] = {
    OLESTR("GetFKeyMsgVoice"),
    OLESTR("ModifyBlacklist"),
    OLESTR("GetEntry"),
+   OLESTR("InvokeKeyboardCommand"),
 };
 
 static DISPID Put = DISPID_PROPERTYPUT;
@@ -2038,4 +2039,31 @@ CRemWlog::ModifyBlacklist(const char *call, short spotter, short remove)
         DISPATCH_METHOD,
       &dispparams, &varResult, NULL, NULL);
     return varResult.iVal;
+}
+
+short
+CRemWlog::InvokeKeyboardCommand(const char *cmd)
+{
+    static const unsigned CMD_MAX_WID = 200;
+    OLECHAR cmdW[CMD_MAX_WID];
+    MultiByteToWideChar(CP_ACP, 0, cmd, -1, cmdW, CMD_MAX_WID);
+    VariantSetup arg;
+    arg.vt = VT_BSTR;
+    arg.bstrVal = ::SysAllocString(cmdW);
+    DISPPARAMS dispparam;
+    memset(&dispparam, 0, sizeof(dispparam));
+    dispparam.cArgs = 1;
+    dispparam.rgvarg = &arg;
+
+    VariantSetup varResult;
+    TestDispId(IMETH_CREMWLOG_INVOKEKEYBOARDCOMMAND);
+    HRESULT hr = m_pdisp->Invoke(m_rgdispid[IMETH_CREMWLOG_INVOKEKEYBOARDCOMMAND],
+        IID_NULL,
+        LOCALE_SYSTEM_DEFAULT,
+        DISPATCH_METHOD,
+        &dispparam, &varResult, 0, 0);
+    if (SUCCEEDED(hr))
+        return varResult.iVal;
+    else
+        return 1;
 }

@@ -370,6 +370,7 @@ DECLARE_INTERFACE_(IWlogCabrilloOptions, IUnknown)
 
 DECLARE_INTERFACE_(IWlogCabrilloSettings, IUnknown)
 {
+    // Only supported by WriteLog 12.17 and later.
 	// WriteLog queries for and calls this interface after the user clicks
 	// Create cabrillo.
 	// WriteLog iterates through all the Cabrillo categories (almost) like
@@ -575,7 +576,7 @@ DEFINE_WL_GUID(IWlogCabrillo2, "193c1231-2844-4bba-a6bf-2822d3a4c6e0");
 DEFINE_WL_GUID(IWlogCabrillo3, "C721217B-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogCabrillo4, "C7212180-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogCabrilloOptions, "C721218D-7716-101A-AA54-00608C61D0B1");
-DEFINE_WL_GUID(IWlogCabrilloSettings, "C7212197-7716-101A-AA54-00608C61D0B1");
+DEFINE_WL_GUID(IWlogCabrilloSettings, "C7212198-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogCabrilloHelper, "C721217C-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogMultiADIF, "C7212174-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogMultiSingleMinutes, "C7212176-7716-101A-AA54-00608C61D0B1");

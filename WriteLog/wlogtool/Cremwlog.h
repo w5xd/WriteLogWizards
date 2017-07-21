@@ -155,6 +155,7 @@ public:
 	short	DoSuperCheck(const char *, unsigned int *, unsigned int *);
 	void NewSpot(const char *, double, double, short);
 	void NewSpotEx(const char *, double, double, short, const char *);
+    short InvokeKeyboardCommand(const char *);
     IUnknown FAR *UnknownInterface();
 	static void CvtToChar(BSTR pOleStr, char *Buf, int BufLen)
 	{
@@ -194,6 +195,7 @@ private:
 	IMETH_CREMWLOG_GETFKEYMSGVOICE,
     IMETH_CREMWLOG_MODIFYBLACKLIST,
     IMETH_CREMWLOG_GETENTRY,
+    IMETH_CREMWLOG_INVOKEKEYBOARDCOMMAND,
     IMETH_CREMWLOG_MAX
     };
 

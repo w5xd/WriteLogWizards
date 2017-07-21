@@ -23,7 +23,7 @@
 
 /*type definitions*/
 
-    typedef struct qso_stru FAR * QsoPtr_t;
+    typedef struct qso_stru * QsoPtr_t;
     typedef char FAR * VarPart_t;
 
 struct qso_stru 
