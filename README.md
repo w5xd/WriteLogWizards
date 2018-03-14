@@ -8,8 +8,8 @@ This repo contains:<ol>
 
 Developing in VS 2008 can target both WriteLog versions 11 and 12.
 Developing in VS 2013 targets only WriteLog version 12. (The VS2013
-C++ runtime is not installed by the WL11 installer. But modules
-developed with VS 2013 will work on WL11 if that runtime happens
+C++ runtime is not installed by the WL11 installer. Modules
+developed with VS 2013 happen to work on WL11 if that runtime happens
 to be already installed.)
 
 <h2>The Directory Structure</h2>
@@ -69,7 +69,7 @@ deploy the wizard in your <code><i>&lt;MyDocuments&gt;</i></code> folder, which 
 Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2008&#92;</code>. Create a subfolder named <code><b>Wizards</b></code> and copy these 3 files from the <code>WL11ProjectWizard</code> repo folder into <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2008&#92;Wizards</code>: <ul>
 <li>WL11ProjectWizard.ico
 <li>WL11ProjectWizard.vsdir
-<li>WLProjectWizard.vsz
+<li>WL11ProjectWizard.vsz
 </ul> 
 Edit that last file, the .vsz file, to correct the absolute path. Make it point to the corresponding directory in your fetched version of this git repo:
 <pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL11ProjectWizard"</code>
