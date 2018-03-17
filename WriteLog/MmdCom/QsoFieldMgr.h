@@ -181,6 +181,11 @@ public:
             return m_dest;
         }
 
+        void assign(const accessor &other)
+        {
+            operator = (static_cast<const char *>(other));
+        }
+
         // read this field
         operator const char *() const { return m_dest; }
         const char *str() const { return m_dest;  }

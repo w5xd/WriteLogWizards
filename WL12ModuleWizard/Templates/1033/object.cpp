@@ -852,7 +852,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
         if (OldQ)
 		{
             if (canWrite)    // fill in new field from old qso
-                fRCVD(q) = fRCVD(OldQ);
+                fRCVD(q).assign(fRCVD(OldQ));
             if (!fRCVD(q).empty())
 			    flagNamed = true; // and check whether fRCVD is new mult
 		}
@@ -887,7 +887,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
 			if (OldQ)
 			{
                 if (canWrite) // fill in fZN from OldQ
-                    fZN(q) = fZN(OldQ);
+                    fZN(q).assign(fZN(OldQ));
                 flagZone = true;
 			}
 			else

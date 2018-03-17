@@ -34,7 +34,7 @@
 			** A_REQUIRED with A_MULTI generates a call to:
 			**			IWlogMulti::MultiCheck(,, &ret,WLOG_MULTICHECK_NOWRT,0)
 			** as a QSO is being entered from the Entry Window.
-			** Entry is refused if the "ret" argument is zero.
+			** Entry is refused if the "ret" at return is negative.
 			** It is also expected by the client that the QsoPtr_t NOT be
 			** modified in this call to IWlogMulti::MultiCheck()
 			**
