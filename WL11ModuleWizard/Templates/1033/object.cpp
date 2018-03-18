@@ -589,7 +589,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 			m_NamedMults[band] -= 1;
 [!endif]
 [!if NAMEDMULT_SINGLE_BAND]
-			m_NamedMults += 1;
+			m_NamedMults -= 1;
 [!endif]
 			Mult[BAND_SUMMARY_MUL] -= 1;
 			if (m_NamedDisplay)
