@@ -55,14 +55,16 @@ to enable source-code compatible development of module developed using the old V
 wizard last updated in 2008 (and most of which dates from 2000--or earlier.)
 
 <h2>The wizards</h2>
-You must already have VS 2008 and/or VS 2013 and/or VS 2017 installed. The Community Edition 2017 is supported for WriteLog module development.
+You must already have VS 2008 and/or VS 2013 and/or VS 2017 installed. The Community Edition 2017 is 
+also supported for WriteLog module development.
 It takes two wizard operations to create a WriteLog contest module:<ol>
 <li>The WL11ProjectWizard (or WL12ProjectWizard) creates a skeleton project from the VS File/New-Project menu.
 <li>The WL11ModuleWizard (or WL12ModuleWizard) adds skeleton header/cpp/wxs files to such a project for a contest. 
 </ol>
 For VS 2017, use only the WL12 variations of the wizard deployment.
 <h3>Deploying the wizards</h3>
-There are a total of four wizards: two each for VS 2008 and VS 2013. Use the VS 2013 versions for VS 2017.
+There are a total of four wizards: two each for VS 2008 and VS 2013. Deploy the VS 2013 versions for VS 2017,
+and follow the one-time editing instructions below.
 The instructions for deployment are
 almost identical for all. There is more than one way to accomplish deployment, but here
 is one that works and is minimally intrusive on your system.
@@ -75,14 +77,14 @@ deploy the wizard in your <code><i>&lt;MyDocuments&gt;</i></code> folder, which 
 if you don't like the way the wizards work, you are welcome to change them to suit yourself.
 
 <h4>Deploy the Project Wizard</h4>
-Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2008&#92;</code>. Create a subfolder named 
-<code><b>Wizards</b></code> and copy these 3 files (and only these 3) from the <code>WL11ProjectWizard</code> repo folder into <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2008&#92;Wizards</code>: <ul>
-<li>WL11ProjectWizard.ico
-<li>WL11ProjectWizard.vsdir
-<li>WL11ProjectWizard.vsz
+Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2013&#92;</code>. Create a subfolder named 
+<code><b>Wizards</b></code> and copy these 3 files (and only these 3) from the <code>WL12ProjectWizard</code> repo folder into <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2013&#92;Wizards</code>: <ul>
+<li>WL12ProjectWizard.ico
+<li>WL12ProjectWizard.vsdir
+<li>WL12ProjectWizard.vsz
 </ul> 
 Edit that last file, the .vsz file, to correct the absolute path. Make it point to the corresponding directory in your fetched version of this git repo:
-<pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL11ProjectWizard"</code>
+<pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL12ProjectWizard"</code>
 </pre>There is no need to copy the files out of your git work area.
 <p>Now File/New Project in Visual Studio should show this entry that wasn't there before:</p>
 <p align="center"><img width="70%" alt="ProjectNew2008.png" src="ProjectNew2008.png"/></p>
@@ -94,7 +96,7 @@ The "Empty WL12 Project" wizard generates a VS project for the VS 2013 toolset. 
 it won't build. You must make two changes to make the project build with the VS 2017 tools:
 <ul>
 <li> In Visual Studio 2017, with the newly created project open, use the Visual Studio Project menu, "Retarget Project." The default selections
-it offers are the most recent, and that is what you should accept.<li>
+it offers are the most recent, and that is what you should accept.</li>
 <li>You must edit the targetver.h file that the WriteLog project wizard created. Change it to this: <code>#define WINVER 0x0601</code></li>
 </ul>
 <p><i>Techinical note:</i> Using the WLnnProjectWizard is not strictly necessary because the next wizard, the WLnnModuleWizard can successfully 
@@ -110,12 +112,12 @@ You must create files in the Visual Studio installation directory. The directory
 </pre>In that vcprojectitems directory, you need two things: <ul>
 <li>Create a folder named <code>LocalItems</code>.</li>
 <li>Into that same vcprojectitems folder, copy the file (unchanged) from this repo: 
-<code>WL11ModuleWizard/Deploy/LocalItems/LocalItems.vsdir</code>.</li>
+<code>WL12ModuleWizard/Deploy/LocalItems/LocalItems.vsdir</code>.</li>
 </ul>
 And then into that newly created LocalItems folder, copy these three files:<ol>
-<li>WL11ModuleWizard.ico</li>
-<li>WL11ModuleWizard.vsdir</li>
-<li>WL11ModuleWizard.vsz</li>
+<li>WL12ModuleWizard.ico</li>
+<li>WL12ModuleWizard.vsdir</li>
+<li>WL12ModuleWizard.vsz</li>
 </ol>
 That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work 
 area: just point that vsz file to the appropriate subdirectory in your fetched copy of this git repo. Once installed, and in 
