@@ -524,5 +524,19 @@ public:
     }
 };
 
+
+template <class T>
+class CWlogHighlightNetFrequencyDisplay : public CWlogEmbeddable<IWlogHighlightNetFrequencyDisplay, T>
+{
+public:
+    CWlogHighlightNetFrequencyDisplay(T *p) : CWlogEmbeddable<IWlogHighlightNetFrequencyDisplay, T>(p) {};
+    STDMETHOD(OnNetFrequencyDisplay)(short StationId, short RigNumber, long freq, short mode, short band,
+        short MyId, short idPos, short rigNumPos, char *pMarker, int *pHighlight)
+    {
+        return m_Parent->OnNetFrequencyDisplay( StationId,  RigNumber,  freq,  mode, band,
+             MyId,  idPos,  rigNumPos, pMarker, pHighlight);
+    }
+};
+
 #endif
 #endif                               

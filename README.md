@@ -3,14 +3,17 @@ Tools for WriteLog contest module development
 This repo contains:<ol>
 <li>Source code for Visual Studio 2008 wizards that create WriteLog contest module implementations.
 <li>The same for Visual Studio 2013
+<li>Instructions for using Visual Studio 2017 Community Edition.
 <li> The necessary header files and import libraries to build WriteLog contest modules.
 </ol>
 
 Developing in VS 2008 can target both WriteLog versions 11 and 12.
 Developing in VS 2013 targets only WriteLog version 12. (The VS2013
 C++ runtime is not installed by the WL11 installer. Modules
-developed with VS 2013 happen to work on WL11 if that runtime happens
+developed with VS 2013 happen to work on WL11 if the VS2013 runtime happens
 to be already installed.)
+Developing in VS 2017 targets both WriteLog 11 and 12, <b>but</b> you must arrange to install
+the VS 2017 runtime when your module is installed.
 
 <h2>The Directory Structure</h2>
 The wizards generate code that assumes the relative file paths set up in this repo:
@@ -21,7 +24,8 @@ VS File/New-project wizard place any newly created WL module development project
 
 <code><b>WL11ModuleWizard/</b></code><br/>
 contains the source of the VS2008 module create wizard. 
-Do <i>not</i> open any vcproj/sln/vcxproj here or in any of the next three Wizard source code folders with Visual Studio unless your intent is to upgrade the wizard itself (as opposed to develop a WriteLog contest module.) The source in this repo is sufficient to use the wizards as-is.
+Do <i>not</i> open any vcproj/sln/vcxproj here or in any of the next three Wizard source code folders with Visual Studio unless your intent is to upgrade the wizard itself 
+(as opposed to develop a WriteLog contest module.) The source in this repo is sufficient to use the wizards as-is.
 
 <code><b>WL11ProjectWizard/</b></code><br/>
 contains the source of the VS2008 project create wizard.
@@ -34,7 +38,7 @@ contains the source of the VS2013 project create wizard.
 
 <code><b>WriteLog/</b></code><br/>
 contains the source of the various headers and import libraries required by the generated project. These headers
-and libraries suffice for both WL11 and WL12 (and VS2008 and VS2013). You do <i>not</i> edit anything here, with <b>one</b> exception:
+and libraries suffice for both WL11 and WL12 (and VS2008, VS2013, and VS2017). You do <i>not</i> edit anything here, with <b>one</b> exception:
 
 <code><b>WriteLog/include/</b></code><br/>
 is where it is suggested you put your own common headers you want available across multiple modules. 
@@ -51,22 +55,28 @@ to enable source-code compatible development of module developed using the old V
 wizard last updated in 2008 (and most of which dates from 2000--or earlier.)
 
 <h2>The wizards</h2>
-You must already have VS 2008 and/or VS 2013 installed. The Express versions are not supported for WriteLog module development.
+You must already have VS 2008 and/or VS 2013 and/or VS 2017 installed. The Community Edition 2017 is supported for WriteLog module development.
 It takes two wizard operations to create a WriteLog contest module:<ol>
 <li>The WL11ProjectWizard (or WL12ProjectWizard) creates a skeleton project from the VS File/New-Project menu.
 <li>The WL11ModuleWizard (or WL12ModuleWizard) adds skeleton header/cpp/wxs files to such a project for a contest. 
 </ol>
+For VS 2017, use only the WL12 variations of the wizard deployment.
 <h3>Deploying the wizards</h3>
-There are a total of four wizards: two each for VS 2008 and VS 2013. The instructions for deployment are
-almost identical for the two versions. There is more than one way to accomplish deployment, but here
+There are a total of four wizards: two each for VS 2008 and VS 2013. Use the VS 2013 versions for VS 2017.
+The instructions for deployment are
+almost identical for all. There is more than one way to accomplish deployment, but here
 is one that works and is minimally intrusive on your system.
+
+<p>The deployment of the WL12 wizard is the same, except substitute to WL12 for WL11, and substitute 2013 for 2008.</p>
 
 For all four wizards is is not necessary to use Visual Studio to File/Open-Project of any of the
 .sln/.vcproj/.vcxproj files in the repo Wizard/ folders. Doing so MIGHT cause VS to auto-magically 
-deploy the wizard in your <code><i>&lt;MyDocuments&gt;</i></code> folder, which might or might not conflict with the instructions below. Of course, if you don't like the way the wizards work, you are welcome to change them to suit yourself.
+deploy the wizard in your <code><i>&lt;MyDocuments&gt;</i></code> folder, which might or might not conflict with the instructions below. Of course, 
+if you don't like the way the wizards work, you are welcome to change them to suit yourself.
 
 <h4>Deploy the Project Wizard</h4>
-Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2008&#92;</code>. Create a subfolder named <code><b>Wizards</b></code> and copy these 3 files from the <code>WL11ProjectWizard</code> repo folder into <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2008&#92;Wizards</code>: <ul>
+Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2008&#92;</code>. Create a subfolder named 
+<code><b>Wizards</b></code> and copy these 3 files (and only these 3) from the <code>WL11ProjectWizard</code> repo folder into <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2008&#92;Wizards</code>: <ul>
 <li>WL11ProjectWizard.ico
 <li>WL11ProjectWizard.vsdir
 <li>WL11ProjectWizard.vsz
@@ -74,18 +84,29 @@ Visual Studio should have already created the directory <code><i>&lt;MyDocuments
 Edit that last file, the .vsz file, to correct the absolute path. Make it point to the corresponding directory in your fetched version of this git repo:
 <pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL11ProjectWizard"</code>
 </pre>There is no need to copy the files out of your git work area.
-<p>Now File/New Project in Visual Studio 2008 should show this entry that wasn't there before:</p>
+<p>Now File/New Project in Visual Studio should show this entry that wasn't there before:</p>
 <p align="center"><img width="70%" alt="ProjectNew2008.png" src="ProjectNew2008.png"/></p>
 <p>In order for the directory structure to match that assumed by the module wizard, when creating a
 new project, browse to the Projects directory in this repo (create it, if necessary),
 and turn <b>off</b> that <i>Create Directory for solution</i> check box.</p>
-<p>The deployment of the WL12 wizard is the same, except substitute to WL12 for WL11, and substitute 2013 for 2008.</p>
-<p><i>Techinical note:</i> Using the WLnnProjectWizard is not strictly necessary because the next wizard, the WLnnModuleWizard can successfully add a contest implementation to a correctly-configured ATL DLL constructed using Visual Studio's built-in ATL wizards. The built-in wizard adds a lot of stuff that WriteLog doesn't need or use, which can be confusing if you're not already an expert in ATL development.</p>
+<h3>For VS 2017 Community Edition</h3>
+The "Empty WL12 Project" wizard generates a VS project for the VS 2013 toolset. If you don't have that toolset installed,
+it won't build. You must make two changes to make the project build with the VS 2017 tools:
+<ul>
+<li> In Visual Studio 2017, with the newly created project open, use the Visual Studio Project menu, "Retarget Project." The default selections
+it offers are the most recent, and that is what you should accept.<li>
+<li>You must edit the targetver.h file that the WriteLog project wizard created. Change it to this: <code>#define WINVER 0x0601</code></li>
+</ul>
+<p><i>Techinical note:</i> Using the WLnnProjectWizard is not strictly necessary because the next wizard, the WLnnModuleWizard can successfully 
+add a contest implementation to a correctly-configured ATL DLL constructed using Visual Studio's built-in ATL wizards. The built-in wizard adds a lot 
+of stuff that WriteLog doesn't need or use, which can be confusing if you're not already an expert in ATL development.</p>
 <h4>Deploy the ModuleWizard</h4>
 Getting a new item into the Visual Studio Add/New-Item menu apparently cannot be done
 in My Documents like a project wizard. Its deployment requires administrator privilege. 
 You must create files in the Visual Studio installation directory. The directory to find is:
-<pre><code>C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcprojectitems</code>
+<pre><code>C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcprojectitems</code> (for VS2008)
+<code>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcprojectitems</code> (for VS2013)
+<code>C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\vcprojectitems</code> (for VS 2017)
 </pre>In that vcprojectitems directory, you need two things: <ul>
 <li>Create a folder named <code>LocalItems</code>.</li>
 <li>Into that same vcprojectitems folder, copy the file (unchanged) from this repo: 
@@ -96,10 +117,13 @@ And then into that newly created LocalItems folder, copy these three files:<ol>
 <li>WL11ModuleWizard.vsdir</li>
 <li>WL11ModuleWizard.vsz</li>
 </ol>
-That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work area: just point that vsz file to the appropriate subdirectory in your fetched copy of this git repo. Once installed, and in Visual Studio with a WL project open, a right mouse click on the project looks like this:
+That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work 
+area: just point that vsz file to the appropriate subdirectory in your fetched copy of this git repo. Once installed, and in 
+Visual Studio with a WL project open, a right mouse click on the project looks like this:
 <p align="center"><img  alt="AddNewItem.png" src="AddNewItem.png"/></p>
 <p align="center"><img width="70%" alt="AddContest.png" src="AddContest.png"/></p>
-The Add New Item may be repeated in order to support more than one contest from a single .DLL. For the WL12 wizard, use the files in WL12ModuleWizard and use the Visual Studio 2013 installation directory, but otherwise all is the same.
+The Add New Item may be repeated in order to support more than one contest from a single .DLL. For the WL12 wizard, use the 
+files in WL12ModuleWizard and use the Visual Studio 2013 installation directory, but otherwise all is the same.
 The module wizard presents these options.
 <p align="center"><img alt="WLModuleWizard.png" src="WLModuleWizard.png" /></p>
 <ul>

@@ -416,7 +416,9 @@ DECLARE_INTERFACE_(IWlogMultiSingleMinutes, IUnknown)
 {
 	// Return the number of seconds that a station must remain on a band (usually 600)
 	STDMETHOD(SecondsOnBandRequired)(THIS_ long *pSeconds) PURE;
-	// set *pMultCount to the number of mults for q. *pMultCount = 2, for example is a double mult
+	/* set *pMultCount to the number of mults for q. *pMultCount = 2, for example is a double mult.
+    ** If, instead, the contest has SecondsOnBandRequired, but multipliers do not figure into 
+    ** the 10 minute rule, then return E_NOTIMPL */
 	STDMETHOD(IsMultiplier)(THIS_ QsoPtr_t q, long *pMultCount) PURE;
 };
 
@@ -563,6 +565,23 @@ DECLARE_INTERFACE_(IWlogMulFeatureEnable, IUnknown)
     STDMETHOD(GetPostingContestName)(THIS_ char *name) PURE;/* CAN BE NULLPTR */
 };
 
+DECLARE_INTERFACE_(IWlogHighlightNetFrequencyDisplay, IUnknown)
+{
+    /* WriteLog's Network Frequency display can be modified by this interface.
+    ** The StationId, RigNumber, freq, and mode describe the line in the display to display.
+    ** MyId is this PC's ID on the network.
+    ** idPos is the offset into qso_varpart of the StationId as logged (negative means not logged)
+    ** rigNumPos is the offset in qso_varpart of the rig number as logged (negative means not logged)
+    ** pMarker gives the module a chance to put a character in the R column
+    ** pHighlight gives the module a chance to change the color coding:
+    **      0 means normal
+    **      1 means highlight as GREEN (OK!)
+    **      2 means highlight as YELLOW(CAUTION)
+    **      3 means highlight as RED (STOP!)
+    */
+    STDMETHOD(OnNetFrequencyDisplay)(THIS_ short StationId, short RigNumber, long freq, short mode, short band,
+            short MyId, short idPos, short rigNumPos, char *pMarker, int *pHighlight) PURE;
+};
 
 DEFINE_WL_GUID(IWriteLog, "C7212144-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogMulti, "C721220C-7716-101A-AA54-00608C61D0B1");
@@ -591,6 +610,7 @@ DEFINE_WL_GUID(IWlogTQslQsoLocation, "C721218E-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWriteLog2, "C721218F-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogMultiOffTime, "76e5ada3-fbc0-4368-b881-1d9d3fc2240a");
 DEFINE_WL_GUID(IWlogMulFeatureEnable, "4b6006be-67c4-4654-a70a-42b1e7da8f21");
+DEFINE_WL_GUID(IWlogHighlightNetFrequencyDisplay, "C7212199-7716-101A-AA54-00608C61D0B1");
 
 DEFINE_GUID(CATID_IWlogMultiCategory, 0xC7212159, 0x7716, 0x101A,
     0xAA, 0x54, 0x00, 0x60, 0x8C, 0x61, 0xD0, 0xB1);

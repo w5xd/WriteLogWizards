@@ -55,6 +55,10 @@ const OLECHAR * CRemWlogE::m_rgszMethods[] = {
    OLESTR("GetEntryId"),
    OLESTR("NewSpots2"),
    OLESTR("SetKeyboardFocus"),
+   OLESTR("AdvanceTabIfCall"),
+   OLESTR("unhighlightRtty"),
+   OLESTR("DoMouseWheelSteps"),
+   OLESTR("SetHeadphones")
 };
 
 const OLECHAR * CRemWlog::m_rgszMethods[] = {
@@ -1238,7 +1242,76 @@ void CRemWlogE::PushCall(short entryId)
 		  &dispparams, 0, NULL, NULL);
 }
 
+void CRemWlogE::DoMouseWheelSteps(short entryId)
+{
+    VARIANT pdisp;
+    DISPPARAMS dispparams;
+    HRESULT hresult;
 
+    VariantInit(&pdisp);
+
+    dispparams.cArgs = 1;
+    dispparams.cNamedArgs = 0;
+    dispparams.rgvarg = &pdisp;
+    dispparams.rgdispidNamedArgs = 0;
+
+    V_VT(&pdisp) = VT_I2;
+    V_I2(&pdisp) = entryId;
+
+    TestDispId(IMETH_CREMWLOGE_DOMOUSEWHEELSTEPS);
+    hresult = m_pdisp->Invoke(
+        m_rgdispid[IMETH_CREMWLOGE_DOMOUSEWHEELSTEPS],
+        IID_NULL,
+        LOCALE_SYSTEM_DEFAULT,
+        DISPATCH_METHOD,
+        &dispparams, 0, NULL, NULL);
+}
+
+
+void CRemWlogE::AdvanceTabIfCall()
+{
+    TestDispId(IMETH_CREMWLOGE_PUSHCALL);
+    m_pdisp->Invoke(
+        m_rgdispid[IMETH_CREMWLOGE_ADVANCETABIFCALL],
+        IID_NULL,
+        LOCALE_SYSTEM_DEFAULT,
+        DISPATCH_METHOD,
+        &g_dispparamsNoArgs, 0, NULL, NULL);
+}
+
+void CRemWlogE::unhighlightRtty()
+{
+    TestDispId(IMETH_CREMWLOGE_UNHIGHLIGHTRTTY);
+    m_pdisp->Invoke(
+        m_rgdispid[IMETH_CREMWLOGE_UNHIGHLIGHTRTTY],
+        IID_NULL,
+        LOCALE_SYSTEM_DEFAULT,
+        DISPATCH_METHOD,
+        &g_dispparamsNoArgs, 0, NULL, NULL);
+}
+
+void CRemWlogE::SetHeadphones(short ifNotSplit)
+{
+    VARIANT pdisp;
+    DISPPARAMS dispparams = {};
+    HRESULT hresult;
+
+    VariantInit(&pdisp);
+
+    dispparams.cArgs = 1;
+    dispparams.rgvarg = &pdisp;
+
+    V_VT(&pdisp) = VT_I2;
+    V_I2(&pdisp) = ifNotSplit;
+
+    TestDispId(IMETH_CREMWLOGE_SETHEADPHONES);
+    hresult = m_pdisp->Invoke(
+        m_rgdispid[IMETH_CREMWLOGE_SETHEADPHONES],
+        IID_NULL,
+        LOCALE_SYSTEM_DEFAULT,
+        DISPATCH_METHOD,
+        &dispparams, 0, NULL, NULL);
+}
 
 IUnknown FAR *CRemWlogE::UnknownInterface()
 {

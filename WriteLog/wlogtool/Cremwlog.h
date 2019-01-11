@@ -51,6 +51,10 @@ public:
     void NewSpots(bool singleBand, int count, const char **,  double *,  double *,  short *, const char **,
         const char **);
     void SetKeyboardFocus();
+    void SetHeadphones(short ifNotSplit);
+    void AdvanceTabIfCall();
+    void unhighlightRtty();
+    void DoMouseWheelSteps(short);
 
     IUnknown FAR *UnknownInterface();
 
@@ -99,6 +103,10 @@ private:
     IMETH_CREMWLOGE_GETENTRYID,
     IMETH_CREMWLOGE_NEWSPOTS,
     IMETH_CREMWLOGE_SETKEYBOARDFOCUS,
+    IMETH_CREMWLOGE_ADVANCETABIFCALL,
+    IMETH_CREMWLOGE_UNHIGHLIGHTRTTY,
+    IMETH_CREMWLOGE_DOMOUSEWHEELSTEPS,
+    IMETH_CREMWLOGE_SETHEADPHONES,
     IMETH_CREMWLOGE_MAX
     };
 
