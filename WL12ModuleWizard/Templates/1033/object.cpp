@@ -305,8 +305,8 @@ void [!output MM_CLASS_NAME]::FinalRelease()
 // IWlogMulti Methods
 HRESULT [!output MM_CLASS_NAME]::GetLayout(ConstBandPtr_t * b, ConstExfPtr_t * e, LPCSTR * s)
 {
-    /* Called by WriteLog on its File/New
-    ** Note that it is NOT called on File/Open.
+    /* Called by WriteLog on its File/New with b and e non-zero
+    ** Called on File/Open with b and e set to zero
     ** On File/Open, this module must recover its state on its Load() method.
     */
     if (e)
