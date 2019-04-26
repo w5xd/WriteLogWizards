@@ -112,9 +112,9 @@ You must create files in the Visual Studio installation directory. The directory
 </pre>In that vcprojectitems directory, you need two things: <ul>
 <li>Create a folder named <code>LocalItems</code>.</li>
 <li>Into that same vcprojectitems folder, copy the file (unchanged) from this repo: 
-<code>WL12ModuleWizard/Deploy/LocalItems/LocalItems.vsdir</code>.</li>
+<code>WL12ModuleWizard/Deploy/LocalItems.vsdir</code>.</li>
 </ul>
-And then into that newly created LocalItems folder, copy these three files:<ol>
+And then into that newly created LocalItems folder, copy these three files from the repo's WL12ModuleWizard folder:<ol>
 <li>WL12ModuleWizard.ico</li>
 <li>WL12ModuleWizard.vsdir</li>
 <li>WL12ModuleWizard.vsz</li>
