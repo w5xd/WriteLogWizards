@@ -463,7 +463,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 		int ayg = FindAyg(TRUE, fAYG(q));
 		if (ayg < 0)
 			fAYGMULT(q) = "?";
-		else
+		else if (ayg < static_cast<int>(m_AygDisplayNames.size()))
 		{
 [!if AYGMULT_MULTI_BAND]
 			newAygFlag = !(m_AygStatus[band][ayg]++);
