@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{55BE2D0D-A459-4822-B8D1-C5BBF953C0AA}</ProjectGuid>
+    <Keyword>CustomAppWizProj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>WL12ProjectWizard2017</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="Templates\1033\ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="default.vcxproj">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Scripts\1033\default.js" />
+    <None Include="Templates\1033\product.wxs" />
+    <None Include="Templates\1033\TemplateContestModule.def" />
+    <None Include="Templates\1033\TemplateContestModule.rgs" />
+    <None Include="Templates\1033\Templates.inf" />
+    <None Include="WL12ProjectWizard2017.vsdir" />
+    <None Include="WL12ProjectWizard2017.vsz" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="WL12ProjectWizard2017.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Templates\1033\dllmain.cpp" />
+    <ClCompile Include="Templates\1033\stdafx.cpp" />
+    <ClCompile Include="Templates\1033\TemplateContestModule.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Templates\1033\dllmain.h" />
+    <ClInclude Include="Templates\1033\Resource.h" />
+    <ClInclude Include="Templates\1033\stdafx.h" />
+    <ClInclude Include="Templates\1033\targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="Templates\1033\TemplateContestModule.idl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </Midl>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Templates\1033\TemplateContestModule.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

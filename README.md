@@ -36,6 +36,9 @@ contains the source of the VS2013 module create wizard.
 <code><b>WL12ProjectWizard/</b></code><br/>
 contains the source of the VS2013 project create wizard.
 
+<code><b>WL12ProjectWizard2017/</b></code><br/>
+contains the source of the VS2017 project create wizard.
+
 <code><b>WriteLog/</b></code><br/>
 contains the source of the various headers and import libraries required by the generated project. These headers
 and libraries suffice for both WL11 and WL12 (and VS2008, VS2013, and VS2017). You do <i>not</i> edit anything here, with <b>one</b> exception:
@@ -58,18 +61,18 @@ wizard last updated in 2008 (and most of which dates from 2000--or earlier.)
 You must already have VS 2008 and/or VS 2013 and/or VS 2017 installed. The Community Edition 2017 is 
 also supported for WriteLog module development.
 It takes two wizard operations to create a WriteLog contest module:<ol>
-<li>The WL11ProjectWizard (or WL12ProjectWizard) creates a skeleton project from the VS File/New-Project menu.
-<li>The WL11ModuleWizard (or WL12ModuleWizard) adds skeleton header/cpp/wxs files to such a project for a contest. 
+<li>The WL12ProjectWizard (or wl12ProjectWizard2017 or WL11ProjectWizard) creates a skeleton project from the VS File/New-Project menu.
+<li>The WL12ModuleWizard (or WL11ModuleWizard) adds skeleton header/cpp/wxs files to such a project for a contest. 
 </ol>
-For VS 2017, use only the WL12 variations of the wizard deployment.
+For VS 2017, use only the 2017 variation of the wizard deployment.
 <h3>Deploying the wizards</h3>
-There are a total of four wizards: two each for VS 2008 and VS 2013. Deploy the VS 2013 versions for VS 2017,
+There are a total of four wizards: two each for VS 2008 and VS 2013 and VS 2017,
 and follow the one-time editing instructions below.
 The instructions for deployment are
 almost identical for all. There is more than one way to accomplish deployment, but here
 is one that works and is minimally intrusive on your system.
 
-<p>The deployment of the WL12 wizard is the same, except substitute to WL12 for WL11, and substitute 2013 for 2008.</p>
+<p>The deployment of the WL12 Project wizard is the same, except substitute to WL12 for WL11, and substitute 2013 for 2008.</p>
 
 For all four wizards is is not necessary to use Visual Studio to File/Open-Project of any of the
 .sln/.vcproj/.vcxproj files in the repo Wizard/ folders. Doing so MIGHT cause VS to auto-magically 
@@ -78,7 +81,8 @@ if you don't like the way the wizards work, you are welcome to change them to su
 
 <h4>Deploy the Project Wizard</h4>
 Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2013&#92;</code>. Create a subfolder named 
-<code><b>Wizards</b></code> and copy these 3 files (and only these 3) from the <code>WL12ProjectWizard</code> repo folder into <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2013&#92;Wizards</code>: <ul>
+<code><b>Wizards</b></code> and copy these 3 files (and only these 3) from the <code>WL12ProjectWizard</code> 
+repo folder (or <code>WL12ProjectWizard2017</code>)into <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2013&#92;Wizards</code>: <ul>
 <li>WL12ProjectWizard.ico
 <li>WL12ProjectWizard.vsdir
 <li>WL12ProjectWizard.vsz
@@ -92,14 +96,11 @@ Edit that last file, the .vsz file, to correct the absolute path. Make it point 
 new project, browse to the Projects directory in this repo (create it, if necessary),
 and turn <b>off</b> that <i>Create Directory for solution</i> check box.</p>
 <h3>For VS 2017 Community Edition</h3>
-The "Empty WL12 Project" wizard generates a VS project for the VS 2013 toolset. If you don't have that toolset installed,
-it won't build. You must make two changes to make the project build with the VS 2017 tools:
 <ul>
-<li> In Visual Studio 2017, with the newly created project open, use the Visual Studio Project menu, "Retarget Project." The default selections
-it offers are the most recent, and that is what you should accept.</li>
-<li>You must edit the targetver.h file that the WriteLog project wizard created. Change it to this: <code>#define WINVER 0x0601</code></li>
+<li></li>
+<li></li>
 </ul>
-<p><i>Techinical note:</i> Using the WLnnProjectWizard is not strictly necessary because the next wizard, the WLnnModuleWizard can successfully 
+<p><i>Technical note:</i> Using the WLnnProjectWizard is not strictly necessary because the next wizard, the WLnnModuleWizard can successfully 
 add a contest implementation to a correctly-configured ATL DLL constructed using Visual Studio's built-in ATL wizards. The built-in wizard adds a lot 
 of stuff that WriteLog doesn't need or use, which can be confusing if you're not already an expert in ATL development.</p>
 <h4>Deploy the ModuleWizard</h4>
@@ -119,6 +120,7 @@ And then into that newly created LocalItems folder, copy these three files from 
 <li>WL12ModuleWizard.vsdir</li>
 <li>WL12ModuleWizard.vsz</li>
 </ol>
+Visual Studio 2013 and 2017 install both use the same WL12ModuleWizard.
 That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work 
 area: just point that vsz file to the appropriate subdirectory in your fetched copy of this git repo. Once installed, and in 
 Visual Studio with a WL project open, a right mouse click on the project looks like this:
