@@ -101,8 +101,8 @@ new project, browse to the Projects directory in this repo (create it, if necess
 and turn <b>off</b> that <i>Create Directory for solution</i> check box.</p>
 <h3>For VS 2017 Community Edition</h3>
 <ul>
-<li>Use the same WL12ModuleWizard <i>directory</i>as for VS2013, but copy the WL12ModuleWizard2017.* files into VS2017's directory (see below.)</li>
-<li>But use the WL12ProjectWizard2017 for the project wizard.</li>
+<li>Use the WL12ProjectWizard2017 for the project wizard as above.</li>
+<li>Use the same WL12ModuleWizard <i>directory</i> as for VS2013, but copy the WL12ModuleWizard2017.* files into VS2017's directory (see below.)</li>
 <li>The wizard creates a project that targest the Windows 8 SDK, but VS2017 does not install the Windows 8 SDK.
 The first time you build it, you'll either have to follow its instructions to "retarget" to the Windows 10 SDK, or else manually install the Windows 8 SDK.</li>
 </ul>
