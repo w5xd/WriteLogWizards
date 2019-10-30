@@ -13,7 +13,7 @@ C++ runtime is not installed by the WL11 installer. Modules
 developed with VS 2013 happen to work on WL11 if the VS2013 runtime happens
 to be already installed.)
 Developing in VS 2017 targets both WriteLog 11 and 12, <b>but</b> you must arrange to install
-the VS 2017 runtime when your module is installed.
+the VS 2017 runtime when your module is installed on WriteLog versions older than 12.40.
 
 <h2>The Directory Structure</h2>
 The wizards generate code that assumes the relative file paths set up in this repo:
@@ -66,23 +66,25 @@ It takes two wizard operations to create a WriteLog contest module:<ol>
 </ol>
 For VS 2017, use only the 2017 variation of the wizard deployment.
 <h3>Deploying the wizards</h3>
-There are a total of four wizards: two each for VS 2008 and VS 2013 and VS 2017,
+There are a total of si wizards: two each for VS 2008 and VS 2013 and VS 2017,
 and follow the one-time editing instructions below.
 The instructions for deployment are
 almost identical for all. There is more than one way to accomplish deployment, but here
 is one that works and is minimally intrusive on your system.
 
-<p>The deployment of the WL12 Project wizard is the same, except substitute to WL12 for WL11, and substitute 2013 for 2008.</p>
+<p>The deployment of the WL12 Project wizard is the same for all Visual Studio versions,
+except substitute to WL12 for WL11, and substitute 2013 for 2008.</p>
 
-For all four wizards is is not necessary to use Visual Studio to File/Open-Project of any of the
+For all wizards is is not necessary to use Visual Studio to File/Open-Project of any of the
 .sln/.vcproj/.vcxproj files in the repo Wizard/ folders. Doing so MIGHT cause VS to auto-magically 
 deploy the wizard in your <code><i>&lt;MyDocuments&gt;</i></code> folder, which might or might not conflict with the instructions below. Of course, 
 if you don't like the way the wizards work, you are welcome to change them to suit yourself.
 
 <h4>Deploy the Project Wizard</h4>
-Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2013&#92;</code>. Create a subfolder named 
+Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>&#92Visual Studio 2013&#92;</code> (or <code>&#92Visual Studio 2017&#92;</code>.)
+Create a subfolder named 
 <code><b>Wizards</b></code> and copy these 3 files (and only these 3) from the <code>WL12ProjectWizard</code> 
-repo folder (or <code>WL12ProjectWizard2017</code>)into <code><i>&lt;MyDocuments&gt;</i>\Visual Studio 2013&#92;Wizards</code>: <ul>
+repo folder (or similarly named files from <code>WL12ProjectWizard2017</code>)into <code>&#92Wizards&#92</code>: <ul>
 <li>WL12ProjectWizard.ico
 <li>WL12ProjectWizard.vsdir
 <li>WL12ProjectWizard.vsz
@@ -103,6 +105,7 @@ and turn <b>off</b> that <i>Create Directory for solution</i> check box.</p>
 <p><i>Technical note:</i> Using the WLnnProjectWizard is not strictly necessary because the next wizard, the WLnnModuleWizard can successfully 
 add a contest implementation to a correctly-configured ATL DLL constructed using Visual Studio's built-in ATL wizards. The built-in wizard adds a lot 
 of stuff that WriteLog doesn't need or use, which can be confusing if you're not already an expert in ATL development.</p>
+
 <h4>Deploy the ModuleWizard</h4>
 Getting a new item into the Visual Studio Add/New-Item menu apparently cannot be done
 in My Documents like a project wizard. Its deployment requires administrator privilege. 
@@ -120,7 +123,8 @@ And then into that newly created LocalItems folder, copy these three files from 
 <li>WL12ModuleWizard.vsdir</li>
 <li>WL12ModuleWizard.vsz</li>
 </ol>
-Visual Studio 2013 and 2017 install both use the same WL12ModuleWizard.
+Visual Studio 2013 and 2017 install both use the same WL12ModuleWizard <i>directory</i> but the files to copy for VS2017 are
+those ending in <code>2017</code>.
 That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work 
 area: just point that vsz file to the appropriate subdirectory in your fetched copy of this git repo. Once installed, and in 
 Visual Studio with a WL project open, a right mouse click on the project looks like this:
