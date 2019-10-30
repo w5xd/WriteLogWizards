@@ -101,6 +101,9 @@ and turn <b>off</b> that <i>Create Directory for solution</i> check box.</p>
 <ul>
 <li>Use the same WL12ModuleWizard <i>directory</i>as for VS2013, but copy the WL12ModuleWizard2017.* files into VS2017's directory (see below.)</li>
 <li>But use the WL12ProjectWizard2017 for the project wizard.</li>
+<li>The wizard creates a project that targest the Windows 8 SDK, but VS2017 does not install the Windows 8 SDK.
+The first time you build it, you'll either have to follow its instructions to "retarget" to the Windows 10 SDK, or else manually install the
+Windows 8 SDK.</li>
 </ul>
 
 <h4>Deploy the ModuleWizard</h4>
