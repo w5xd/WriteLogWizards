@@ -121,7 +121,7 @@ You must create files in the Visual Studio installation directory. The directory
 And then into that newly created LocalItems folder, copy these three files from the repo's WL12ModuleWizard folder:<ol>
 <li>WL12ModuleWizard.ico or WL12ModuleWizard2017.ico</li>
 <li>WL12ModuleWizard.vsdir or WL12ModuleWizard2017.vsdir</li>
-<li>WL12ModuleWizard.vsz or WL12ModuleWizard2017.vsz/li>
+<li>WL12ModuleWizard.vsz or WL12ModuleWizard2017.vsz</li>
 </ol>
 Visual Studio 2013 and 2017 install both use the same WL12ModuleWizard <i>directory</i> but the files to copy for VS2017 are
 those ending in <code>2017</code>.
