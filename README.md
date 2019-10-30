@@ -97,8 +97,8 @@ new project, browse to the Projects directory in this repo (create it, if necess
 and turn <b>off</b> that <i>Create Directory for solution</i> check box.</p>
 <h3>For VS 2017 Community Edition</h3>
 <ul>
-<li></li>
-<li></li>
+<li>Use the same WL12ModuleWizard as for VS2013</li>
+<li>But use the WL12ProjectWizard2017 for the project wizard.</li>
 </ul>
 <p><i>Technical note:</i> Using the WLnnProjectWizard is not strictly necessary because the next wizard, the WLnnModuleWizard can successfully 
 add a contest implementation to a correctly-configured ATL DLL constructed using Visual Studio's built-in ATL wizards. The built-in wizard adds a lot 
