@@ -66,7 +66,7 @@ It takes two wizard operations to create a WriteLog contest module:<ol>
 </ol>
 For VS 2017, use only the 2017 variation of the wizard deployment.
 <h3>Deploying the wizards</h3>
-There are a total of si wizards: two each for VS 2008 and VS 2013 and VS 2017,
+There are a total of six wizards: two each for VS 2008 and VS 2013 and VS 2017,
 and follow the one-time editing instructions below.
 The instructions for deployment are
 almost identical for all. There is more than one way to accomplish deployment, but here
@@ -75,7 +75,7 @@ is one that works and is minimally intrusive on your system.
 <p>The deployment of the WL12 Project wizard is the same for all Visual Studio versions,
 except substitute to WL12 for WL11, and substitute 2013 for 2008.</p>
 
-For all wizards is is not necessary to use Visual Studio to File/Open-Project of any of the
+For all wizards it is not necessary to use Visual Studio to File/Open-Project of any of the
 .sln/.vcproj/.vcxproj files in the repo Wizard/ folders. Doing so MIGHT cause VS to auto-magically 
 deploy the wizard in your <code><i>&lt;MyDocuments&gt;</i></code> folder, which might or might not conflict with the instructions below. Of course, 
 if you don't like the way the wizards work, you are welcome to change them to suit yourself.
@@ -83,14 +83,14 @@ if you don't like the way the wizards work, you are welcome to change them to su
 <h4>Deploy the Project Wizard</h4>
 Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>&#92Visual Studio 2013&#92;</code> (or <code>&#92Visual Studio 2017&#92;</code>.)
 Create a subfolder named 
-<code><b>Wizards</b></code> and copy these 3 files (and only these 3) from the <code>WL12ProjectWizard</code> 
-repo folder (or similarly named files from <code>WL12ProjectWizard2017</code>)into <code>&#92Wizards&#92</code>: <ul>
-<li>WL12ProjectWizard.ico
-<li>WL12ProjectWizard.vsdir
-<li>WL12ProjectWizard.vsz
+<code>&#92Wizards&#92</code> and copy these 3 files (and only these 3) from the <code>WL12ProjectWizard</code> 
+repo folder (or similarly named files from <code>WL12ProjectWizard2017</code>) into <code>&#92Wizards&#92</code>: <ul>
+<li>WL12ProjectWizard.ico or WL12ProjectWizard2017.ico
+<li>WL12ProjectWizard.vsdir or WL12ProjectWizard2017.vsdir
+<li>WL12ProjectWizard.vsz or WL12ProjectWizard2017.vsz
 </ul> 
 Edit that last file, the .vsz file, to correct the absolute path. Make it point to the corresponding directory in your fetched version of this git repo:
-<pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL12ProjectWizard"</code>
+<pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL12ProjectWizard"</code> or WL12ProjectWizard2017.
 </pre>There is no need to copy the files out of your git work area.
 <p>Now File/New Project in Visual Studio should show this entry that wasn't there before:</p>
 <p align="center"><img width="70%" alt="ProjectNew2008.png" src="ProjectNew2008.png"/></p>
@@ -99,12 +99,9 @@ new project, browse to the Projects directory in this repo (create it, if necess
 and turn <b>off</b> that <i>Create Directory for solution</i> check box.</p>
 <h3>For VS 2017 Community Edition</h3>
 <ul>
-<li>Use the same WL12ModuleWizard as for VS2013</li>
+<li>Use the same WL12ModuleWizard <i>directory</i>as for VS2013, but copy the WL12ModuleWizard2017.* files into VS2017's directory (see below.)</li>
 <li>But use the WL12ProjectWizard2017 for the project wizard.</li>
 </ul>
-<p><i>Technical note:</i> Using the WLnnProjectWizard is not strictly necessary because the next wizard, the WLnnModuleWizard can successfully 
-add a contest implementation to a correctly-configured ATL DLL constructed using Visual Studio's built-in ATL wizards. The built-in wizard adds a lot 
-of stuff that WriteLog doesn't need or use, which can be confusing if you're not already an expert in ATL development.</p>
 
 <h4>Deploy the ModuleWizard</h4>
 Getting a new item into the Visual Studio Add/New-Item menu apparently cannot be done
@@ -119,9 +116,9 @@ You must create files in the Visual Studio installation directory. The directory
 <code>WL12ModuleWizard/Deploy/LocalItems.vsdir</code>.</li>
 </ul>
 And then into that newly created LocalItems folder, copy these three files from the repo's WL12ModuleWizard folder:<ol>
-<li>WL12ModuleWizard.ico</li>
-<li>WL12ModuleWizard.vsdir</li>
-<li>WL12ModuleWizard.vsz</li>
+<li>WL12ModuleWizard.ico or WL12ModuleWizard2017.ico</li>
+<li>WL12ModuleWizard.vsdir or WL12ModuleWizard2017.vsdir</li>
+<li>WL12ModuleWizard.vsz or WL12ModuleWizard2017.vsz/li>
 </ol>
 Visual Studio 2013 and 2017 install both use the same WL12ModuleWizard <i>directory</i> but the files to copy for VS2017 are
 those ending in <code>2017</code>.
@@ -131,7 +128,7 @@ Visual Studio with a WL project open, a right mouse click on the project looks l
 <p align="center"><img  alt="AddNewItem.png" src="AddNewItem.png"/></p>
 <p align="center"><img width="70%" alt="AddContest.png" src="AddContest.png"/></p>
 The Add New Item may be repeated in order to support more than one contest from a single .DLL. For the WL12 wizard, use the 
-files in WL12ModuleWizard and use the Visual Studio 2013 installation directory, but otherwise all is the same.
+files in WL12ModuleWizard and use the Visual Studio 2013 installation directory.
 The module wizard presents these options.
 <p align="center"><img alt="WLModuleWizard.png" src="WLModuleWizard.png" /></p>
 <ul>
