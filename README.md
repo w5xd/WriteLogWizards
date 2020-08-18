@@ -90,8 +90,10 @@ repo folder (or similarly named files from <code>WL12ProjectWizard2017</code>) i
 <li>WL12ProjectWizard.vsz or WL12ProjectWizard2017.vsz
 </ul> 
 Edit that last file, the .vsz file, to correct the absolute path. Make it point to the corresponding directory in your fetched version of this git repo:
-<pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL12ProjectWizard"</code> or WL12ProjectWizard2017.
-</pre>There is no need to copy the files out of your git work area.
+<pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL12ProjectWizard"</code>
+</pre> or <code>WL12ProjectWizard2017</code>.
+
+There is no need to copy the files out of your git work area.
 <p>Now File/New Project in Visual Studio should show this entry that wasn't there before:</p>
 <p align="center"><img width="70%" alt="ProjectNew2008.png" src="ProjectNew2008.png"/></p>
 <p>In order for the directory structure to match that assumed by the module wizard, when creating a
@@ -99,11 +101,10 @@ new project, browse to the Projects directory in this repo (create it, if necess
 and turn <b>off</b> that <i>Create Directory for solution</i> check box.</p>
 <h3>For VS 2017 Community Edition</h3>
 <ul>
-<li>Use the same WL12ModuleWizard <i>directory</i>as for VS2013, but copy the WL12ModuleWizard2017.* files into VS2017's directory (see below.)</li>
-<li>But use the WL12ProjectWizard2017 for the project wizard.</li>
+<li>Use the WL12ProjectWizard2017 for the project wizard as above.</li>
+<li>Use the same WL12ModuleWizard <i>directory</i> as for VS2013, but copy the WL12ModuleWizard2017.* files into VS2017's directory (see below.)</li>
 <li>The wizard creates a project that targest the Windows 8 SDK, but VS2017 does not install the Windows 8 SDK.
-The first time you build it, you'll either have to follow its instructions to "retarget" to the Windows 10 SDK, or else manually install the
-Windows 8 SDK.</li>
+The first time you build it, you'll either have to follow its instructions to "retarget" to the Windows 10 SDK, or else manually install the Windows 8 SDK.</li>
 </ul>
 
 <h4>Deploy the ModuleWizard</h4>
@@ -121,7 +122,7 @@ You must create files in the Visual Studio installation directory. The directory
 And then into that newly created LocalItems folder, copy these three files from the repo's WL12ModuleWizard folder:<ol>
 <li>WL12ModuleWizard.ico or WL12ModuleWizard2017.ico</li>
 <li>WL12ModuleWizard.vsdir or WL12ModuleWizard2017.vsdir</li>
-<li>WL12ModuleWizard.vsz or WL12ModuleWizard2017.vsz/li>
+<li>WL12ModuleWizard.vsz or WL12ModuleWizard2017.vsz</li>
 </ol>
 Visual Studio 2013 and 2017 install both use the same WL12ModuleWizard <i>directory</i> but the files to copy for VS2017 are
 those ending in <code>2017</code>.
