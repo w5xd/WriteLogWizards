@@ -274,7 +274,7 @@ DECLARE_INTERFACE_(IWlogCabrillo2, IUnknown)
 	STDMETHOD(LinesForQSO)(THIS_ QsoPtr_t q, short *pLines) PURE;
 	// WriteLog tells the module which of the QSO: lines it is working on.
 	// The qso is the one last named in LinesForQSO
-	STDMETHOD(SetCurrentLineNumber)(short LineNo) PURE;
+	STDMETHOD(SetCurrentLineNumber)(THIS_ short LineNo) PURE;
 };
 
 DECLARE_INTERFACE_(IWlogCabrillo3, IWlogCabrillo2)

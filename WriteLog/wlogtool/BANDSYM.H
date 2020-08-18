@@ -19,7 +19,7 @@ struct band_stru
 	 const char *Title;
 };
 
-typedef struct band_stru FAR * BandPtr_t;
-typedef const struct band_stru FAR * ConstBandPtr_t;
+typedef struct band_stru  * BandPtr_t;
+typedef const struct band_stru  * ConstBandPtr_t;
 
 #endif
