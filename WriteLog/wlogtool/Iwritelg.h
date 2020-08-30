@@ -56,7 +56,6 @@ DECLARE_INTERFACE_(IWlogExf3, IWlogExf2)
 
 DECLARE_INTERFACE_(IWriteLog, IUnknown)
 {
-
     // *** IWriteLog methods ***
     STDMETHOD(QsoHighlight)(THIS_ unsigned long QsoIndex, unsigned long Length)  PURE;
     STDMETHOD(Message)(THIS_ struct CwMsgStru FAR *Message, short Mode) PURE;
@@ -411,6 +410,12 @@ DECLARE_INTERFACE_(IWlogMultiADIF, IUnknown)
 	STDMETHOD(TranslateFromAdif)(THIS_ QsoPtr_t q, long Offset, const char *pIn) PURE;
 };
 
+DECLARE_INTERFACE_(IWlogMultiADIF2, IUnknown)
+{
+	STDMETHOD(NumberAdifReadFields)(THIS_ long Offset, unsigned short *) PURE;
+	STDMETHOD(GetAdifReadFieldTag)(THIS_ long Offset, unsigned short which, char *pIn, unsigned short pInLen) PURE;
+};
+
 // Only contests that have a 10minute rule should support this interface
 DECLARE_INTERFACE_(IWlogMultiSingleMinutes, IUnknown)
 {
@@ -598,6 +603,7 @@ DEFINE_WL_GUID(IWlogCabrilloOptions, "C721218D-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogCabrilloSettings, "C7212198-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogCabrilloHelper, "C721217C-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogMultiADIF, "C7212174-7716-101A-AA54-00608C61D0B1");
+DEFINE_WL_GUID(IWlogMultiADIF2, "C7212129-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogMultiSingleMinutes, "C7212176-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogMultiSingleBandChangeThrottle, "C721217D-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogExf2, "C7212178-7716-101A-AA54-00608C61D0B1");

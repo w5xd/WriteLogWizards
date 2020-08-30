@@ -367,6 +367,22 @@ public:
 };
 
 template <class T>
+class CWlogMultiADI2Impl : public CWlogEmbeddable<IWlogMultiADIF2, T>
+{
+public:
+	CWlogMultiADI2Impl(T *p) : CWlogEmbeddable<IWlogMultiADIF2, T>(p){};
+	STDMETHOD(NumberAdifReadFields)(long Offset, unsigned short *r)
+	{
+		return m_Parent->NumberAdifReadFields(Offset, r);
+	}
+	STDMETHOD(GetAdifReadFieldTag)(long Offset, unsigned short which, char *pIn, unsigned short pInLen)
+	{
+		return m_Parent->GetAdifReadFieldTag(Offset, which, pIn, pInLen);
+	}
+};
+
+
+template <class T>
 class CWlogMultiSingleMinutes : public CWlogEmbeddable<IWlogMultiSingleMinutes, T>
 {
 public:
