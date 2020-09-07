@@ -8,7 +8,7 @@
       <AdditionalIncludeDirectories>..\..\WriteLog\include;..\..\WriteLog\MmdCom;..\..\WriteLog\generated;..\..\WriteLog\wlogtool</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ModuleRedirect.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>WlModuleRedirect.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\WriteLog\wlogtool</AdditionalLibraryDirectories>
     </Link>
       <ResourceCompile>
