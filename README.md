@@ -7,11 +7,10 @@ This repo contains:<ol>
 <li> The necessary header files and import libraries to build WriteLog contest modules.
 </ol>
 
-Developing in VS 2019 targets only WriteLog version 12. (The VS2013
-C++ runtime is not installed by the WL11 installer. 
-Developing in VS 2019 targets both WriteLog 11 and 12, <b>but</b> you must arrange to install
+Developing in VS 2019 targets only WriteLog version 12. (The VS2013 nor VS2019
+C++ runtime is not installed by the WL11 installer.)
+Developing in VS 2019 can target both WriteLog 11 and 12, <b>but</b> you must arrange to install
 the VS 2019 runtime when your module is installed on WriteLog versions older than 12.55.
-Modules developed here might even work with WriteLog version 11, but that is not tested.
 
 <h2>The Directory Structure</h2>
 The wizards generate code that assumes the relative file paths set up in this repo:
