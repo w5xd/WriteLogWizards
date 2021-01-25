@@ -1,8 +1,0 @@
-VSWIZARD 7.0
-Wizard=VsWizard.VsWizardEngine.15.0
-
-Param="WIZARD_NAME = WL12ProjectWizard2017"
-Param="ABSOLUTE_PATH = d:\dev\WLWizards\WL12ProjectWizard2017"
-Param="FALLBACK_LCID = 1033"
-Param="WIZARD_UI = FALSE"
-Param="SOURCE_FILTER = txt"

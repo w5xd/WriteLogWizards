@@ -1,15 +1,16 @@
 # WriteLogWizards
 Tools for WriteLog contest module development
 This repo contains:<ol>
-<li>Source code for Visual Studio 2013 wizards that create WriteLog contest module implementations.
-<li>Instructions for using Visual Studio 2017 Community Edition.
+<li>Check branches in this repo for older versions of Visual Studio
+<li>Source code for Visual Studio 2019 wizards that create WriteLog contest module implementations.
+<li>Instructions for using Visual Studio 2019 Community Edition.
 <li> The necessary header files and import libraries to build WriteLog contest modules.
 </ol>
 
-Developing in VS 2013 targets only WriteLog version 12. (The VS2013
+Developing in VS 2019 targets only WriteLog version 12. (The VS2013
 C++ runtime is not installed by the WL11 installer. 
-Developing in VS 2017 targets both WriteLog 11 and 12, <b>but</b> you must arrange to install
-the VS 2017 runtime when your module is installed on WriteLog versions older than 12.40.
+Developing in VS 2019 targets both WriteLog 11 and 12, <b>but</b> you must arrange to install
+the VS 2019 runtime when your module is installed on WriteLog versions older than 12.55.
 Modules developed here might even work with WriteLog version 11, but that is not tested.
 
 <h2>The Directory Structure</h2>
@@ -20,17 +21,14 @@ Is not part of this repo, but <i>is</i> in .gitignore. It is where you should ha
 VS File/New-project wizard place any newly created WL module development projects.
 
 <code><b>WL12ModuleWizard/</b></code><br/>
-contains the source of the VS2013 module create wizard.
+contains the source of the module create wizard.
 
-<code><b>WL12ProjectWizard/</b></code><br/>
-contains the source of the VS2013 project create wizard.
-
-<code><b>WL12ProjectWizard2017/</b></code><br/>
-contains the source of the VS2017 project create wizard.
+<code><b>WL12ProjectWizard2019/</b></code><br/>
+contains the source of the VS2019 project create wizard.
 
 <code><b>WriteLog/</b></code><br/>
 contains the source of the various headers and import libraries required by the generated project. These headers
-and libraries suffice for both WL11 and WL12 (and VS2013, and VS2017). You do <i>not</i> edit anything here, with <b>one</b> exception:
+and libraries suffice for both WL11 and WL12 (all versions of Visual Studio). You do <i>not</i> edit anything here, with <b>one</b> exception:
 
 <code><b>WriteLog/include/</b></code><br/>
 is where it is suggested you put your own common headers you want available across multiple modules. 
@@ -47,22 +45,17 @@ to enable source-code compatible development of module developed using the old V
 wizard last updated in 2008 (and most of which dates from 2000--or earlier.)
 
 <h2>The wizards</h2>
-You must already have VS 2013 and/or VS 2017 installed. The Community Edition 2017 is 
+You must already have VS 2019 installed. The Community Edition 2019 is 
 supported for WriteLog module development.
 It takes two wizard operations to create a WriteLog contest module:<ol>
-<li>The WL12ProjectWizard (or wl12ProjectWizard2017) creates a skeleton project from the VS File/New-Project menu.
+<li>The wl12ProjectWizard2019 creates a skeleton project from the VS File/New-Project menu.
 <li>The WL12ModuleWizard adds skeleton header/cpp/wxs files to such a project for a contest. 
 </ol>
-For VS 2017, use only the 2017 variation of the wizard deployment.
 <h3>Deploying the wizards</h3>
-There are a total of four wizards: two each for VS 2013 and VS 2017,
-and follow the one-time editing instructions below.
-The instructions for deployment are
-almost identical for all. There is more than one way to accomplish deployment, but here
+There are two wizards: one for creating a project, and one for adding a module to a project.
+Follow the one-time editing instructions below.
+There is more than one way to accomplish deployment, but here
 is one that works and is minimally intrusive on your system.
-
-<p>The deployment of the WL12 Project wizard is the same for all Visual Studio versions,
-except substitute 2013 for 2017.</p>
 
 For all wizards it is not necessary to use Visual Studio to File/Open-Project of any of the
 .sln/.vcproj/.vcxproj files in the repo Wizard/ folders. Doing so MIGHT cause VS to auto-magically 
@@ -70,57 +63,46 @@ deploy the wizard in your <code><i>&lt;MyDocuments&gt;</i></code> folder, which 
 if you don't like the way the wizards work, you are welcome to change them to suit yourself.
 
 <h4>Deploy the Project Wizard</h4>
-Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>&#92Visual Studio 2013&#92;</code> (or <code>&#92Visual Studio 2017&#92;</code>.)
+Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>&#92Visual Studio 2019&#92;</code>. 
 Create a subfolder named 
-<code>&#92Wizards&#92</code> and copy these 3 files (and only these 3) from the <code>WL12ProjectWizard</code> 
-repo folder (or similarly named files from <code>WL12ProjectWizard2017</code>) into <code>&#92Wizards&#92</code>: <ul>
-<li>WL12ProjectWizard.ico or WL12ProjectWizard2017.ico
-<li>WL12ProjectWizard.vsdir or WL12ProjectWizard2017.vsdir
-<li>WL12ProjectWizard.vsz or WL12ProjectWizard2017.vsz
+<code>&#92Wizards&#92</code> and copy these 3 files (and only these 3) from the <code>WL12ProjectWizard2019</code> 
+repo folder: <ul>
+<li>WL12ProjectWizard2019.ico
+<li>WL12ProjectWizard2019.vsdir
+<li>WL12ProjectWizard2019.vsz
 </ul> 
 Edit that last file, the .vsz file, to correct the absolute path. Make it point to the corresponding directory in your fetched version of this git repo:
-<pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL12ProjectWizard"</code>
-</pre> or <code>WL12ProjectWizard2017</code>.
+<pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL12ProjectWizard2019"</code>
+</pre>.
 
 There is no need to copy the files out of your git work area.
-<p>Now File/New Project in Visual Studio should show this entry that wasn't there before. (This screen shot has both VS2013 and VS2017 wizards installed)</p>
-<p align="center"><img width="70%" alt="ProjectNew2017.png" src="ProjectNew2017.png"/></p>
+<p>Now File/New Project in Visual Studio should show this entry that wasn't there before. </p>
+<p align="center"><img width="70%" alt="ProjectNew2019.png" src="ProjectNew2019.png"/></p>
 <p>In order for the directory structure to match that assumed by the module wizard, when creating a
 new project, browse to the Projects directory in this repo (create it, if necessary),
-and turn <b>off</b> that <i>Create Directory for solution</i> check box.</p>
-<h3>For VS 2017 Community Edition</h3>
-<ul>
-<li>Use the WL12ProjectWizard2017 for the project wizard as above.</li>
-<li>Use the same WL12ModuleWizard <i>directory</i> as for VS2013, but copy the WL12ModuleWizard2017.* files into VS2017's directory (see below.)</li>
-<li>The wizard creates a project that targest the Windows 8 SDK, but VS2017 does not install the Windows 8 SDK.
-The first time you build it, you'll either have to follow its instructions to "retarget" to the Windows 10 SDK, or else manually install the Windows 8 SDK.</li>
-</ul>
+and turn <b>on</b> the <i>Place solution and project in the same directory</i> check box.</p>
 
 <h4>Deploy the ModuleWizard</h4>
 Getting a new item into the Visual Studio Add/New-Item menu apparently cannot be done
 in My Documents like a project wizard. Its deployment requires administrator privilege. 
 You must create files in the Visual Studio installation directory. The directory to find is:
-<pre><code>C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcprojectitems</code> (for VS2013)
-<code>C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\vcprojectitems</code> (for VS 2017)
+<pre><code>C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\VC\vcprojectitems</code> 
 </pre>In that vcprojectitems directory, you need two things: <ul>
 <li>Create a folder named <code>LocalItems</code>.</li>
 <li>Into that same vcprojectitems folder, copy the file (unchanged) from this repo: 
 <code>WL12ModuleWizard/Deploy/LocalItems.vsdir</code>.</li>
 </ul>
 And then into that newly created LocalItems folder, copy these three files from the repo's WL12ModuleWizard folder:<ol>
-<li>WL12ModuleWizard.ico or WL12ModuleWizard2017.ico</li>
-<li>WL12ModuleWizard.vsdir or WL12ModuleWizard2017.vsdir</li>
-<li>WL12ModuleWizard.vsz or WL12ModuleWizard2017.vsz</li>
+<li>WL12ModuleWizard2019.ico</li>
+<li>WL12ModuleWizard2019.vsdir</li>
+<li>WL12ModuleWizard2019.vsz</li>
 </ol>
-Visual Studio 2013 and 2017 install both use the same WL12ModuleWizard <i>directory</i> but the files to copy for VS2017 are
-those ending in <code>2017</code>.
 That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work 
 area: just point that vsz file to the appropriate subdirectory in your fetched copy of this git repo. Once installed, and in 
 Visual Studio with a WL project open, a right mouse click on the project looks like this:
 <p align="center"><img  alt="AddNewItem.png" src="AddNewItem.png"/></p>
 <p align="center"><img width="70%" alt="AddContest.png" src="AddContest.png"/></p>
-The Add New Item may be repeated in order to support more than one contest from a single .DLL. For the WL12 wizard, use the 
-files in WL12ModuleWizard and use the Visual Studio 2013 installation directory.
+You use the Add New Item repeatedly in order to support more than one contest from a single .DLL. 
 The module wizard presents these options.
 <p align="center"><img alt="WLModuleWizard.png" src="WLModuleWizard.png" /></p>
 <ul>
