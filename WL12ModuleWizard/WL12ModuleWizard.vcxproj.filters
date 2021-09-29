@@ -29,14 +29,8 @@
     <None Include="Templates\1033\Templates.inf">
       <Filter>Miscellaneous Files</Filter>
     </None>
-    <None Include="WL12ModuleWizard.vsz">
-      <Filter>Miscellaneous Files</Filter>
-    </None>
     <None Include="Scripts\1033\default.js">
       <Filter>Script Files</Filter>
-    </None>
-    <None Include="WL12ModuleWizard.vsdir">
-      <Filter>Miscellaneous Files</Filter>
     </None>
     <None Include="HTML\1033\default.htm">
       <Filter>HTML Files</Filter>
@@ -51,6 +45,15 @@
       <Filter>Deploy</Filter>
     </None>
     <None Include="Templates\1033\object.wxs">
+      <Filter>Template Files</Filter>
+    </None>
+    <None Include="WL12ModuleWizard2019.vsdir">
+      <Filter>Miscellaneous Files</Filter>
+    </None>
+    <None Include="WL12ModuleWizard2019.vsz">
+      <Filter>Miscellaneous Files</Filter>
+    </None>
+    <None Include="Templates\1033\RoverQthDlg.rgs">
       <Filter>Template Files</Filter>
     </None>
   </ItemGroup>
@@ -84,9 +87,15 @@
     <ClInclude Include="Templates\1033\dialog.h">
       <Filter>Template Files</Filter>
     </ClInclude>
+    <ClInclude Include="Templates\1033\RoverQthDlg.h">
+      <Filter>Template Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Templates\1033\dialog.rc">
+      <Filter>Template Files</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Templates\1033\RoverQthDlg.dlg">
       <Filter>Template Files</Filter>
     </ResourceCompile>
   </ItemGroup>

@@ -12,12 +12,19 @@ class [!output MM_DLG_CLASS_NAME] :
 {
 public:
 	[!output MM_DLG_CLASS_NAME]()
+	[!if AM_COUNTYLINE]
+		: m_countyLineMode(0)
+	[!endif]
 	{
 	}
 
 	~[!output MM_DLG_CLASS_NAME]()
 	{
 	}
+
+	[!if AM_COUNTYLINE]
+	int m_countyLineMode;
+	[!endif]
 
 	enum { IDD = [!output IDD_DIALOGID] };
 
@@ -36,12 +43,18 @@ END_MSG_MAP()
 	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		CAxDialogImpl<[!output MM_DLG_CLASS_NAME]>::OnInitDialog(uMsg, wParam, lParam, bHandled);
+	[!if AM_COUNTYLINE]
+		CheckDlgButton(IDC_CHECK_COUNTYLINEMODE, m_countyLineMode);
+	[!endif]
 		bHandled = TRUE;
 		return 1;  // Let the system set the focus
 	}
 
 	LRESULT OnClickedOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
+	[!if AM_COUNTYLINE]
+		m_countyLineMode = IsDlgButtonChecked(IDC_CHECK_COUNTYLINEMODE);
+	[!endif]
 		EndDialog(wID);
 		return 0;
 	}

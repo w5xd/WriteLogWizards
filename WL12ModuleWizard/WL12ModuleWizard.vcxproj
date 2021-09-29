@@ -47,6 +47,7 @@
     <None Include="Scripts\1033\default.js" />
     <None Include="Templates\1033\object.rgs" />
     <None Include="Templates\1033\object.wxs" />
+    <None Include="Templates\1033\RoverQthDlg.rgs" />
     <None Include="Templates\1033\Templates.inf" />
     <None Include="WL12ModuleWizard2019.vsdir" />
     <None Include="WL12ModuleWizard2019.vsz" />
@@ -72,9 +73,11 @@
   <ItemGroup>
     <ClInclude Include="Templates\1033\dialog.h" />
     <ClInclude Include="Templates\1033\object.h" />
+    <ClInclude Include="Templates\1033\RoverQthDlg.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Templates\1033\dialog.rc" />
+    <ResourceCompile Include="Templates\1033\RoverQthDlg.dlg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
