@@ -1,4 +1,8 @@
 #pragma once
+[!if CAN_LOG_ROVER]
+#include <functional>
+#include <set>
+[!endif]
 #include "resource.h"       // main symbols
 
 #include "[!output MIDL_H_FILENAME]"
@@ -138,7 +142,7 @@ public:
     STDMETHOD(FormatRxField)(QsoPtr_t q, short Field, char * Buf);
 [!endif]
 
-[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
+[!if !NO_NAMEDMULT || !NO_DXCC || !NO_ZONE || !NO_AYGMULT]
 [!if NAMEDMULT_SINGLE_BAND]
     typedef MultiplierMap_t NamedMult_t;
 [!endif]
@@ -174,15 +178,17 @@ public:
     CDupeSheet()
     {}
     void InitQsoData();
-[!if !NO_NAMEDMULT]
 protected:
 	std::string					    m_MyMult;
-	[!output MM_CLASS_NAME]::NamedMult_t		            m_Named;		//Number of times we've worked each multiplier
 public:
     bool needInit() const { return m_MyMult.empty();}
     const std::string &title() const { return m_MyMult;}
     const std::string &key() const { return m_MyMult;}
     void setKey(const std::string &k) {m_MyMult = k;}
+[!if !NO_NAMEDMULT]
+protected:
+	[!output MM_CLASS_NAME]::NamedMult_t		            m_Named;		//Number of times we've worked each multiplier
+public:
     int MarkNamedMultWorked(int dx, int band);
     int UnmarkNamedMultWorked(int dx, int band);
     bool namedWorked(short dx, short band) const;
@@ -434,6 +440,7 @@ protected:
         QsoSearchMatch_t stored;
         QsoSearchMatch_t &toRestore;
     };
+    std::set<std::string> FindAllPreviousValuesForThisCall(unsigned MaxSize, CQsoField &field, QsoPtr_t q);
 [!endif]
 [!if AM_ROVER && AM_COUNTYLINE]
     bool m_countyLineMode;

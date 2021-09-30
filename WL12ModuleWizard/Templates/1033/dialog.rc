@@ -4,7 +4,15 @@ CAPTION "Dialog"
 FONT 8, "MS Sans Serif"
 BEGIN
 [!if AM_COUNTYLINE]
-    CONTROL         "County Line Mode",117,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,16,82,10
+    CONTROL         "County Line Mode",14117,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,16,82,10
+[!endif]
+[!if !NO_AYGMULT]
+    LTEXT           "My AYG TODO",IDC_STATIC,17,32,50,8
+    EDITTEXT        14118,85,29,45,14,ES_AUTOHSCROLL
+[!endif]
+[!if !NO_NAMEDMULT]
+    LTEXT           "My named TODO",IDC_STATIC,17,48,56,8
+    EDITTEXT        14119,85,45,45,14,ES_AUTOHSCROLL
 [!endif]
     DEFPUSHBUTTON   "OK",IDOK,209,179,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,263,179,50,14

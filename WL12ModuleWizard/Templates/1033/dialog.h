@@ -43,18 +43,26 @@ END_MSG_MAP()
 	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		CAxDialogImpl<[!output MM_DLG_CLASS_NAME]>::OnInitDialog(uMsg, wParam, lParam, bHandled);
-	[!if AM_COUNTYLINE]
+[!if AM_COUNTYLINE]
 		CheckDlgButton(IDC_CHECK_COUNTYLINEMODE, m_countyLineMode);
-	[!endif]
+[!endif]
+[!if !NO_AYGMULT]
+		//FIXME
+		GetDlgItem(IDC_EDIT_MYAYG); // The edit box to display my transmitted exchange
+[!endif]
+[!if !NO_NAMEDMULT]
+		//FIXME
+		GetDlgItem(IDC_EDIT_MYNAMED); // The edit box to display my transmitted exchange
+[!endif]
 		bHandled = TRUE;
 		return 1;  // Let the system set the focus
 	}
 
 	LRESULT OnClickedOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-	[!if AM_COUNTYLINE]
+[!if AM_COUNTYLINE]
 		m_countyLineMode = IsDlgButtonChecked(IDC_CHECK_COUNTYLINEMODE);
-	[!endif]
+[!endif]
 		EndDialog(wID);
 		return 0;
 	}

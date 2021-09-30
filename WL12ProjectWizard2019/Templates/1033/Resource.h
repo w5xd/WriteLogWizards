@@ -17,11 +17,13 @@
 #define IDS_NEWZONE_MSG			        110
 #define IDS_AYG_MSG			            111
 #define IDS_NEWNAMED_MSG                112
-#define IDC_QTHLIST1                    113
-#define IDC_CREATE_NEW                  114
-#define IDC_USE_EXISTING                115
-#define IDC_QTH_OLD_LIST                116
-#define IDC_CHECK_COUNTYLINEMODE        117
+#define IDC_QTHLIST1                    14113
+#define IDC_CREATE_NEW                  14114
+#define IDC_USE_EXISTING                14115
+#define IDC_QTH_OLD_LIST                14116
+#define IDC_CHECK_COUNTYLINEMODE        14117
+#define IDC_EDIT_MYAYG                  14118
+#define IDC_EDIT_MYNAMED                14119
 // Next default values for new objects
 //
 #ifdef APSTUDIO_INVOKED

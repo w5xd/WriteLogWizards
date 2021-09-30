@@ -85,6 +85,7 @@ function OnFinish(selProj, selObj) {
         if (oUuid)
             wizard.AddSymbol("LIBID_REGISTRY_FORMAT", oUuid.Value);
 
+        // the HTML Javascript gui in default.htm should accomplish these two, but just in case:
         if (wizard.FindSymbol("AM_COUNTYLINE")) {
             wizard.AddSymbol("AM_ROVER", true);
         }
@@ -160,10 +161,6 @@ function OnFinish(selProj, selObj) {
         oResHelper.CloseResourceFile();
 
         oCM.CommitTransaction();
-
-        //var newClass = oCM.Classes.Find(strClassName);
-        //if (newClass)
-        //    newClass.StartPoint.TryToShow(vsPaneShowTop);
     }
     catch (e) {
         if (oCM)

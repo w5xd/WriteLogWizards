@@ -254,7 +254,9 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
     , m_countyLineMode(false)
 [!endif]
 [!if !AM_ROVER]
+[!if !NO_NAMEDMULT || !NO_DXCC || !NO_ZONE || !NO_AYGMULT]
     , m_dupeSheet()
+[!endif]
 [!else]
     , m_currentDupeSheet(0)
 [!endif]
@@ -310,18 +312,14 @@ void [!output MM_CLASS_NAME]::FinalRelease()
 [!if !NO_DXCC]
     m_DxContext.Release();
 [!endif]
-[!if !NO_NAMEDMULT]
-    m_pNamedMults.Release();
-[!endif]
 [!if !NO_ZONE]
+    m_ZoneDisplayEntry.Release();
     m_ZoneContext.Release();
 [!endif]
 [!if !NO_NAMEDMULT]
     m_NamedDisplayEntry.Release();
     m_NamedDisplay.Release();
-[!endif]
-[!if !NO_ZONE]
-    m_ZoneDisplayEntry.Release();
+    m_pNamedMults.Release();
 [!endif]
 [!if !NO_AYGMULT]
 	if (m_AygDisplayEntry)
@@ -424,7 +422,9 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 
     if (q->dupe == ' ')
     {
+[!if !NO_NAMEDMULT || !NO_DXCC || !NO_ZONE || !NO_AYGMULT]
         CDupeSheet &qDupeSheet = dupeSheetFromQso(q);
+[!endif]
 [!if !NO_DXCC]
         //*********************************
         //Process DXCC 
@@ -599,7 +599,9 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
     if (band > m_NumberOfDupeSheetBands)
         band = m_NumberOfDupeSheetBands;
 	band = DupeBandToMultBand(band);
+[!if !NO_NAMEDMULT || !NO_DXCC || !NO_ZONE || !NO_AYGMULT]
     CDupeSheet &qDupeSheet = dupeSheetFromQso(q);
+[!endif]
 
     if (q->dupe == ' ')
     {
@@ -728,7 +730,7 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
     m_BandPoints.clear();
     m_BandQsos.clear();
 [!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
- [!if !AM_ROVER]
+[!if !AM_ROVER]
     m_dupeSheet.InitQsoData();
 [!else]
     for (auto pDupe : m_dupeSheets)
@@ -737,8 +739,9 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
 [!endif]
 [!if NAMEDMULT_MULTI_BAND]
     m_NamedMults.clear();
-[!else]
-    m_NamedMults = 0;
+[!endif]
+ [!if NAMEDMULT_SINGLE_BAND]
+   m_NamedMults = 0;
 [!endif]
 [!if !NO_DXCC]
     m_MyCountryIndex = m_DxContext.dxcc_Home();
@@ -927,6 +930,46 @@ bool [!output MM_CLASS_NAME]::CDupeSheet::aygWorked(short ayg, short band) const
 [!endif]
 [!endif]
 
+[!if CAN_LOG_ROVER]
+std::set<std::string> [!output MM_CLASS_NAME]::FindAllPreviousValuesForThisCall(unsigned MaxSize, CQsoField &field, QsoPtr_t q)
+{
+	unsigned long QsoNumber;
+    std::set<std::string> PrevQsoRcvd;
+	// Logging rovers. if we find this guy always under the same county,
+	// then copy that county
+    std::string testCall = fCALL(q);
+    CQsoSearchMatchHelper savedQsoMatch(m_qsoSearchMatch,
+        [&PrevQsoRcvd, &testCall, &field, this] (QsoPtr_t OldQ, int *IsGood) 
+        {   // unless there is recursion replacing m_qsoSearchMatch,testCall should always match fCALL(OldQ).
+            if (testCall == fCALL(OldQ).str())
+            {
+					PrevQsoRcvd.insert(field(OldQ).str());
+                    *IsGood = 1; // make writelog gives us all the QSOs with this call
+            }
+        });
+	for (int j = 0; j < m_NumberOfDupeSheetBands; j += 1)
+	{
+[!if AM_ROVER]
+        for (unsigned k = 0; k < m_dupeSheets.size(); k++)
+        {
+            unsigned dupeSheetIdx = k + 1;    // k+1 cuz q->DupeSheet is offset one above m_dupeSheets idx
+[!else]
+            unsigned dupeSheetIdx = 0;
+            {
+[!endif]
+			    m_Parent->SearchDupeSheet(q, j, dupeSheetIdx,  &QsoNumber);
+				if (PrevQsoRcvd.size() >= MaxSize)
+                    return PrevQsoRcvd;
+[!if !AM_ROVER]
+            }
+[!else]
+        }
+[!endif]
+    }
+    return PrevQsoRcvd;
+}
+[!endif]
+
 HRESULT [!output MM_CLASS_NAME]::MultiCheck(
     QsoPtr_t q,     // is the QSO being checked
     int p,          // denotes the field in the QSO (its the value in the exfa_stru.pl member)
@@ -1007,34 +1050,13 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
 			        flagNamed = true; // and check whether fRCVD is new mult
 		    }
 [!else]
-		    unsigned long QsoNumber;
-            std::set<std::string> PrevQsoRcvd;
-	        // Logging rovers. if we find this guy always under the same county,
-	        // then copy that county
-            CQsoSearchMatchHelper savedQsoMatch(m_qsoSearchMatch,
-                [&PrevQsoRcvd, this] (QsoPtr_t OldQ, int *IsGood) 
-                {
-					            PrevQsoRcvd.insert(fRCVD(OldQ).str());
-                                *IsGood = 1; // make writelog gives us all the QSOs with this call
-                });
-		    for (int j = 0; j < m_NumberOfDupeSheetBands; j += 1)
-		    {
-[!if AM_ROVER]
-                for (unsigned k = 0; k < m_dupeSheets.size(); k++)
-                {
-                    unsigned dupeSheetIdx = k + 1;    // k+1 cuz q->DupeSheet is offset one above m_dupeSheets idx
-[!else]
-                unsigned dupeSheetIdx = 0;
-                {
-[!endif]
-			        m_Parent->SearchDupeSheet(q, j, dupeSheetIdx,  &QsoNumber);
-				    if (PrevQsoRcvd.size() > 1)
-                        goto out;
-                }
-		    }
-        out:
-            if (PrevQsoRcvd.size() == 1)
+            // Deal with possibility we have logged this guy as a rover
+            auto PrevQsoRcvd = FindAllPreviousValuesForThisCall(2, fRCVD, q);
+            if (PrevQsoRcvd.size() == 1) // only if exactly one RCVD value was found do we set it here
+            {
                 fRCVD(q)= PrevQsoRcvd.begin()->c_str();
+                flagNamed = true;
+            }
 [!endif]
         }
 [!if AM_COUNTYLINE]
@@ -1053,9 +1075,13 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                         m_currentDupeSheet = i;
                         if (diff)
                         {
+[!if !NO_DXCC]
                             m_DxccContainer.InvalidateAll();
+[!endif]
+[!if !NO_NAMEDMULT]
                             if (m_NamedDisplay)
                                 m_NamedDisplay->Invalidate(-1);
+[!endif]
                         }
                         break;                    
                     }
@@ -1086,9 +1112,13 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                                     fRCVD(q)= fRCVD(lastQ).str();
                                     if (diff)
                                     {
+[!if !NO_DXCC]
                                         m_DxccContainer.InvalidateAll();
+[!endif]
+[!if !NO_NAMEDMULT]
                                         if (m_NamedDisplay)
                                             m_NamedDisplay->Invalidate(-1);
+[!endif]
                                     }
                                     break;
                                 }
@@ -1167,6 +1197,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
     bool flagAyg(false);
 	if (fCALL == p)
     {
+[!if !CAN_LOG_ROVER]
         std::string aygVal;
         if (OldQ)
             aygVal = fAYG(OldQ);
@@ -1174,6 +1205,15 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
             fAYG(q) = aygVal.c_str();
         if (!fAYG(q).empty())
             flagAyg = true;
+[!else]
+        // Deal with possibility we have logged this guy as a rover
+        auto PrevQsoRcvd = FindAllPreviousValuesForThisCall(2, fAYG, q);
+        if (PrevQsoRcvd.size() == 1) // only if exactly one RCVD value was found do we set it here
+        {
+            fAYG(q)= PrevQsoRcvd.begin()->c_str();
+            flagAyg = true;
+        }
+[!endif]
 	}
 
     if (flagAyg || fAYG == p)    /*this multiplier*/
@@ -1202,9 +1242,13 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                     m_currentDupeSheet = i;
                     if (diff)
                     {
+[!if !NO_DXCC]
                         m_DxccContainer.InvalidateAll();
+[!endif]
+[!if !NO_NAMEDMULT]
                         if (m_NamedDisplay)
                             m_NamedDisplay->Invalidate(-1);
+[!endif]
                     }
                 }
                 ret = 0;
@@ -1358,9 +1402,13 @@ void [!output MM_CLASS_NAME]::InvokeQthSelectDlg()
                 m_currentDupeSheet = i;
                 if (diff)
                 {
+[!if !NO_DXCC]
                         m_DxccContainer.InvalidateAll();
+[!endif]
+[!if !NO_NAMEDMULT]
                         if (m_NamedDisplay)
                             m_NamedDisplay->Invalidate(-1);
+[!endif]
                 }
                 break;
             }
@@ -1502,9 +1550,25 @@ HRESULT [!output MM_CLASS_NAME]::TranslateAccelerator(MSG *, short /* obsolete. 
     ** that key as a keyboard shortcut! This behavior MUST be documented to the user.   */
     return E_NOTIMPL;
 }
+/*When a QSO is added to the database, WriteLog matches the
+**new QSO's call and band against all those already in the
+**database. If it finds a match of those things, it sets the
+**dupe member of the New QSO to 'D' and calls the multiplier 
+**modules's MatchQso member. The multiplier module is allowed
+**to change the 'D' to a space character, which means that
+**even though the call and band match between the New and Old
+**QSOs, there is some other reason that the New QSO should be
+**counted and scored.
+**
+**If there is more than one QSO in the database that matches
+**the new one's call and band, then WL calls here with each
+**of the QSOs in the "Old" argument, and WL considers the
+**new QSO a dupe if any one of those calls returns a dupe.	*/
 HRESULT [!output MM_CLASS_NAME]::MatchedQso(QsoPtr_t New, QsoPtr_t Old)
 {
-[!if CAN_LOG_ROVER && !NO_NAMEDMULT]
+    if (New == 0 || Old == 0)
+        return E_POINTER;
+[!if CAN_LOG_ROVER]
     int IsGood(0);
     QsoSearch(New, Old, &IsGood);
     if (IsGood)
@@ -1512,19 +1576,26 @@ HRESULT [!output MM_CLASS_NAME]::MatchedQso(QsoPtr_t New, QsoPtr_t Old)
 [!endif]
     return S_OK;
 }
+
+/*It is often necessary to see if a callsign has been worked
+**on a given band--whether or not a QSO is about to be logged
+**for that call and band. WriteLog searches its QSO database
+**by setting up a struct qso_stru with the appropriate call
+**and band and other exchange info, and searches through
+**its QSO database for matches. For every QSO already in the
+**database that matches the canddiate call/band (at NewQ),
+**WriteLog offers the multiplier module a chance to say that
+**there is some other reason for the QSO to not be considered
+**a dupe and sets *IsGood = 1. */
 HRESULT [!output MM_CLASS_NAME]::QsoSearch(QsoPtr_t NewQ, QsoPtr_t OldQ, int * IsGood)
 {
-    // WriteLog calls here when two QSOs that it thinks might be dupes of each other
-    //  same call and same band/mode duping band
-    // We can set IsGood to say they really are NOT dupes of each other (because
-    // some else in the QSO says we can work them again.)
-    if (!IsGood)
+    if (IsGood==0 || NewQ == 0 || OldQ == 0)
         return E_POINTER;
     *IsGood = 0;
 [!if CAN_LOG_ROVER]
 [!if !NO_NAMEDMULT && !NO_AYGMULT]
 // FIXME Wizard was told to log roving stations as not dupes. But
-// Rovers might be in the Named mults or in the AYG mults.
+// Rovers might be in the Named mults or in the AYG mults. 
 [!endif]
 [!if !NO_NAMEDMULT]
    if ((FindNamed(fRCVD(NewQ).str()) != m_NumNamed) &&
@@ -1552,7 +1623,7 @@ HRESULT [!output MM_CLASS_NAME]::SetDupeSheet(QsoPtr_t q, int * DupeSheet)
        return E_POINTER;
    *DupeSheet = 0;
 [!if AM_ROVER]
-    // This supports, for example, VHF rovers and county rovers. The do NOT need to start a
+    // This supports, for example, VHF rovers and county rovers. They do NOT need to start a
     // new .wl file on changing grid square. Instead, they enter a different
     // transmitted grid square the module tells WL to create a new dupe
     // sheet for that grid square.
@@ -1587,7 +1658,11 @@ HRESULT [!output MM_CLASS_NAME]::DupeSheetTitle(int DupeSheet, char * Title, int
         return E_INVALIDARG;
     strncpy_s(Title, TitleLength, m_dupeSheets[idx]->title().c_str(), TitleLength);
 [!else]
+[!if !NO_NAMEDMULT || !NO_DXCC || !NO_ZONE || !NO_AYGMULT]
     strncpy_s(Title, TitleLength, currentDupeSheet().title().c_str(), TitleLength);
+[!else]
+    strncpy_s(Title, TitleLength, "TODO", TitleLength);
+[!endif]
 [!endif]
     return S_OK;
 }
@@ -1796,7 +1871,7 @@ HRESULT [!output MM_CLASS_NAME]::ConfirmFieldsFilled(HWND w)
    	//opportunity for multiplier module to put up a box asking for info before Cabrillo export
 
 	if (1					//TODO
-[!if !NO_NAMEDMULT]
+[!if !NO_NAMEDMULT || !NO_AYGMULT]
 		|| currentDupeSheet().needInit()
 [!endif]
 		)	
