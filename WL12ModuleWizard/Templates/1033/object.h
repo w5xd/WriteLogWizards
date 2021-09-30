@@ -420,6 +420,10 @@ protected:
 [!if AM_ROVER]
     void InvokeQthSelectDlg();
 [!endif]
+[!if CAN_LOG_ROVER]
+    typedef std::function<void(QsoPtr_t, int*)> QsoSearchMatch_t;
+    QsoSearchMatch_t m_qsoSearchMatch;
+[!endif]
 [!if AM_ROVER && AM_COUNTYLINE]
     bool m_countyLineMode;
 [!endif]

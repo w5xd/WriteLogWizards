@@ -254,7 +254,7 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
     , m_countyLineMode(false)
 [!endif]
 [!if !AM_ROVER]
-    , m_dupeSheet(this)
+    , m_dupeSheet()
 [!else]
     , m_currentDupeSheet(0)
 [!endif]
@@ -777,7 +777,7 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
 ** what titles are multipliers and what are points 
 ** and what are QSO counts. 
 ** The same thing with SetBandTitle. If the band's title
-** contains a mode (like CW, SSB, PH or RTTY, or RY)
+** contains a mode (like CW, SSB, PH or RTTY, or DIG)
 ** Then the score broadcast assumes the row applies
 ** only to one mode. */
 [!if !NO_DXCC||!NO_NAMEDMULT||!NO_ZONE||!NO_AYGMULT]
@@ -787,7 +787,7 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
 		m_bandSumm->SetItemTitle(BAND_SUMMARY_CW, "CW");
 		m_bandSumm->SetItemTitle(BAND_SUMMARY_PHONE, "PH");
 [!if RTTY]
-		m_bandSumm->SetItemTitle(BAND_SUMMARY_RTTY, "RY");
+		m_bandSumm->SetItemTitle(BAND_SUMMARY_RTTY, "DIG");
 [!endif]
 		for (int i = 0; i < DIM(band_Title); i += 1)
 			m_bandSumm->SetBandTitle(i, band_Title[i]);
@@ -955,7 +955,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
     bool msgValid = (RequestMask & WLOG_MULTICHECK_MSGSET) != 0;
 
 	QsoPtr_t OldQ(0);
-[!if !AM_ROVER]
+[!if !CAN_LOG_ROVER]
 	if (canWrite)
 	{
 		//locate any previous QSO with this station...
@@ -998,7 +998,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
     {
         if (fRCVD(q).empty() && !fCALL(q).empty() && canWrite) 
         {
-[!if !AM_ROVER]
+[!if !CAN_LOG_ROVER]
             if (OldQ)
 		    {
                 if (canWrite)    // fill in new field from old qso
@@ -1011,21 +1011,28 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
             std::set<std::string> PrevQsoRcvd;
 	        // Logging rovers. if we find this guy always under the same county,
 	        // then copy that county
+            m_qsoSearchMatch = [&PrevQsoRcvd, this] (QsoPtr_t OldQ, int *IsNotDupe) 
+                {
+					        PrevQsoRcvd.insert(fRCVD(OldQ).str());
+                            *IsNotDupe = 1; // make writelog gives us all the QSOs with this call
+                };
 		    for (int j = 0; j < m_NumberOfDupeSheetBands; j += 1)
 		    {
+[!if AM_ROVER]
                 for (unsigned k = 0; k < m_dupeSheets.size(); k++)
                 {
-                    // k+1 cuz q->DupeSheet is offset one above m_dupeSheets idx
-			        if (m_Parent->SearchDupeSheet(q, j, k+1, &QsoNumber) == S_OK)
-			        {
-				        OldQ = GetQsoIth(QsoNumber);
-					    PrevQsoRcvd.insert(fRCVD(OldQ).str());
-				        if (PrevQsoRcvd.size() > 1)
-                            goto out;
-			        }
+                    unsigned dupeSheetIdx = k + 1;    // k+1 cuz q->DupeSheet is offset one above m_dupeSheets idx
+[!else]
+                unsigned dupeSheetIdx = 0;
+                {
+[!endif]
+			        m_Parent->SearchDupeSheet(q, j, dupeSheetIdx,  &QsoNumber);
+				    if (PrevQsoRcvd.size() > 1)
+                        goto out;
                 }
 		    }
         out:
+            m_qsoSearchMatch = QsoSearchMatch_t();
             if (PrevQsoRcvd.size() == 1)
                 fRCVD(q)= PrevQsoRcvd.begin()->c_str();
 [!endif]
@@ -1477,6 +1484,10 @@ HRESULT [!output MM_CLASS_NAME]::MatchedQso(QsoPtr_t New, QsoPtr_t Old)
 }
 HRESULT [!output MM_CLASS_NAME]::QsoSearch(QsoPtr_t NewQ, QsoPtr_t OldQ, int * IsGood)
 {
+    // WriteLog calls here when two QSOs that it thinks might be dupes of each other
+    //  same call and same band/mode duping band
+    // We can set IsGood to say they really are NOT dupes of each other (because
+    // some else in the QSO says we can work them again.)
     if (!IsGood)
         return E_POINTER;
     *IsGood = 0;
@@ -1497,6 +1508,8 @@ HRESULT [!output MM_CLASS_NAME]::QsoSearch(QsoPtr_t NewQ, QsoPtr_t OldQ, int * I
         (strcmp(fAYG(NewQ).str(), fAYG(OldQ).str()) != 0))
 			*IsGood = 1;
 [!endif]
+    if (m_qsoSearchMatch)
+        m_qsoSearchMatch(OldQ, IsGood);
 [!endif]
     return S_OK;
 }
@@ -1539,9 +1552,10 @@ HRESULT [!output MM_CLASS_NAME]::SetDupeSheet(QsoPtr_t q, int * DupeSheet)
 HRESULT [!output MM_CLASS_NAME]::DupeSheetTitle(int DupeSheet, char * Title, int TitleLength)
 {
 [!if AM_ROVER]
-    if (DupeSheet >= static_cast<int>(m_dupeSheets.size()))
+    unsigned idx = DupeSheet - 1;
+    if (idx >= static_cast<int>(m_dupeSheets.size()))
         return E_INVALIDARG;
-    strncpy_s(Title, TitleLength, m_dupeSheets[DupeSheet]->title().c_str(), TitleLength);
+    strncpy_s(Title, TitleLength, m_dupeSheets[idx]->title().c_str(), TitleLength);
 [!else]
     strncpy_s(Title, TitleLength, currentDupeSheet().title().c_str(), TitleLength);
 [!endif]
@@ -2009,42 +2023,42 @@ const struct band_stru
         { 180000,  200000, PHONE_MASK, "160M PH"},
         { 180000,  200000, CW_MASK, "160M CW"},
 [!if RTTY]
-        { 180000,  200000, FSK_MASK, "160M RY"},
+        { 180000,  200000, FSK_MASK, "160M DIG"},
 [!endif]
         { 350000,  400000, PHONE_MASK, "80M PH"},
         { 350000,  400000, CW_MASK, "80M CW"},
 [!if RTTY]
-        { 350000,  400000, FSK_MASK, "80M RY"},
+        { 350000,  400000, FSK_MASK, "80M DIG"},
 [!endif]
         { 700000,  730000, PHONE_MASK, "40M PH"},
         { 700000,  730000, CW_MASK, "40M CW"},
 [!if RTTY]
-        { 700000,  730000, FSK_MASK, "40M RY"},
+        { 700000,  730000, FSK_MASK, "40M DIG"},
 [!endif]
         {1400000, 1435000, PHONE_MASK, "20M PH"},
         {1400000, 1435000, CW_MASK, "20M CW"},
 [!if RTTY]
-        {1400000, 1435000, FSK_MASK, "20M RY"},
+        {1400000, 1435000, FSK_MASK, "20M DIG"},
 [!endif]
         {2100000, 2145000, PHONE_MASK, "15M PH"},
         {2100000, 2145000, CW_MASK, "15M CW"},
 [!if RTTY]
-        {2100000, 2145000, FSK_MASK, "15M RY"},
+        {2100000, 2145000, FSK_MASK, "15M DIG"},
 [!endif]
         {2800000, 2970000, PHONE_MASK|FM_MASK|AM_MASK, "10M PH"},
         {2800000, 2970000, CW_MASK, "10M CW"},
 [!if RTTY]
-        {2800000, 2970000, FSK_MASK, "10M RY"},
+        {2800000, 2970000, FSK_MASK, "10M DIG"},
 [!endif]
 		{5000000, 5400000, PHONE_MASK|FM_MASK|AM_MASK, "6M PH"},
 		{5000000, 5400000, CW_MASK, "6M CW"},
 [!if RTTY]
-        {5000000, 5400000, FSK_MASK, "6M RY"},
+        {5000000, 5400000, FSK_MASK, "6M DIG"},
 [!endif]
 		{14400000,14800000, PHONE_MASK|FM_MASK|AM_MASK, "2M PH"},
 		{14400000,14800000, CW_MASK, "2M CW"},
 [!if RTTY]
-        {14400000,14800000, FSK_MASK, "2M RY"},
+        {14400000,14800000, FSK_MASK, "2M DIG"},
 [!endif]
         {-1, -1, -1}
     };
