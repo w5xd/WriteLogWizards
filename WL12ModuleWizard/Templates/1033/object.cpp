@@ -1063,7 +1063,7 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
         if (canWrite && m_countyLineMode)
         {
             if (!fCALL(q).empty())
-            {
+            {   // County line--call filled in
                 for (unsigned i = 0; i < m_dupeSheets.size(); i++)
                 {
                     unsigned long QsoNumber;
@@ -1089,7 +1089,8 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
             }
 [!if !NO_NAMEDMULT]
             else if (fRCVD(q).empty())
-            { // fill in call from previous QSO on this band and for next of our counties
+            {   // county line mode. Call empty and fRCVD empty
+                // fill in call from previous QSO on this band and for next of our counties
                     unsigned long n = 0;
                     m_Parent->NumberQsos(&n);
                     while (n != 0)
@@ -1935,7 +1936,7 @@ HRESULT [!output MM_CLASS_NAME]::FormatTxField(QsoPtr_t q, short Field, char *Bu
 [!endif]
 [!if !NO_NAMEDMULT]
 	case 0:	//TODO
-		wsprintf(Buf, "%-6.6s ", currentDupeSheet().m_MyMult.c_str());
+		wsprintf(Buf, "%-6.6s ", currentDupeSheet().key().c_str());
 		break;
 [!endif]
 [!if NR_IN_EXCHANGE]
