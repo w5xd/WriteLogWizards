@@ -112,12 +112,12 @@ support highlighting and clicking into WriteLog's Entry Window.
 <li><i>Pts Column</i> adds a column to the log to display the points claimed for each QSO.
 <li><i>RST in exchange</i> adds sent/received RST columns to the log.
 <li><i>Mode support</i> selects among 3 choices.
-<ol><li><i>compiled-in</i> The modes (CW/SSB/RTTY) are decided at compile time. Many RTTY contests are examples.
+<ul><li><i>compiled-in</i> The modes (CW/SSB/RTTY) are decided at compile time. Many RTTY contests are examples.
    <li><i>ask at startup</i> For a given weekend, only one mode (or set of modes) is allowed,
    but you need to ask the user which. Think ARRL SS CW versus SSB.
    <li><i>multi-mode</i> means that the contest rules are that on a given frequency band,
    contestants can make separate QSOs for credit on multiple modes. Think IARU HF.
-</ol>
+</ul>
 <li><i>DXCC</i> means the contest counts DXCC countries as multipliers, and the wizard
 generates code for the case of countries as mults once per contest, or once per band.
 <li><i>Zones</i> means the contest counts zones as multipliers. The wizard generates
@@ -132,9 +132,9 @@ an INI file that has the multipliers in it along with any ALIAS names you want
 to all refer to the same multiplier
 <li><i>Roving Stations</i>
 <ul>
-<li><i>Dupe received as Rover</i> The received exchange can make a matching call and band 
+<li><i>Dupe received as Rover</i> The received exchange makes a matching call and band 
 not a duplicate.</li>
-<li><i>Can be rover</i> You can send a different county or grid and work stations again.</li>
+<li><i>Can be rover</i> You change to a different county or grid and work stations again.</li>
 <li><i>Automate county line</i> When operating from a county/grid boundary, press TAB on an empty QSO Window
 and WriteLog fills in the next county/grid you haven't already logged for that call and band.</li>
 </ul></li>
