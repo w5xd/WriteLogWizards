@@ -128,24 +128,18 @@ function OnFinish(selProj, selObj) {
         wizard.AddSymbol("DLG_HEADER_FILE", strDlgHeaderFile);
 
         if (wizard.FindSymbol("AM_ROVER")) {
-            // stupid part is create an entry in Resource.h using "REGISTRY"
-            // see RoverQthDlg.h for instructions about how to fix the .rc file after the wizard finishes
-            var strEmptyRGSFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + "SelectDlg.rgs");
             var strRoverDLGID = "IDD_" + strUpperShortName + "SELECT_DLG";
-            RenderAddTemplate(wizard, "RoverQthDlg.rgs", strEmptyRGSFile, false, false);
-            var strEmptyFilePath = strProjectPath + strEmptyRGSFile;
-            strSymbolValue = oResHelper.AddResource(strRoverDLGID, strEmptyFilePath, "REGISTRY");
+            var strDlgRCTemplFile = strTemplatePath + "\\RoverQthDlg.rc";
+            var strTemporaryDlgResourceFile = RenderToTemporaryResourceFile(strDlgRCTemplFile);
+            strSymbolValue = oResHelper.AddResource(strRoverDLGID, strTemporaryDlgResourceFile, "DIALOG");
+
             wizard.AddSymbol("IDD_ROVERSELECT_DIALOGID", strSymbolValue.split("=").shift());
-            var strDlgFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + "SelectDlg.dlg");
-            wizard.AddSymbol("ROVER_SELECT_DLGFILE", strDlgFile);
-            wizard.AddSymbol("ROVER_SELECT_RGSFILE", strEmptyRGSFile);
-            RenderAddTemplate(wizard, "RoverQthDlg.dlg", strDlgFile, selObj, false);
 
             strDlgClassName = "C" + strShortName + "RoverSelectDialog";
             wizard.AddSymbol("MM_ROVERDLG_CLASS_NAME", strDlgClassName);
             var strSelDlgHeaderFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + "SelectDlg.h");
-            wizard.AddSymbol("MM_ROVERDLG_CLASS_FILENAME", strSelDlgHeaderFile);
             RenderAddTemplate(wizard, "RoverQthDlg.h", strSelDlgHeaderFile, selObj, false);
+            wizard.AddSymbol("MM_ROVERDLG_CLASS_FILENAME", strSelDlgHeaderFile);
         }
 
         RenderAddTemplate(wizard, "object.h", strHeaderFile, selObj, true);

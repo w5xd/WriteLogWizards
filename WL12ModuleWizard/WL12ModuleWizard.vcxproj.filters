@@ -53,9 +53,6 @@
     <None Include="WL12ModuleWizard2019.vsz">
       <Filter>Miscellaneous Files</Filter>
     </None>
-    <None Include="Templates\1033\RoverQthDlg.rgs">
-      <Filter>Template Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="WL12ModuleWizard.ico">
@@ -95,7 +92,7 @@
     <ResourceCompile Include="Templates\1033\dialog.rc">
       <Filter>Template Files</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="Templates\1033\RoverQthDlg.dlg">
+    <ResourceCompile Include="Templates\1033\RoverQthDlg.rc">
       <Filter>Template Files</Filter>
     </ResourceCompile>
   </ItemGroup>

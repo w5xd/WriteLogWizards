@@ -1011,11 +1011,12 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
             std::set<std::string> PrevQsoRcvd;
 	        // Logging rovers. if we find this guy always under the same county,
 	        // then copy that county
-            m_qsoSearchMatch = [&PrevQsoRcvd, this] (QsoPtr_t OldQ, int *IsNotDupe) 
+            CQsoSearchMatchHelper savedQsoMatch(m_qsoSearchMatch,
+                [&PrevQsoRcvd, this] (QsoPtr_t OldQ, int *IsGood) 
                 {
-					        PrevQsoRcvd.insert(fRCVD(OldQ).str());
-                            *IsNotDupe = 1; // make writelog gives us all the QSOs with this call
-                };
+					            PrevQsoRcvd.insert(fRCVD(OldQ).str());
+                                *IsGood = 1; // make writelog gives us all the QSOs with this call
+                });
 		    for (int j = 0; j < m_NumberOfDupeSheetBands; j += 1)
 		    {
 [!if AM_ROVER]
@@ -1032,7 +1033,6 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                 }
 		    }
         out:
-            m_qsoSearchMatch = QsoSearchMatch_t();
             if (PrevQsoRcvd.size() == 1)
                 fRCVD(q)= PrevQsoRcvd.begin()->c_str();
 [!endif]
@@ -1049,8 +1049,15 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                     if (m_Parent->SearchDupeSheet(q, q->band, i+1, &QsoNumber) != S_OK)
                     {
                         //switch to first county we have not logged this guy
-                            m_currentDupeSheet = i;
-                            break;                    
+                        bool diff = i != m_currentDupeSheet;
+                        m_currentDupeSheet = i;
+                        if (diff)
+                        {
+                            m_DxccContainer.InvalidateAll();
+                            if (m_NamedDisplay)
+                                m_NamedDisplay->Invalidate(-1);
+                        }
+                        break;                    
                     }
                 }
             }
@@ -1073,9 +1080,16 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                                         q->band, 
                                         i+1, &QsoNumber) != S_OK)
                                 {   // previously logged station not logged for this county
+                                    bool diff = m_currentDupeSheet != i;
                                     m_currentDupeSheet = i;
                                     fCALL(q) = fCALL(lastQ).str();
                                     fRCVD(q)= fRCVD(lastQ).str();
+                                    if (diff)
+                                    {
+                                        m_DxccContainer.InvalidateAll();
+                                        if (m_NamedDisplay)
+                                            m_NamedDisplay->Invalidate(-1);
+                                    }
                                     break;
                                 }
                             }
@@ -1183,7 +1197,16 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
             if (strcmp(m_dupeSheets[i]->key().c_str(), fMYQTH(q).str()) == 0)
             {
                 if (canWrite)
+                {
+                    bool diff = m_currentDupeSheet != i;
                     m_currentDupeSheet = i;
+                    if (diff)
+                    {
+                        m_DxccContainer.InvalidateAll();
+                        if (m_NamedDisplay)
+                            m_NamedDisplay->Invalidate(-1);
+                    }
+                }
                 ret = 0;
                 break;
            }
@@ -1331,7 +1354,14 @@ void [!output MM_CLASS_NAME]::InvokeQthSelectDlg()
         {
             if (m_dupeSheets[i]->title() == Dlg.m_result)
             {
+                bool diff = m_currentDupeSheet != i;
                 m_currentDupeSheet = i;
+                if (diff)
+                {
+                        m_DxccContainer.InvalidateAll();
+                        if (m_NamedDisplay)
+                            m_NamedDisplay->Invalidate(-1);
+                }
                 break;
             }
         }

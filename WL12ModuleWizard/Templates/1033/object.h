@@ -423,6 +423,17 @@ protected:
 [!if CAN_LOG_ROVER]
     typedef std::function<void(QsoPtr_t, int*)> QsoSearchMatch_t;
     QsoSearchMatch_t m_qsoSearchMatch;
+    class CQsoSearchMatchHelper {
+    public:
+        CQsoSearchMatchHelper(QsoSearchMatch_t &toUpdate, const QsoSearchMatch_t &useInScope) 
+            : toRestore(toUpdate), stored(toUpdate)
+        {  toUpdate = useInScope;   }
+        ~CQsoSearchMatchHelper()
+        { toRestore = stored;  }
+    protected:
+        QsoSearchMatch_t stored;
+        QsoSearchMatch_t &toRestore;
+    };
 [!endif]
 [!if AM_ROVER && AM_COUNTYLINE]
     bool m_countyLineMode;

@@ -6,30 +6,6 @@
 #include <functional>
 
 // [!output MM_ROVERDLG_CLASS_NAME]
-//
-// When the wizard puts this file in your project, it also does a song-and-dance to get the corresponding
-// DIALOG object into the RC file. The wizard in its standard add-a-DIALOG processing (as far as I can figure out) 
-// will NOT allow use of symbols from Resource.h in the template.
-// 
-// So...this wizard adds an empty rgs file to the .rc file, but in such a way that the following steps
-// result in the desired dialog in the .rc file:
-// 
-// Since you are reading this .h file, you are far enough along that the wizard has added an empty
-// rgs file to your project and to the REGISTRY section in the .rc, and it has added a .dlg file
-// with the right DIALOG, but the .rc file does not reference the .dlg, while it does reference the
-// useless .rgs.
-// 
-// Edit the .rc file AS TEXT.
-// Track down this line:
-// [!output IDD_ROVERSELECT_DIALOGID]    REGISTRY                "[!output ROVER_SELECT_RGSFILE]"
-//
-// Remove that line and replace it with this:
-// #include "[!output ROVER_SELECT_DLGFILE]"
-//
-// Later, you may remove and delete both [!output ROVER_SELECT_DLGFILE] and  [!output ROVER_SELECT_RGSFILE]
-// From the VC++ project, but NOT before you have brought up the Visual Studio editor on your .rc file
-// and made some change, and then saved it. VS save of the .rc will conver the #include above into an in-line copy.
-//
 
 class [!output MM_ROVERDLG_CLASS_NAME] : 
 	public CAxDialogImpl<[!output MM_ROVERDLG_CLASS_NAME]>
