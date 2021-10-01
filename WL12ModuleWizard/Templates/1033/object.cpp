@@ -551,13 +551,13 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 		{
 [!if MULTI_MODE]
 			if (q->mode == '3')
-				Mult[BAND_SUMMARY_CW] = 1;
+				Mult[BAND_SUMMARY_CW] = points;
 [!if RTTY]
             else if  (q->mode == '6')
-				Mult[BAND_SUMMARY_RTTY] = 1;
+				Mult[BAND_SUMMARY_RTTY] = points;
 [!endif]
 			else
-				Mult[BAND_SUMMARY_PHONE] = 1;
+				Mult[BAND_SUMMARY_PHONE] = points;
 [!endif]
 			m_bandSumm->ContributeMultipliers(
 					band,
@@ -613,15 +613,16 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 
     if (q->dupe == ' ')
     {
+        points = PointsForQso(q);
 [!if MULTI_MODE]
 		if (q->mode == '3')
-			Mult[BAND_SUMMARY_CW] = -1;
+			Mult[BAND_SUMMARY_CW] = -points;
 [!if RTTY]
         else if (q->mode == '6')
-			Mult[BAND_SUMMARY_RTTY] = -1;
+			Mult[BAND_SUMMARY_RTTY] = -points;
 [!endif]
 		else
-			Mult[BAND_SUMMARY_PHONE] = -1;
+			Mult[BAND_SUMMARY_PHONE] = -points;
 
 [!endif]
 [!if !NO_NAMEDMULT]
@@ -702,7 +703,6 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 		}
 
 [!endif]
-        points = PointsForQso(q);
 [!if !MULTI_MODE && PTS_COLUMN]
 		Mult[BAND_SUMMARY_PTS] = -points;
 [!endif]
