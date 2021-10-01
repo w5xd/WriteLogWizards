@@ -370,11 +370,8 @@ HRESULT [!output MM_CLASS_NAME]::GetLayout(ConstBandPtr_t * b, ConstExfPtr_t * e
 [!if AM_ROVER]
 [!output MM_CLASS_NAME]::CDupeSheet & [!output MM_CLASS_NAME]::dupeSheetFromQso(QsoPtr_t q)
 {
-    for (unsigned i = 0; i < m_dupeSheets.size(); i++)
-    {
-        if (strcmp(m_dupeSheets[i]->title().c_str(),fMYQTH(q).str()) == 0)
-            return *m_dupeSheets[i];
-    }
+    if (q->DupeSheet > 0 && q->DupeSheet <= m_dupeSheets.size())
+        return *m_dupeSheets[q->DupeSheet - 1];
     return *m_dupeSheets[0];
 }
 [!endif]
@@ -387,18 +384,29 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
         q->DupeSheet = 0;
         return S_FALSE;
     }
-    if (!m_dupeSheets[0]->key().empty())
-        for (unsigned i =0; i < m_dupeSheets.size(); i++)
+    std::string myQth = fMYQTH(q).str();
+    if (q->DupeSheet > 0)
+    {
+        std::string key = m_dupeSheets[q->DupeSheet - 1]->key();
+        if (!key.empty() && !myQth.empty() && key != myQth)
         {
-            if (q->DupeSheet == i + 1) // qso says its in this dupe sheet
-                if (m_dupeSheets[i]->title() != fMYQTH(q).str())
-                {
-                    q->DupeSheet = 0;
-                    return S_FALSE;
-                }
-                else
-                    break;
+            q->DupeSheet = 0;
+            return S_FALSE;
         }
+    } else if (!myQth.empty())
+    {
+        int qthIdx = FindNamed(myQth.c_str());
+        if (qthIdx < m_NumNamed)
+        {
+            if (!m_dupeSheets.front()->key().empty())
+            {
+                m_currentDupeSheet = m_dupeSheets.size();
+                m_dupeSheets.push_back(std::make_shared<CDupeSheet>());
+            }
+            m_dupeSheets.back()->setKey(myQth);
+            return S_FALSE;
+        }
+    }
 [!endif]
 
     /* The given QSO is being added to the log. Tally its multipliers  */
@@ -820,6 +828,50 @@ void [!output MM_CLASS_NAME]::CDupeSheet::InitQsoData()
 [!endif]
 }
 
+[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
+unsigned [!output MM_CLASS_NAME]::CDupeSheet::totalQsos() const
+{
+    unsigned ret = 0;
+[!if NAMEDMULT_SINGLE_BAND]
+    for (auto n : m_Named)
+        ret += n.second;
+[!endif]
+[!if NAMEDMULT_MULTI_BAND]
+    for (auto n : m_Named)
+        for (auto b : n.second)
+            ret += b.second;
+[!endif]
+[!if DXCC_SINGLE_BAND]
+    for (auto n : m_Countries)
+        ret += n.second;
+[!endif]
+[!if DXCC_MULTI_BAND]
+    for (auto n : m_Countries)
+        for (auto b : n.second)
+            ret += b.second;
+[!endif]
+[!if ZONE_SINGLE_BAND]
+    for (auto n : m_Zones)
+        ret += n.second;
+[!endif]
+[!if ZONE_MULTI_BAND]
+    for (auto n : m_Zones)
+        for (auto b : n.second)
+            ret += b.second;
+[!endif]
+[!if AYGMULT_SINGLE_BAND]
+    for (auto n : m_AygStatus)
+        ret += n.second;
+[!endif]
+[!if AYGMULT_MULTI_BAND]
+    for (auto n : m_AygStatus)
+        for (auto b : n.second)
+            ret += b.second;
+[!endif]
+    return ret;
+}
+[!endif]
+
 [!if !NO_DXCC]
 int [!output MM_CLASS_NAME]::CDupeSheet::MarkCountryWorked(int dx, int band) {
 [!if DXCC_SINGLE_BAND]
@@ -1230,19 +1282,23 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
 
 [!endif]
 [!if AM_ROVER]
+    std::string myQth = fMYQTH(q).str();
     if (fMYQTH == p)
     {   // The column that sets the QTH we are currently in has been touched.
-        unsigned i = 0;
-        for (; i < m_dupeSheets.size(); i++)
+        ret = -1;
+        if (!myQth.empty())
         {
-            if (strcmp(m_dupeSheets[i]->key().c_str(), fMYQTH(q).str()) == 0)
+            unsigned i;
+            for (i = 0; i < m_dupeSheets.size(); i++)
             {
-                if (canWrite)
+                if (m_dupeSheets[i]->key() == myQth)
                 {
-                    bool diff = m_currentDupeSheet != i;
-                    m_currentDupeSheet = i;
-                    if (diff)
+                    if (canWrite)
                     {
+                        bool diff = m_currentDupeSheet != i;
+                        m_currentDupeSheet = i;
+                        if (diff)
+                        {
 [!if !NO_DXCC]
                         m_DxccContainer.InvalidateAll();
 [!endif]
@@ -1250,25 +1306,28 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                         if (m_NamedDisplay)
                             m_NamedDisplay->Invalidate(-1);
 [!endif]
+                        }
                     }
+                    ret = 0;
+                    break;
                 }
-                ret = 0;
-                break;
-           }
-        }
-        if (i == m_dupeSheets.size() || m_dupeSheets[i]->key().empty())
-        {
-            ret = -1;
-            if (canWrite)
+            }
+            if (ret != 0)
             {
-                InvokeQthSelectDlg();
-                if (!m_dupeSheets[m_currentDupeSheet]->key().empty())
+                int n = FindNamed(myQth.c_str());
+                if (n < m_NumNamed)
                     ret = 0;
             }
         }
+        else if (canWrite)
+        {
+            InvokeQthSelectDlg();
+            if (!m_dupeSheets[m_currentDupeSheet]->key().empty())
+                ret = 0;
+        }
     }
-    if (canWrite)
-        fMYQTH(q)= m_dupeSheets[m_currentDupeSheet]->key().c_str();
+    if (canWrite && myQth.empty())
+        fMYQTH(q) = m_dupeSheets[m_currentDupeSheet]->key().c_str();
 [!endif]
     *Result = ret; // -1, 0, +1 for Unknown, no mult, new mult
     return S_OK;
@@ -1631,20 +1690,21 @@ HRESULT [!output MM_CLASS_NAME]::SetDupeSheet(QsoPtr_t q, int * DupeSheet)
     // TODO ***********************************************
     if (q->DupeSheet == 0)
     {
-        if (fMYQTH(q).empty())
-            fMYQTH(q) = m_dupeSheets[m_currentDupeSheet]->title().c_str();
-        unsigned i = 0;
-        for (; i < m_dupeSheets.size(); i++)
+        unsigned i = m_currentDupeSheet;
+        std::string myQth = fMYQTH(q).str();
+        if (myQth.empty())
+            fMYQTH(q) = m_dupeSheets[i]->title().c_str();
+        else
         {
-            if (strcmp(fMYQTH(q).str(), m_dupeSheets[i]->title().c_str()) == 0)
-                break;            
+            for (i = 0; i < m_dupeSheets.size(); i++)
+            {
+                if (myQth == m_dupeSheets[i]->key().c_str())
+                    break;            
+            }
+            if (i == m_dupeSheets.size())
+                return S_FALSE;
         }
-        if (i == m_dupeSheets.size())
-            i = m_currentDupeSheet;
         *DupeSheet = i + 1; // q->DupeSheet is offset to one more than index into m_dupeSheets
-        std::string myqth = m_dupeSheets[i]->title();
-        if (!myqth.empty())
-            fMYQTH(q) = myqth.c_str();
     }
     else
         *DupeSheet = q->DupeSheet;

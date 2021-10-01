@@ -185,6 +185,7 @@ public:
     const std::string &title() const { return m_MyMult;}
     const std::string &key() const { return m_MyMult;}
     void setKey(const std::string &k) {m_MyMult = k;}
+    unsigned totalQsos() const;
 [!if !NO_NAMEDMULT]
 protected:
 	[!output MM_CLASS_NAME]::NamedMult_t		            m_Named;		//Number of times we've worked each multiplier
