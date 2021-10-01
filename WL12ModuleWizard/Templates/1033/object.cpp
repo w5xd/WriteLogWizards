@@ -369,9 +369,9 @@ HRESULT [!output MM_CLASS_NAME]::GetLayout(ConstBandPtr_t * b, ConstExfPtr_t * e
 
 [!if AM_ROVER]
 [!output MM_CLASS_NAME]::CDupeSheet & [!output MM_CLASS_NAME]::dupeSheetFromQso(QsoPtr_t q)
-{
+{   // dupe sheet for QSO when logging as a rover
     if (q->DupeSheet > 0 && q->DupeSheet <= m_dupeSheets.size())
-        return *m_dupeSheets[q->DupeSheet - 1];
+        return *m_dupeSheets[q->DupeSheet - 1]; // is valid
     return *m_dupeSheets[0];
 }
 [!endif]
@@ -380,7 +380,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 {
 [!if AM_ROVER]
     if (q->DupeSheet > m_dupeSheets.size())
-    {
+    {   // invalid DupeSheet cuz we assign starting at 1
         q->DupeSheet = 0;
         return S_FALSE;
     }
@@ -389,22 +389,22 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
     {
         std::string key = m_dupeSheets[q->DupeSheet - 1]->key();
         if (!key.empty() && !myQth.empty() && key != myQth)
-        {
+        {   // invalid cuz index doesn't match logged QTH
             q->DupeSheet = 0;
             return S_FALSE;
         }
-    } else if (!myQth.empty())
+    } else if (!myQth.empty()) // empty means we are not initialized
     {
         int qthIdx = FindNamed(myQth.c_str());
         if (qthIdx < m_NumNamed)
-        {
+        {   // found the logged MYQTH is in list of valid QTHs
             if (!m_dupeSheets.front()->key().empty())
-            {
+            {   // make a new dupe sheet
                 m_currentDupeSheet = m_dupeSheets.size();
                 m_dupeSheets.push_back(std::make_shared<CDupeSheet>());
             }
             m_dupeSheets.back()->setKey(myQth);
-            return S_FALSE;
+            return S_FALSE; // force redupe
         }
     }
 [!endif]
@@ -830,7 +830,7 @@ void [!output MM_CLASS_NAME]::CDupeSheet::InitQsoData()
 
 [!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
 unsigned [!output MM_CLASS_NAME]::CDupeSheet::totalQsos() const
-{
+{   // total number of QSOs logged from this QTH
     unsigned ret = 0;
 [!if NAMEDMULT_SINGLE_BAND]
     for (auto n : m_Named)
@@ -983,6 +983,7 @@ bool [!output MM_CLASS_NAME]::CDupeSheet::aygWorked(short ayg, short band) const
 [!endif]
 
 [!if CAN_LOG_ROVER]
+// we can log rovers, so prior QSO received exchange might not be what we want to prefill
 std::set<std::string> [!output MM_CLASS_NAME]::FindAllPreviousValuesForThisCall(unsigned MaxSize, CQsoField &field, QsoPtr_t q)
 {
 	unsigned long QsoNumber;
@@ -1282,12 +1283,13 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
 
 [!endif]
 [!if AM_ROVER]
+    // Am logging as rover from multiple QTHs
     std::string myQth = fMYQTH(q).str();
     if (fMYQTH == p)
     {   // The column that sets the QTH we are currently in has been touched.
         ret = -1;
         if (!myQth.empty())
-        {
+        {   // if this logged-from QTH appears in dupe sheets, then make it current
             unsigned i;
             for (i = 0; i < m_dupeSheets.size(); i++)
             {
@@ -1313,14 +1315,14 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                 }
             }
             if (ret != 0)
-            {
+            {   // was not in currently logged. is it some other valid QTH?
                 int n = FindNamed(myQth.c_str());
                 if (n < m_NumNamed)
                     ret = 0;
             }
         }
         else if (canWrite)
-        {
+        {   // empty MYQTH being checked. invoke dialog
             InvokeQthSelectDlg();
             if (!m_dupeSheets[m_currentDupeSheet]->key().empty())
                 ret = 0;
@@ -1669,7 +1671,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoSearch(QsoPtr_t NewQ, QsoPtr_t OldQ, int * I
         (strcmp(fAYG(NewQ).str(), fAYG(OldQ).str()) != 0))
 			*IsGood = 1;
 [!endif]
-    if (m_qsoSearchMatch)
+    if (m_qsoSearchMatch)   // rover has callback during QsoSearch
         m_qsoSearchMatch(OldQ, IsGood);
 [!endif]
     return S_OK;
@@ -1688,26 +1690,26 @@ HRESULT [!output MM_CLASS_NAME]::SetDupeSheet(QsoPtr_t q, int * DupeSheet)
     // transmitted grid square the module tells WL to create a new dupe
     // sheet for that grid square.
     // TODO ***********************************************
-    if (q->DupeSheet == 0)
-    {
+    if (q->DupeSheet != 0)
+        *DupeSheet = q->DupeSheet; // leave nonzero alone
+    else
+    {   // dupe sheet is not among m_dupeSheets
         unsigned i = m_currentDupeSheet;
         std::string myQth = fMYQTH(q).str();
-        if (myQth.empty())
+        if (myQth.empty())  // MYQTH not set
             fMYQTH(q) = m_dupeSheets[i]->title().c_str();
         else
-        {
+        {   // if fMYQTH matches a dupesheet, then put q in it
             for (i = 0; i < m_dupeSheets.size(); i++)
             {
                 if (myQth == m_dupeSheets[i]->key().c_str())
                     break;            
             }
             if (i == m_dupeSheets.size())
-                return S_FALSE;
+                return S_FALSE; // Invalid MYQTH. leave q in zeroth dupe sheet
         }
         *DupeSheet = i + 1; // q->DupeSheet is offset to one more than index into m_dupeSheets
     }
-    else
-        *DupeSheet = q->DupeSheet;
 [!endif]
     return S_OK;
 }
