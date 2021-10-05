@@ -81,7 +81,7 @@ public:
 		//TODO--if there are more modes....
 [!else ]
 		BAND_SUMMARY_QSO,
-[!if PTS_COLUMN]
+[!if !MULTI_MODE && PTS_COLUMN]
 		BAND_SUMMARY_PTS,
 [!endif ]
 [!endif ]
@@ -171,8 +171,12 @@ public:
          [!if !NO_DXCC]DXCC_MULT_ID,[!endif][!if !NO_ZONE]ZONE_MULT_ID,[!endif][!if !NO_NAMEDMULT] NAMED_MULT_ID,[!endif][!if !NO_AYGMULT] AYG_MULT_ID,[!endif]
     };
     HRESULT get_MultWorked(int id, short Mult, short band);
-// class CDupeSheet. 
-// Only one of these is needed unless we are going to support roving. Then there is one per roving QTH.
+// class CDupeSheet. ********************************************
+[!if AM_ROVER]
+// We support roving. There is one CDupeSheet per roving QTH.
+[!else]
+// Only one dupe sheet
+[!endif]
 class CDupeSheet {
 public:
     CDupeSheet()
@@ -279,10 +283,10 @@ enum {	// identical rules, but different modes on different weekends
     }                              m_ModeSelected;
 [!endif]
 
+[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
     /************
     Multiplier support
     ************/
-[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
 	CComPtr<IMultDisplayContainer>	m_MultDispContainer;
  [!if !AM_ROVER]
     CDupeSheet             m_dupeSheet;
@@ -293,8 +297,8 @@ enum {	// identical rules, but different modes on different weekends
     CDupeSheet &currentDupeSheet() { return *m_dupeSheets[m_currentDupeSheet].get(); }
     CDupeSheet &dupeSheetFromQso(QsoPtr_t);
     unsigned m_currentDupeSheet;
-[!endif]
 
+[!endif]
 [!endif]
 [!if !NO_NAMEDMULT]
 	//Named multiplier support...
@@ -315,7 +319,7 @@ enum {	// identical rules, but different modes on different weekends
     int FindNamed(const char *c);
     // end named
 
-[!endif]
+    [!endif]
 [!if !NO_DXCC]
 	//DXCC Multiplier
 	CCountryLookupHelper			m_DxContext;
@@ -335,9 +339,9 @@ enum {	// identical rules, but different modes on different weekends
 	DxccMults_t	                    m_DxccMults;
 [!endif]
     // end DXCC
+
 [!endif]
 [!if !NO_ZONE]
-
 	//Zone multiplier support
     enum { NUMZONES = 40 };    // TODO
 	CCountryLookupHelper			m_ZoneContext;
@@ -389,7 +393,7 @@ public:
     End Multiplier support
     ************/
 
-[!if AM_ROVER && AM_COUNTYLINE]
+[!if AM_COUNTYLINE]
     char GetCountyLineMode() { return m_countyLineMode ? 1 : 0; }
     void SetCountyLineMode(char v) { m_countyLineMode = (v != 0); }
 [!endif]
@@ -401,7 +405,7 @@ protected:
     int						        m_PageQsos;
     int						        m_PageQsoPoints;
     int						        m_PageMultipliers;
-    int                             m_NumberOfDupeSheetBands;
+    int                             m_NumberOfDupeSheetBands; // count of g_Bands entries at File/New time.
 
     // Methods
     long PointsForQso(QsoPtr_t q);
@@ -441,9 +445,10 @@ protected:
         QsoSearchMatch_t stored;
         QsoSearchMatch_t &toRestore;
     };
+    // take into account previously logged rover will have multiple QTHs in our log.
     std::set<std::string> FindAllPreviousValuesForThisCall(unsigned MaxSize, CQsoField &field, QsoPtr_t q);
 [!endif]
-[!if AM_ROVER && AM_COUNTYLINE]
+[!if AM_COUNTYLINE]
     bool m_countyLineMode;
 [!endif]
 };

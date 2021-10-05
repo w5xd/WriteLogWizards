@@ -112,7 +112,6 @@ enum ExfOrder_t { CALL_IDX,
 [!endif]    
     };
 
-
 // EVERY ROW HERE MUST HAVE A CORRESDPONDING ENTRY IN enum ExfOrder_t
 // TODO: you may reorder these, as long as you reorder the enum above to match.
 // You may add items (removal might not be as easy) as long as you add a
@@ -380,7 +379,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 {
 [!if AM_ROVER]
     if (q->DupeSheet > m_dupeSheets.size())
-    {   // invalid DupeSheet cuz we assign starting at 1
+    {   // invalid DupeSheet
         q->DupeSheet = 0;
         return S_FALSE;
     }
@@ -388,12 +387,17 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
     if (q->DupeSheet > 0)
     {
         std::string key = m_dupeSheets[q->DupeSheet - 1]->key();
-        if (!key.empty() && !myQth.empty() && key != myQth)
-        {   // invalid cuz index doesn't match logged QTH
-            q->DupeSheet = 0;
-            return S_FALSE;
+        if (!key.empty())
+        {
+            if (myQth.empty())
+                fMYQTH(q) = key.c_str();
+            else if (key != myQth)
+            {   // invalid cuz index doesn't match logged QTH
+                q->DupeSheet = 0;
+                return S_FALSE;
+            }
         }
-    } else if (!myQth.empty()) // empty means we are not initialized
+    } else if (!myQth.empty()) // empty means MYQTH for QSO not initialized
     {
         int qthIdx = FindNamed(myQth.c_str());
         if (qthIdx < m_NumNamed)
@@ -406,6 +410,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
             m_dupeSheets.back()->setKey(myQth);
             return S_FALSE; // force redupe
         }
+        // non-empty MYQTH in QSO, but not a valid county. leave it at zero DupeSheet
     }
 [!endif]
 
@@ -427,7 +432,9 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 [!if PTS_COLUMN]
     fPTS(q) = "";
 [!endif]
-
+[!if !NO_NAMEDMULT]
+	fMLT(q) = "";
+[!endif]
     if (q->dupe == ' ')
     {
 [!if !NO_NAMEDMULT || !NO_DXCC || !NO_ZONE || !NO_AYGMULT]
@@ -719,6 +726,7 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
     }
     return S_OK;
 }
+
 HRESULT [!output MM_CLASS_NAME]::InitQsoData()
 {
 /* Set our state to no multipliers nor QSOs.*/
@@ -803,7 +811,7 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
 		for (int i = 0; i < DIM(band_Title); i += 1)
 			m_bandSumm->SetBandTitle(i, band_Title[i]);
 [!else]
-[!if PTS_COLUMN]
+[!if !MULTI_MODE && PTS_COLUMN]
 		m_bandSumm->SetItemTitle(BAND_SUMMARY_PTS, "Pts");
 [!endif]
 [!endif]
@@ -870,8 +878,8 @@ unsigned [!output MM_CLASS_NAME]::CDupeSheet::totalQsos() const
 [!endif]
     return ret;
 }
-[!endif]
 
+[!endif]
 [!if !NO_DXCC]
 int [!output MM_CLASS_NAME]::CDupeSheet::MarkCountryWorked(int dx, int band) {
 [!if DXCC_SINGLE_BAND]
@@ -899,7 +907,6 @@ bool [!output MM_CLASS_NAME]::CDupeSheet::countryWorked(short dx, short band) co
 }
 
 [!endif]
-
 [!if !NO_NAMEDMULT]
 int [!output MM_CLASS_NAME]::CDupeSheet::MarkNamedMultWorked(int nm, int band) {
 [!if NAMEDMULT_MULTI_BAND]
@@ -925,8 +932,8 @@ bool [!output MM_CLASS_NAME]::CDupeSheet::namedWorked(short nm, short band) cons
 			return m_Named.worked(nm);
 [!endif]
 }
-[!endif]
 
+[!endif]
 [!if !NO_ZONE]
 int [!output MM_CLASS_NAME]::CDupeSheet::MarkZoneWorked(int zn, int band) {
 [!if ZONE_MULTI_BAND]
@@ -952,8 +959,8 @@ bool [!output MM_CLASS_NAME]::CDupeSheet::zoneWorked(short zn, short band) const
 			return m_Zones.worked(zn);
 [!endif]
 }
-[!endif]
 
+[!endif]
 [!if !NO_AYGMULT]
 int [!output MM_CLASS_NAME]::CDupeSheet::MarkAygMultWorked(int ayg, int band) {
 [!if AYGMULT_MULTI_BAND]
@@ -980,8 +987,8 @@ bool [!output MM_CLASS_NAME]::CDupeSheet::aygWorked(short ayg, short band) const
 [!endif]
 }
 [!endif]
-[!endif]
 
+[!endif]
 [!if CAN_LOG_ROVER]
 // we can log rovers, so prior QSO received exchange might not be what we want to prefill
 std::set<std::string> [!output MM_CLASS_NAME]::FindAllPreviousValuesForThisCall(unsigned MaxSize, CQsoField &field, QsoPtr_t q)
@@ -1021,8 +1028,8 @@ std::set<std::string> [!output MM_CLASS_NAME]::FindAllPreviousValuesForThisCall(
     }
     return PrevQsoRcvd;
 }
-[!endif]
 
+[!endif]
 HRESULT [!output MM_CLASS_NAME]::MultiCheck(
     QsoPtr_t q,     // is the QSO being checked
     int p,          // denotes the field in the QSO (its the value in the exfa_stru.pl member)
