@@ -1,4 +1,8 @@
 #pragma once
+[!if CAN_LOG_ROVER]
+#include <functional>
+#include <set>
+[!endif]
 #include "resource.h"       // main symbols
 
 #include "[!output MIDL_H_FILENAME]"
@@ -17,6 +21,10 @@
 [!if !NO_DXCC || !NO_ZONE || !NO_AYGMULT || !NO_NAMEDMULT]
 #include "MultDisplayEntryImpl.h"
 #include "MultiplierMap.h"
+[!endif]
+
+[!if AM_ROVER]
+#include "[!output MM_ROVERDLG_CLASS_FILENAME]"
 [!endif]
 
 // [!output MM_CLASS_NAME]
@@ -73,7 +81,7 @@ public:
 		//TODO--if there are more modes....
 [!else ]
 		BAND_SUMMARY_QSO,
-[!if PTS_COLUMN]
+[!if !MULTI_MODE && PTS_COLUMN]
 		BAND_SUMMARY_PTS,
 [!endif ]
 [!endif ]
@@ -132,8 +140,91 @@ public:
     STDMETHOD(FormatTxField)(QsoPtr_t q, short Field, char * Buf);
     STDMETHOD(GetRxFieldCount)(short * pCount);
     STDMETHOD(FormatRxField)(QsoPtr_t q, short Field, char * Buf);
-
 [!endif]
+
+[!if !NO_NAMEDMULT || !NO_DXCC || !NO_ZONE || !NO_AYGMULT]
+[!if NAMEDMULT_SINGLE_BAND]
+    typedef MultiplierMap_t NamedMult_t;
+[!endif]
+[!if NAMEDMULT_MULTI_BAND]
+    typedef CMultiplierMapByBand NamedMult_t;
+[!endif]
+[!if AYGMULT_MULTI_BAND]
+    typedef CMultiplierMapByBand AygStatus_t;
+[!endif]
+[!if AYGMULT_SINGLE_BAND]
+    typedef MultiplierMap_t AygStatus_t;
+[!endif]
+[!if ZONE_MULTI_BAND]
+    typedef CMultiplierMapByBand Zones_t;
+[!endif]
+[!if ZONE_SINGLE_BAND]
+    typedef MultiplierMap_t Zones_t;
+[!endif]
+[!if DXCC_SINGLE_BAND]
+    typedef MultiplierMap_t Countries_t;
+[!endif]
+[!if DXCC_MULTI_BAND]
+    typedef CMultiplierMapByBand Countries_t;
+ [!endif]
+   enum {  // ID's to distinguish the IMultDisplayEntry implementations
+         [!if !NO_DXCC]DXCC_MULT_ID,[!endif][!if !NO_ZONE]ZONE_MULT_ID,[!endif][!if !NO_NAMEDMULT] NAMED_MULT_ID,[!endif][!if !NO_AYGMULT] AYG_MULT_ID,[!endif]
+    };
+    HRESULT get_MultWorked(int id, short Mult, short band);
+// class CDupeSheet. ********************************************
+[!if AM_ROVER]
+// We support roving. There is one CDupeSheet per roving QTH.
+[!else]
+// Only one dupe sheet
+[!endif]
+class CDupeSheet {
+public:
+    CDupeSheet()
+    {}
+    void InitQsoData();
+protected:
+	std::string					    m_MyMult;
+public:
+    bool needInit() const { return m_MyMult.empty();}
+    const std::string &title() const { return m_MyMult;}
+    const std::string &key() const { return m_MyMult;}
+    void setKey(const std::string &k) {m_MyMult = k;}
+    unsigned totalQsos() const;
+[!if !NO_NAMEDMULT]
+protected:
+	[!output MM_CLASS_NAME]::NamedMult_t		            m_Named;		//Number of times we've worked each multiplier
+public:
+    int MarkNamedMultWorked(int dx, int band);
+    int UnmarkNamedMultWorked(int dx, int band);
+    bool namedWorked(short dx, short band) const;
+[!endif]
+[!if !NO_DXCC]
+public:
+    int MarkCountryWorked(int dx, int band);
+    int UnmarkCountryWorked(int dx, int band);
+    bool countryWorked(short dx, short band) const;
+protected:
+	[!output MM_CLASS_NAME]::Countries_t	                m_Countries;
+[!endif]
+[!if !NO_ZONE]
+public:
+    int MarkZoneWorked(int zn, int band);
+    int UnmarkZoneWorked(int zn, int band);
+    bool zoneWorked(short zn, short band) const;
+protected:
+	[!output MM_CLASS_NAME]::Zones_t   	 	                m_Zones;
+[!endif]
+[!if !NO_AYGMULT]
+public:
+    int MarkAygMultWorked(int ayg, int band);
+    int UnmarkAygMultWorked(int ayg, int band);
+    bool aygWorked(short ayg, short band) const;
+protected:
+	[!output MM_CLASS_NAME]::AygStatus_t		            m_AygStatus;
+[!endif]
+};
+[!endif]
+
 public:
     //IPersist
     STDMETHOD(GetClassID)(CLSID *pClassID);
@@ -148,7 +239,6 @@ public:
 [!if !NO_DXCC || !NO_ZONE || !NO_NAMEDMULT ||!NO_AYGMULT]
 public: 
 	// query multiplier worked
-    HRESULT get_MultWorked(int id, short Mult, short band);
 [!endif]
 protected:
 	// static contest data structure defintions
@@ -193,113 +283,121 @@ enum {	// identical rules, but different modes on different weekends
     }                              m_ModeSelected;
 [!endif]
 
+[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
     /************
     Multiplier support
     ************/
-[!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
 	CComPtr<IMultDisplayContainer>	m_MultDispContainer;
-    enum {  // ID's to distinguish the IMultDisplayEntry implementations
-         [!if !NO_DXCC]DXCC_MULT_ID,[!endif][!if !NO_ZONE]ZONE_MULT_ID,[!endif][!if !NO_NAMEDMULT] NAMED_MULT_ID,[!endif][!if !NO_AYGMULT] AYG_MULT_ID,[!endif]
-    };
+ [!if !AM_ROVER]
+    CDupeSheet             m_dupeSheet;
+    CDupeSheet &currentDupeSheet() { return m_dupeSheet; }
+    CDupeSheet &dupeSheetFromQso(QsoPtr_t) { return m_dupeSheet;}
+[!else]
+    std::vector<std::shared_ptr<CDupeSheet>> m_dupeSheets;
+    CDupeSheet &currentDupeSheet() { return *m_dupeSheets[m_currentDupeSheet].get(); }
+    CDupeSheet &dupeSheetFromQso(QsoPtr_t);
+    unsigned m_currentDupeSheet;
 
+[!endif]
 [!endif]
 [!if !NO_NAMEDMULT]
 	//Named multiplier support...
-	std::string					    m_MyMult;
-	short							m_NumNamed;
-	CComPtr<IWlNamedMult>			m_pNamedMults;
-	CComPtr<IMultDisplayPage>		m_NamedDisplay;
-	CComPtr<IMultDisplayEntry>		m_NamedDisplayEntry;
     CQsoField                       fRCVD;
     CQsoField                       fMLT;
+	short							m_NumNamed;
+	CComPtr<IWlNamedMult>			m_pNamedMults;
+    void SetupNamedDisplay(const char *title, IMultDisplayContainer*, IWlNamedMult *, int numMultBands);
+	CComPtr<IMultDisplayPage>		m_NamedDisplay;
+	CComPtr<IMultDisplayEntry>		m_NamedDisplayEntry;
 [!if NAMEDMULT_MULTI_BAND]
-	CMultiplierMapByBand		    m_Named;     /*number of time worked each multiplier*/
-	MultiplierMap_t		            m_NamedMults;
+	[!output MM_CLASS_NAME]::MultiplierMap_t		            m_NamedMults;
 [!endif]
 [!if NAMEDMULT_SINGLE_BAND]
-	MultiplierMap_t		            m_Named;		//Numer of times we've worked each multiplier
-	int		                        m_NamedMults;
+	int	    m_NamedMults;
 [!endif]
+
     int FindNamed(const char *c);
     // end named
 
-[!endif]
+    [!endif]
 [!if !NO_DXCC]
-
 	//DXCC Multiplier
 	CCountryLookupHelper			m_DxContext;
     int								m_MyCountryIndex;
-	CDxDispContainerHelper<[!output MM_CLASS_NAME],
-        CDxccDisplayHelper<[!output MM_CLASS_NAME], DXCC_MULT_ID> >
-        m_DxccContainer;
     CQsoField                       fCOUNTRY;
     CQsoField                       fAMBF;
     CQsoField                       fCPRF;
     CQsoField                       fCMULT;
+    CDxDispContainerHelper<[!output MM_CLASS_NAME],
+        CDxccDisplayHelper<[!output MM_CLASS_NAME], DXCC_MULT_ID> >
+        m_DxccContainer;
 [!if DXCC_SINGLE_BAND]
-    typedef MultiplierMap_t Countries_t;
 	int                             m_DxccMults;
 [!endif]
 [!if DXCC_MULTI_BAND]
-    typedef CMultiplierMapByBand Countries_t;
     typedef MultiplierMap_t DxccMults_t;
 	DxccMults_t	                    m_DxccMults;
 [!endif]
-	Countries_t	                    m_Countries;
     // end DXCC
+
 [!endif]
 [!if !NO_ZONE]
-
 	//Zone multiplier support
     enum { NUMZONES = 40 };    // TODO
 	CCountryLookupHelper			m_ZoneContext;
-	CComPtr<IMultDisplayPage>		m_ZoneDisplay;
-	CComPtr<IMultDisplayEntry>		m_ZoneDisplayEntry;
     CQsoField                       fZN;
     CQsoField                       fZMULT;
+    void SetupZoneDisplay(const char *title, IMultDisplayContainer*,int numMultBands);
+	CComPtr<IMultDisplayPage>		m_ZoneDisplay;
+	CComPtr<IMultDisplayEntry>		m_ZoneDisplayEntry;
 [!if ZONE_MULTI_BAND]
-    typedef CMultiplierMapByBand Zones_t;
     typedef MultiplierMap_t ZoneMults_t;
 	ZoneMults_t				        m_ZoneMults;
 [!endif]
 [!if ZONE_SINGLE_BAND]
-    typedef MultiplierMap_t Zones_t;
 	int				                m_ZoneMults;
 [!endif]
-	Zones_t   	 	                m_Zones;
 	static int FindZone(const char *c);
 	//end Zone
 
 [!endif]
 [!if !NO_AYGMULT]
 	//As You Go (AYG) multiplier support
-	CComPtr<IMultDisplayPage>		m_AygDisplay;
-	CComPtr<CAygDisplayHelper<[!output MM_CLASS_NAME] , AYG_MULT_ID> >   
-                                    m_AygDisplayEntry;
     typedef std::map<std::string, short> AygNames_t;
 	AygNames_t	                    m_AygDisplayNames; 
-    std::vector<AygNames_t::iterator>
-                                    m_AygIdxToName;
+    std::vector<AygNames_t::iterator>   m_AygIdxToName;
     CQsoField                       fAYG;
     CQsoField                       fAYGMULT;
+    void SetupAygDisplay(const char *title, IMultDisplayContainer*,int numMultBands);
+	CComPtr<IMultDisplayPage>		m_AygDisplay;
+	CComPtr<CAygDisplayHelper<[!output MM_CLASS_NAME], AYG_MULT_ID> >   
+                                    m_AygDisplayEntry;
 [!if AYGMULT_MULTI_BAND]
-	CMultiplierMapByBand		    m_AygStatus;
 	MultiplierMap_t		            m_AygMults;
 [!endif]
 [!if AYGMULT_SINGLE_BAND]
-	MultiplierMap_t		            m_AygStatus;
 	int		                        m_AygMults;
 [!endif]
 	int		FindAyg(int, const char *c);
+
 public:
     int     AygCount() const {        return m_AygDisplayNames.size();    }
     HRESULT get_MultTitle(int ID, short Mult, const char **Title);
     // end AYG
 
 [!endif]
+[!if AM_ROVER]
+    CQsoField                       fMYQTH;
+[!endif]
     /************
     End Multiplier support
     ************/
+
+[!if AM_COUNTYLINE]
+    char GetCountyLineMode() { return m_countyLineMode ? 1 : 0; }
+    void SetCountyLineMode(char v) { m_countyLineMode = (v != 0); }
+[!endif]
+
 protected:
     std::string                     m_MyCallsign;
     std::map<short, int>		    m_BandPoints;
@@ -307,7 +405,7 @@ protected:
     int						        m_PageQsos;
     int						        m_PageQsoPoints;
     int						        m_PageMultipliers;
-    int                             m_NumberOfDupeSheetBands;
+    int                             m_NumberOfDupeSheetBands; // count of g_Bands entries at File/New time.
 
     // Methods
     long PointsForQso(QsoPtr_t q);
@@ -330,6 +428,29 @@ protected:
             TestQ = 0;
         return TestQ;
     }
+[!if AM_ROVER]
+    void InvokeQthSelectDlg();
+[!endif]
+[!if CAN_LOG_ROVER]
+    typedef std::function<void(QsoPtr_t, int*)> QsoSearchMatch_t;
+    QsoSearchMatch_t m_qsoSearchMatch;
+    class CQsoSearchMatchHelper {
+    public:
+        CQsoSearchMatchHelper(QsoSearchMatch_t &toUpdate, const QsoSearchMatch_t &useInScope) 
+            : toRestore(toUpdate), stored(toUpdate)
+        {  toUpdate = useInScope;   }
+        ~CQsoSearchMatchHelper()
+        { toRestore = stored;  }
+    protected:
+        QsoSearchMatch_t stored;
+        QsoSearchMatch_t &toRestore;
+    };
+    // take into account previously logged rover will have multiple QTHs in our log.
+    std::set<std::string> FindAllPreviousValuesForThisCall(unsigned MaxSize, CQsoField &field, QsoPtr_t q);
+[!endif]
+[!if AM_COUNTYLINE]
+    bool m_countyLineMode;
+[!endif]
 };
 
 OBJECT_ENTRY_AUTO(__uuidof([!output COCLASS]), [!output MM_CLASS_NAME])

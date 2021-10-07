@@ -125,6 +125,7 @@ public:
 	CDxccDispContainer();
 	virtual ~CDxccDispContainer();
 	void InvalidateCountry(int);
+    void InvalidateAll();
 	virtual void MakeDxccDisplays(IMultDisplayContainer *, int, int, int = 0);
 	void InitializeEntry(const country_stru *);
 	static struct Continent_t

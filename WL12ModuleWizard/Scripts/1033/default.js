@@ -67,7 +67,7 @@ function OnFinish(selProj, selObj) {
         var strUpperShortName = CreateASCIIName(strShortName.toUpperCase());
         wizard.AddSymbol("UPPER_SHORT_NAME", strUpperShortName);
 
-         var strProjectRC = GetProjectFile(selProj, "RC", true, false);
+        var strProjectRC = GetProjectFile(selProj, "RC", true, false);
 
         // Create necessary GUIDS
         CreateGUIDs();
@@ -85,11 +85,19 @@ function OnFinish(selProj, selObj) {
         if (oUuid)
             wizard.AddSymbol("LIBID_REGISTRY_FORMAT", oUuid.Value);
 
+        // the HTML Javascript gui in default.htm should accomplish these two, but just in case:
+        if (wizard.FindSymbol("AM_COUNTYLINE")) {
+            wizard.AddSymbol("AM_ROVER", true);
+        }
+        if (wizard.FindSymbol("AM_ROVER")) {
+            wizard.AddSymbol("CAN_LOG_ROVER", true);
+        }
+
         // add RGS file resource
         var strRGSFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + ".rgs");
         var strRGSID = "IDR_" + strUpperShortName;
         var strDLGID = "IDD_" + strUpperShortName + "_DLG";
-        var strDlgClassName = strShortName + "Dialog";
+        var strDlgClassName = "C"+ strShortName + "Dialog";
         wizard.AddSymbol("MM_DLG_CLASS_NAME", strDlgClassName);
 
         RenderAddTemplate(wizard, "object.rgs", strRGSFile, false, false);
@@ -107,8 +115,6 @@ function OnFinish(selProj, selObj) {
         if (strSymbolValue == null) return;
         wizard.AddSymbol("IDD_DIALOGID", strSymbolValue.split("=").shift());
 
-        oResHelper.CloseResourceFile();
-
         // Render objco.idl and insert into strProject.idl
         AddCoclassFromFile(oCM, "objco.idl");
 
@@ -121,6 +127,21 @@ function OnFinish(selProj, selObj) {
         // Add Dialog header
         var strDlgHeaderFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + "Dlg.h");
         wizard.AddSymbol("DLG_HEADER_FILE", strDlgHeaderFile);
+
+        if (wizard.FindSymbol("AM_ROVER")) {
+            var strRoverDLGID = "IDD_" + strUpperShortName + "SELECT_DLG";
+            var strDlgRCTemplFile = strTemplatePath + "\\RoverQthDlg.rc";
+            var strTemporaryDlgResourceFile = RenderToTemporaryResourceFile(strDlgRCTemplFile);
+            strSymbolValue = oResHelper.AddResource(strRoverDLGID, strTemporaryDlgResourceFile, "DIALOG");
+
+            wizard.AddSymbol("IDD_ROVERSELECT_DIALOGID", strSymbolValue.split("=").shift());
+
+            strDlgClassName = "C" + strShortName + "RoverSelectDialog";
+            wizard.AddSymbol("MM_ROVERDLG_CLASS_NAME", strDlgClassName);
+            var strSelDlgHeaderFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + "SelectDlg.h");
+            RenderAddTemplate(wizard, "RoverQthDlg.h", strSelDlgHeaderFile, selObj, false);
+            wizard.AddSymbol("MM_ROVERDLG_CLASS_FILENAME", strSelDlgHeaderFile);
+        }
 
         RenderAddTemplate(wizard, "object.h", strHeaderFile, selObj, true);
         RenderAddTemplate(wizard, "object.cpp", strImplFile, selObj, false);
@@ -137,11 +158,9 @@ function OnFinish(selProj, selObj) {
         var strWxsFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + ".wxs");
         RenderAddTemplate(wizard, "object.wxs", strWxsFile, false, false);
 
-        oCM.CommitTransaction();
+        oResHelper.CloseResourceFile();
 
-        //var newClass = oCM.Classes.Find(strClassName);
-        //if (newClass)
-        //    newClass.StartPoint.TryToShow(vsPaneShowTop);
+        oCM.CommitTransaction();
     }
     catch (e) {
         if (oCM)

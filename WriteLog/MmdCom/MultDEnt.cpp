@@ -330,6 +330,13 @@ void CDxccDispContainer::InvalidateCountry(int i)
         m_DxccDisplay[ContinentIndex]->Invalidate(ContinentSubIndex);
 }
 
+void CDxccDispContainer::InvalidateAll()
+{
+    for (unsigned i = 0; i < DIM(m_DxccDisplay); i++)
+        if (m_DxccDisplay[i])
+            m_DxccDisplay[i]->Invalidate(-1);
+}
+
 //CDxccDispSbContainer********************************************
 
 IMultDisplayEntry *CDxccDispSbContainer::CreateEntry(

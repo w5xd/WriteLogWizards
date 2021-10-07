@@ -72,9 +72,11 @@
   <ItemGroup>
     <ClInclude Include="Templates\1033\dialog.h" />
     <ClInclude Include="Templates\1033\object.h" />
+    <ClInclude Include="Templates\1033\RoverQthDlg.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Templates\1033\dialog.rc" />
+    <ResourceCompile Include="Templates\1033\RoverQthDlg.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

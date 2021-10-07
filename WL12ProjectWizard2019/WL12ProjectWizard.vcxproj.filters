@@ -46,11 +46,14 @@
     <None Include="Templates\1033\product.wxs">
       <Filter>Template Files</Filter>
     </None>
-    <None Include="WL12ProjectWizard2017.vsdir">
+    <None Include="WL12ProjectWizard2019.vsdir">
       <Filter>Miscellaneous Files</Filter>
     </None>
-    <None Include="WL12ProjectWizard2017.vsz">
+    <None Include="WL12ProjectWizard2019.vsz">
       <Filter>Miscellaneous Files</Filter>
+    </None>
+    <None Include="Templates\1033\TemplateContestModule.rc2">
+      <Filter>Template Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -89,7 +92,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="WL12ProjectWizard2017.ico">
+    <Image Include="WL12ProjectWizard2019.ico">
       <Filter>Miscellaneous Files</Filter>
     </Image>
   </ItemGroup>

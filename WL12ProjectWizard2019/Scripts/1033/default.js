@@ -279,6 +279,8 @@ function GetTargetName(strName, strProjectName)
 	        strTarget = strProjectName + 'Module.idl';
 	    else if (strName == 'TemplateContestModule.rc')
 	        strTarget = strProjectName + 'Module.rc';
+		else if (strName == 'TemplateContestModule.rc2')
+			strTarget = strProjectName + 'Module.rc2';
 	    else if (strName == 'TemplateContestModule.rgs')
 	        strTarget = strProjectName + 'Module.rgs';
 
@@ -314,8 +316,7 @@ function AddFilesToCustomProj(proj, strProjectName, strProjectPath, InfFile)
 		while (!strTextStream.AtEndOfStream)
 		{
 			strTpl = strTextStream.ReadLine();
-			if (strTpl != '')
-			{
+			if (strTpl != '') {
 				strName = strTpl;
 				var strTarget = GetTargetName(strName, strProjectName);
 				var strTemplate = strTemplatePath + '\\' + strTpl;
@@ -324,13 +325,16 @@ function AddFilesToCustomProj(proj, strProjectName, strProjectPath, InfFile)
 				var bCopyOnly = false;  //"true" will only copy the file from strTemplate to strTarget without rendering/adding to the project
 				var strExt = strName.substr(strName.lastIndexOf("."));
 				wizard.RenderTemplate(strTemplate, strFile, bCopyOnly);
-				if (strExt == '.cpp' || strExt == '.idl' || strExt == '.c' || strExt == '.def') {
+				if (strTarget.toUpperCase() == 'RESOURCE.H') {
+					filterRc.AddFile(strTarget);
+				}
+				else if (strExt == '.cpp' || strExt == '.idl' || strExt == '.c' || strExt == '.def') {
 				    filterSrc.AddFile(strTarget);
 				}
 				else if (strExt == '.hpp' || strExt == '.h') {
 				    filterHdr.AddFile(strTarget);
 				}
-				else if (strExt == '.rc' || strExt == '.rgs') {
+				else if (strExt == '.rc' || strExt == '.rc2' || strExt == '.rgs') {
 				    filterRc.AddFile(strTarget);
 				}
             }
