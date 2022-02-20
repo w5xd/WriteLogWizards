@@ -2065,26 +2065,24 @@ HRESULT [!output MM_CLASS_NAME]::FormatRxField(QsoPtr_t q, short Field, char * B
 //IWlogScoreInfo
 HRESULT [!output MM_CLASS_NAME]::MultsAndPts(long *pMultCount, long *pPtsCount)
 {
-	int i;
 	//TODO--Check if score really is mults * pts here...
 	// *pMultCount = total of mults in the log
 	long Mults = 0;
-[!if DXCC_MULTI_BAND || NAMEDMULT_MULTI_BAND || ZONE_MULTI_BAND || AYGMULT_MULTI_BAND]
-	for (i = 0; i < NumberOfMultBands(); i += 1)
-	{
 [!if DXCC_MULTI_BAND]
-		Mults += m_DxccMults[i];
+    for (auto dxm : m_DxccMults)
+		Mults += dxm.second;
 [!endif]
 [!if NAMEDMULT_MULTI_BAND]
-		Mults += m_NamedMults[i];
+    for (auto nm : m_NamedMults)
+        Mults += nm.second;
 [!endif]
 [!if ZONE_MULTI_BAND]
-		Mults += m_ZoneMults[i];
+    for (auto zm : m_ZoneMults)
+		Mults += zm.second;
 [!endif]
 [!if AYGMULT_MULTI_BAND]
-		Mults += m_AygMults[i];
-[!endif]
-	}
+    for (auto am : m_AygMults)
+        Mults += am.second;
 [!endif]
 
 [!if DXCC_SINGLE_BAND]
@@ -2102,10 +2100,8 @@ HRESULT [!output MM_CLASS_NAME]::MultsAndPts(long *pMultCount, long *pPtsCount)
 
 	// *pPtsCount = total points in the log
 	long Points = 0;
-	for (i = 0; i < NumberOfMultBands(); i += 1)
-	{
-		Points += m_BandPoints[i];
-	}
+    for (auto bp : m_BandPoints)
+        Points += bp.second;
 	*pPtsCount = Points;
 	*pMultCount = Mults;
 	return S_OK;
