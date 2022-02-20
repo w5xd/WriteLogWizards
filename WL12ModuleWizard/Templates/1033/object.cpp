@@ -259,6 +259,9 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
 [!else]
     , m_currentDupeSheet(0)
 [!endif]
+[!if !NO_NAMEDMULT]
+    , m_NumNamed(0)
+[!endif]    
     , m_NumberOfDupeSheetBands(0)
 {
  [!if AM_ROVER]
