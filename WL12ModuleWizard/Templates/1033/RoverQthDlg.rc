@@ -1,4 +1,8 @@
+[!if !AM_COUNTYLINE]
 DIALOGEX 0, 0, 251, 148
+[!else]
+DIALOGEX 0, 0, 251, 168
+[!endif]
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "Dupe Sheet Select"
 FONT 10, "Arial", 0, 0, 0x0
@@ -9,4 +13,7 @@ BEGIN
     GROUPBOX        "... or &Switch back to a previously visited QTH",-1,2,84,249,60
     LISTBOX         14116,10,100,124,40,LBS_SORT | LBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "Use &Existing",14115,193,124,50,14
+[!if AM_COUNTYLINE]
+    CONTROL         "County &Line Mode", 14117, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 7, 151, 82, 10
+[!endif]
 END
