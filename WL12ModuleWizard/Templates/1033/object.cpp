@@ -1443,8 +1443,10 @@ void [!output MM_CLASS_NAME]::InvokeQthSelectDlg()
        }
     );
 
+[!if AM_COUNTYLINE]
+    Dlg.m_countyLineMode = m_countyLineMode ? 1 : 0;
+[!endif]
     auto result = Dlg.DoModal();
-
     switch (result)
     {
     case IDC_CREATE_NEW:
@@ -1465,6 +1467,9 @@ void [!output MM_CLASS_NAME]::InvokeQthSelectDlg()
         // fall through
     case IDC_USE_EXISTING:
     UseExisting:
+[!if AM_COUNTYLINE]
+        m_countyLineMode = Dlg.m_countyLineMode != 0;
+[!endif]
         for (unsigned i = 0; i < m_dupeSheets.size(); i++)
         {
             if (m_dupeSheets[i]->title() == Dlg.m_result)
@@ -1582,15 +1587,26 @@ HRESULT [!output MM_CLASS_NAME]::Score( // not a good name anymore. "ParameterSe
     ** especially useful to support them. They were part of an architecture that enabled text substitution by the module
     ** into a txt/rtf file that had the contest summary. Cabrillo has put an end to any need for that.
     */
+
+[!if AM_ROVER]
+    // InvokeQthSelectDlg(); TODO. Maybe this is appropriate?
+[!endif]
+
     // TODO Put up a parameter selection dialog.
     [!output MM_DLG_CLASS_NAME] Dlg;
 [!if AM_COUNTYLINE]
     Dlg.m_countyLineMode = m_countyLineMode ? 1 : 0;
 [!endif]
+[!if !NO_NAMEDMULT]
+    Dlg.m_myNamed = currentDupeSheet().key();
+[!endif]
     if (Dlg.DoModal(Window) == IDOK)
     {
 [!if AM_COUNTYLINE]
         m_countyLineMode = Dlg.m_countyLineMode != 0;
+[!endif]
+[!if !NO_NAMEDMULT]
+        currentDupeSheet().setKey(Dlg.m_myNamed);
 [!endif]
     }
     return S_OK;
@@ -2142,7 +2158,73 @@ HRESULT [!output MM_CLASS_NAME]::Load(IStorage *p)  {
 #endif
     if (SUCCEEDED(hr))
         hr = pStream->Read(&m_NumberOfDupeSheetBands, sizeof(m_NumberOfDupeSheetBands), &bytesread);
-    return hr; 
+[!if !NO_NAMEDMULT || !NO_DXCC || !NO_ZONE || !NO_AYGMULT]
+[!if AM_ROVER]
+
+    m_dupeSheets.clear();
+    short readlen = 0;
+    static_assert(sizeof(readlen) == 2, "use 2 byte type");
+    bytesread = 0;
+    if (SUCCEEDED(hr))
+        hr = pStream->Read(&readlen, sizeof(readlen), &bytesread);
+    if (bytesread == sizeof(readlen))
+    {
+        auto toRead = readlen;
+        for (short i = 0; i < toRead && SUCCEEDED(hr); i++)
+        {
+            hr = pStream->Read(&readlen, sizeof(readlen), &bytesread);
+            if (bytesread == sizeof(readlen) && readlen != 0)
+            {
+                std::vector<char> buf(readlen);
+                hr = pStream->Read(&buf[0], buf.size(), &bytesread);
+                if (bytesread == buf.size())
+                {
+                    std::string key;
+                    for (auto c : buf)
+                        if (c)
+                            key.push_back(c);
+                        else break;
+                    m_dupeSheets.push_back(std::make_shared<CDupeSheet>());
+                    m_dupeSheets.back()->setKey(key);
+                }
+                else
+                    break;
+            }
+            else
+                break;
+        }
+    } 
+    if (m_dupeSheets.empty())
+        m_dupeSheets.push_back(std::make_shared<CDupeSheet>());
+[!else]
+[!if !NO_NAMEDMULT]
+    short MyMultLen;
+    if (SUCCEEDED(hr))
+        hr = pStream->Read(&MyMultLen, sizeof(MyMultLen), &bytesread);
+    if (SUCCEEDED(hr) && bytesread != 2)
+        hr = E_UNEXPECTED;
+    if (SUCCEEDED(hr))
+    {
+        std::string key;
+        if (MyMultLen)
+        {
+            std::vector<char> buf(MyMultLen);
+            hr = pStream->Read(&buf[0], MyMultLen, &bytesread);
+            if (SUCCEEDED(hr) && bytesread != MyMultLen)
+                hr = E_UNEXPECTED;
+            key.assign(buf.begin(), buf.end());
+        }
+        currentDupeSheet().setKey(key);
+    }
+[!endif]
+[!endif]
+[!endif]
+[!if AM_COUNTYLINE]
+    char v = 0;
+    if (SUCCEEDED(hr) && (SUCCEEDED(hr = pStream->Read(&v, 1, &bytesread)) && bytesread == 1))
+        m_countyLineMode = v != 0;
+[!endif]
+    return hr;
 }
 
 HRESULT [!output MM_CLASS_NAME]::Save(IStorage *p, BOOL fSameAsLoad)  {
@@ -2155,7 +2237,48 @@ HRESULT [!output MM_CLASS_NAME]::Save(IStorage *p, BOOL fSameAsLoad)  {
     ULONG written;
     if (SUCCEEDED(hr))
         hr = pStream->Write(&m_NumberOfDupeSheetBands, sizeof(m_NumberOfDupeSheetBands), &written);
+[!if !NO_NAMEDMULT || !NO_DXCC || !NO_ZONE || !NO_AYGMULT]
+[!if AM_ROVER]
+
+    short numDupeSheets = static_cast<short>(m_dupeSheets.size());
+    static_assert(sizeof(numDupeSheets) == 2, "use 2 byte type");
+    short toWrite = 0;
+    for (auto ds : m_dupeSheets)
+        if (ds->totalQsos() != 0)
+            toWrite += 1;
     if (SUCCEEDED(hr))
+        hr = pStream->Write(&toWrite, sizeof(toWrite), &written);
+    short strlen;
+    for (auto ds : m_dupeSheets)
+    {
+        if (ds->totalQsos() == 0)
+            continue;
+        std::string key = ds->key();
+        strlen = static_cast<short>(key.length());
+        if (SUCCEEDED(hr))
+            hr = pStream->Write(&strlen, sizeof(strlen), &written);
+        if (SUCCEEDED(hr))
+            hr = pStream->Write(&key[0], strlen, &written);
+    }
+[!else]
+[!if !NO_NAMEDMULT]
+    short MyMultLen = static_cast<short>(currentDupeSheet().key().size());
+    static_assert(sizeof(short) == 2, "write 2 bytes size");
+    if (SUCCEEDED(hr))
+        hr = pStream->Write(&MyMultLen, sizeof(MyMultLen), &written);
+    if (SUCCEEDED(hr) && MyMultLen)
+        hr = pStream->Write(currentDupeSheet().key().c_str(), MyMultLen, &written);
+[!endif]
+[!endif]
+[!endif]
+[!if AM_COUNTYLINE]
+
+    char v = m_countyLineMode ? 1 : 0;
+    if (SUCCEEDED(hr))
+        hr = pStream->Write(&v, 1, &written);
+
+[!endif]
+if (SUCCEEDED(hr))
         hr = p->SetClass(__uuidof([!output COCLASS]));
     if (SUCCEEDED(hr))
         hr = p->Commit(STGC_DEFAULT);
