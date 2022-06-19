@@ -204,6 +204,7 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
 [!endif]
 [!if !NO_NAMEDMULT]
     , fRCVD(m_qsoFields,RCVD_IDX)
+    , m_NumNamed(0)
 [!endif]
 [!if !NO_ZONE]
     , fZN(m_qsoFields,ZN_IDX)
@@ -215,6 +216,7 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
     , fCOUNTRY(m_qsoFields, COUNTRY_IDX)
     , fAMBF(m_qsoFields, COUNTRY_C_IDX)
     , fCPRF(m_qsoFields, PREF_IDX)
+    , m_MyCountryIndex(-1)
 [!endif]
 [!if AM_ROVER]
     , fMYQTH(m_qsoFields, MYQTH_IDX)

@@ -24,6 +24,7 @@ struct freq_stru
 	char    fcn;    /*function '0' is A '1' is B */
 	char    split;  /*'0' is xcv, '1' split*/
 #ifdef __cplusplus
+    enum class ModeEnum_t {LSB='1', USB='2', CW='3', FM='4', AM='5', DIG='6' };
     bool operator == (const freq_stru &rhs) const
     {
         return xmit == rhs.xmit && rcv == rhs.rcv &&

@@ -1,49 +1,52 @@
 #include <windows.h>
 #include <ole2.h>
-
-#if !defined(WIN32)
-#include <olenls.h>
-#include <dispatch.h>
-#else
 #include <oleauto.h>
-#endif
-
+#include <string>
 int InitDisp(const char * ClientName,
             int Max,
                                 IDispatch FAR *Dispatch,
                                 const OLECHAR **MethodNames,
-                                DISPID *Disps)
+                                DISPID *Disps
+)
 {   // We learn *all* the member IDs up front. A more sophisticated
     // implementation might defer learning about the IDs for a given
      // method until the first time the method is invoked, thereby
     // amortizing the creation costs.
     //
 #ifdef _DEBUG
-    char MsgBuf[100];
+    std::wstring errorMessage;
 #endif
     int i;
     HRESULT hresult;
-    for(i = 0; i < Max; ++i)
+    for (i = 0; i < Max; ++i)
     {
-            hresult = Dispatch->GetIDsOfNames(
-                IID_NULL,
-                (OLECHAR **)&MethodNames[i],
-                1,
-                LOCALE_SYSTEM_DEFAULT,
-                &Disps[i]);
-            if(hresult != NOERROR)
-				{
-					Disps[i] = -1;
+        hresult = Dispatch->GetIDsOfNames(
+            IID_NULL,
+            (OLECHAR **)&MethodNames[i],
+            1,
+            LOCALE_SYSTEM_DEFAULT,
+            &Disps[i]);
+        if (hresult != NOERROR)
+        {
+            Disps[i] = -1;
 #ifdef _DEBUG
-                    char MethodNameMB[512];
-                    ::WideCharToMultiByte(CP_ACP, 0, MethodNames[i], -1,
-				        MethodNameMB, sizeof(MethodNameMB), 0, 0);
-					wsprintf(MsgBuf, "Unrecognized member name: %s", MethodNameMB);
-				// the following should probably be an assertion
-					 MessageBox(NULL, MsgBuf, ClientName, MB_OK);
-#endif
+            {
+                errorMessage += L"Unrecognized member name: ";
+                errorMessage += MethodNames[i];
+                errorMessage += L"\r\n";
             }
+#endif
+        }
     }
+#ifdef _DEBUG
+    if (!errorMessage.empty())
+    {
+        wchar_t ClientNameW[512];
+        ::MultiByteToWideChar(CP_ACP, 0, ClientName, -1,
+            ClientNameW, 512);
+        MessageBoxW(0, errorMessage.c_str(), ClientNameW, 0);
+    }
+#endif
     return 1;
 }
 
