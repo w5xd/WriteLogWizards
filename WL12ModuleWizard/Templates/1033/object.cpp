@@ -1589,7 +1589,7 @@ HRESULT [!output MM_CLASS_NAME]::Score( // not a good name anymore. "ParameterSe
     */
 
 [!if AM_ROVER]
-    // InvokeQthSelectDlg(); TODO. Maybe this is appropriate?
+    // InvokeQthSelectDlg(); TODO for Rover. Maybe this is appropriate?
 [!endif]
 
     // TODO Put up a parameter selection dialog.
