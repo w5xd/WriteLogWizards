@@ -14,6 +14,9 @@ public:
 	typedef std::function<void([!output MM_ROVERDLG_CLASS_NAME] &)> InitDialogFcn_t;
 	[!output MM_ROVERDLG_CLASS_NAME](const InitDialogFcn_t &f) : m_FocusState(0)
 		, m_OnInit(f)
+[!if AM_COUNTYLINE]
+		, m_countyLineMode(0)
+[!endif]
 	{}
 
 	~[!output MM_ROVERDLG_CLASS_NAME]()
@@ -25,6 +28,7 @@ public:
 [!endif]
 
 	enum { IDD = [!output IDD_ROVERSELECT_DIALOGID] };
+	enum { FOCUS_STATE_NONE, FOCUS_STATE_ADD, FOCUS_STATE_EXISTING };
 
 BEGIN_MSG_MAP([!output MM_ROVERDLG_CLASS_NAME])
 	MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
@@ -70,10 +74,10 @@ END_MSG_MAP()
 	{
 		switch (m_FocusState)
 		{
-		case 1:
+		case static_cast<int>(FOCUS_STATE_ADD):
 			OnCreateNew();
 			return 0;
-		case 2:
+		case static_cast<int>(FOCUS_STATE_EXISTING):
 			OnUseExisting();
 			return 0;
 		}
@@ -94,12 +98,12 @@ END_MSG_MAP()
 	}
 	LRESULT OnQthListSetFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-		m_FocusState = 1;
+		m_FocusState = FOCUS_STATE_ADD;
 		return 0;
 	}
 	LRESULT OnQthListKillFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-		m_FocusState = 0;
+		m_FocusState = FOCUS_STATE_NONE;
 		return 0;
 	}
 
@@ -110,12 +114,12 @@ END_MSG_MAP()
 	}
 	LRESULT OnQthOldSetFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-		m_FocusState = 2;
+		m_FocusState = FOCUS_STATE_EXISTING;
 		return 0;
 	}
 	LRESULT OnQthOldKillFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-		m_FocusState = 0;
+		m_FocusState = FOCUS_STATE_NONE;
 		return 0;
 	}
 

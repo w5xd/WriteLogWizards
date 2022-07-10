@@ -261,9 +261,6 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
 [!else]
     , m_currentDupeSheet(0)
 [!endif]
-[!if !NO_NAMEDMULT]
-    , m_NumNamed(0)
-[!endif]    
     , m_NumberOfDupeSheetBands(0)
 {
  [!if AM_ROVER]
@@ -1448,6 +1445,8 @@ void [!output MM_CLASS_NAME]::InvokeQthSelectDlg()
 
 [!if AM_COUNTYLINE]
     Dlg.m_countyLineMode = m_countyLineMode ? 1 : 0;
+    for (;;) // keep dialog up in county line mode for multiple "Add" button presses
+    {
 [!endif]
     auto result = Dlg.DoModal();
     switch (result)
@@ -1493,6 +1492,14 @@ void [!output MM_CLASS_NAME]::InvokeQthSelectDlg()
             }
         }
         break;
+[!if AM_COUNTYLINE]
+        default:
+            return;
+        }
+
+        if (!m_countyLineMode || result == IDC_USE_EXISTING)
+            break;
+[!endif]
     }
 }
 [!endif]
