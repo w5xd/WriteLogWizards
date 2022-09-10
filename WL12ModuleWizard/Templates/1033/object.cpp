@@ -386,18 +386,15 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
         return S_FALSE;
     }
     std::string myQth = fMYQTH(q).str();
-    if (q->DupeSheet > 0)
+    std::string key;
+    if (q->DupeSheet > 0 && ((key = m_dupeSheets[q->DupeSheet - 1]->key()), !key.empty()))
     {
-        std::string key = m_dupeSheets[q->DupeSheet - 1]->key();
-        if (!key.empty())
-        {
-            if (myQth.empty())
-                fMYQTH(q) = key.c_str();
-            else if (key != myQth)
-            {   // invalid cuz index doesn't match logged QTH
-                q->DupeSheet = 0;
-                return S_FALSE;
-            }
+        if (myQth.empty())
+            fMYQTH(q) = key.c_str();
+        else if (key != myQth)
+        {   // invalid cuz index doesn't match logged QTH
+            q->DupeSheet = 0;
+            return S_FALSE;
         }
     } else if (!myQth.empty()) // empty means MYQTH for QSO not initialized
     {
@@ -1101,25 +1098,32 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
     bool flagNamed(false);
     if (fCALL == p) 
     {
-        if (fRCVD(q).empty() && !fCALL(q).empty() && canWrite) 
+        if (fRCVD(q).empty()) 
         {
-[!if !CAN_LOG_ROVER]
-            if (OldQ)
-		    {
-                if (canWrite)    // fill in new field from old qso
-                    fRCVD(q).assign(fRCVD(OldQ));
-                if (!fRCVD(q).empty())
-			        flagNamed = true; // and check whether fRCVD is new mult
-		    }
-[!else]
-            // Deal with possibility we have logged this guy as a rover
-            auto PrevQsoRcvd = FindAllPreviousValuesForThisCall(2, fRCVD, q);
-            if (PrevQsoRcvd.size() == 1) // only if exactly one RCVD value was found do we set it here
+            if (!fCALL(q).empty())
             {
-                fRCVD(q)= PrevQsoRcvd.begin()->c_str();
-                flagNamed = true;
-            }
+                if (canWrite)
+                {
+[!if !CAN_LOG_ROVER]
+                    if (OldQ)
+		            {
+                        if (canWrite)    // fill in new field from old qso
+                            fRCVD(q).assign(fRCVD(OldQ));
+                        if (!fRCVD(q).empty())
+			                flagNamed = true; // and check whether fRCVD is new mult
+		            }
+[!else]
+                    // Deal with possibility we have logged this guy as a rover
+                    auto PrevQsoRcvd = FindAllPreviousValuesForThisCall(2, fRCVD, q);
+                    if (PrevQsoRcvd.size() == 1) // only if exactly one RCVD value was found do we set it here
+                    {
+                        fRCVD(q)= PrevQsoRcvd.begin()->c_str();
+                        flagNamed = true;
+                    }
 [!endif]
+                }
+            }
+            ret = 0;
         }
 [!if AM_COUNTYLINE]
         if (canWrite && m_countyLineMode)
