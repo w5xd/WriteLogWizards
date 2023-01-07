@@ -319,7 +319,7 @@ enum {	// identical rules, but different modes on different weekends
     int FindNamed(const char *c);
     // end named
 
-    [!endif]
+[!endif]
 [!if !NO_DXCC]
 	//DXCC Multiplier
 	CCountryLookupHelper			m_DxContext;

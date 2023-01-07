@@ -3,6 +3,8 @@
 #pragma once
 
 #include "resource.h"       // main symbols
+#include <string>
+#include <vector>
 #include <atlhost.h>
 
 // [!output MM_DLG_CLASS_NAME]
@@ -15,16 +17,20 @@ public:
 	[!if AM_COUNTYLINE]
 		: m_countyLineMode(0)
 	[!endif]
-	{
-	}
+	{}
 
 	~[!output MM_DLG_CLASS_NAME]()
-	{
-	}
+	{}
 
-	[!if AM_COUNTYLINE]
+[!if AM_COUNTYLINE]
 	int m_countyLineMode;
-	[!endif]
+[!endif]
+[!if !NO_NAMEDMULT]
+	std::string m_myNamed;
+[!endif]
+[!if !NO_AYGMULT]
+	std::string m_myAyg;
+[!endif]
 
 	enum { IDD = [!output IDD_DIALOGID] };
 
@@ -47,12 +53,10 @@ END_MSG_MAP()
 		CheckDlgButton(IDC_CHECK_COUNTYLINEMODE, m_countyLineMode);
 [!endif]
 [!if !NO_AYGMULT]
-		//FIXME
-		GetDlgItem(IDC_EDIT_MYAYG); // The edit box to display my transmitted exchange
+		SetDlgItemTextA(IDC_EDIT_MYAYG, m_myAyg.c_str());
 [!endif]
 [!if !NO_NAMEDMULT]
-		//FIXME
-		GetDlgItem(IDC_EDIT_MYNAMED); // The edit box to display my transmitted exchange
+		SetDlgItemTextA(IDC_EDIT_MYNAMED, m_myNamed.c_str()); // The edit box to display my transmitted exchange
 [!endif]
 		bHandled = TRUE;
 		return 1;  // Let the system set the focus
@@ -62,6 +66,18 @@ END_MSG_MAP()
 	{
 [!if AM_COUNTYLINE]
 		m_countyLineMode = IsDlgButtonChecked(IDC_CHECK_COUNTYLINEMODE);
+[!endif]
+[!if !NO_AYGMULT]
+		auto editAyg = GetDlgItem(IDC_EDIT_MYAYG);
+		std::vector<char> bufAyg(1 + editAyg.GetWindowTextLengthA());
+		editAyg.GetWindowTextA(&bufAyg[0], bufAyg.size());
+		m_myAyg = &bufAyg[0];
+[!endif]
+[!if !NO_NAMEDMULT]
+		auto editNamed = GetDlgItem(IDC_EDIT_MYNAMED);
+		std::vector<char> bufNamed(1 + editNamed.GetWindowTextLengthA());
+		editNamed.GetWindowTextA(&bufNamed[0], bufNamed.size());
+		m_myNamed = &bufNamed[0];
 [!endif]
 		EndDialog(wID);
 		return 0;

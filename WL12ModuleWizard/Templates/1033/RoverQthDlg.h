@@ -14,14 +14,21 @@ public:
 	typedef std::function<void([!output MM_ROVERDLG_CLASS_NAME] &)> InitDialogFcn_t;
 	[!output MM_ROVERDLG_CLASS_NAME](const InitDialogFcn_t &f) : m_FocusState(0)
 		, m_OnInit(f)
+[!if AM_COUNTYLINE]
+		, m_countyLineMode(0)
+[!endif]
 	{}
 
 	~[!output MM_ROVERDLG_CLASS_NAME]()
 	{}
 
 	std::string m_result;
+[!if AM_COUNTYLINE]
+	int m_countyLineMode;
+[!endif]
 
 	enum { IDD = [!output IDD_ROVERSELECT_DIALOGID] };
+	enum { FOCUS_STATE_NONE, FOCUS_STATE_ADD, FOCUS_STATE_EXISTING };
 
 BEGIN_MSG_MAP([!output MM_ROVERDLG_CLASS_NAME])
 	MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
@@ -38,6 +45,10 @@ BEGIN_MSG_MAP([!output MM_ROVERDLG_CLASS_NAME])
 	COMMAND_HANDLER(IDC_QTH_OLD_LIST, LBN_DBLCLK, OnQthOldDblClick)
 	COMMAND_HANDLER(IDC_QTH_OLD_LIST, LBN_SETFOCUS, OnQthOldSetFocus)
 	COMMAND_HANDLER(IDC_QTH_OLD_LIST, LBN_KILLFOCUS, OnQthOldKillFocus)
+[!if AM_COUNTYLINE]
+
+	COMMAND_HANDLER(IDC_CHECK_COUNTYLINEMODE, BN_CLICKED, OnClickedCountyLineMode)
+[!endif]
 	
 	CHAIN_MSG_MAP(CAxDialogImpl<[!output MM_ROVERDLG_CLASS_NAME]>)
 END_MSG_MAP()
@@ -52,6 +63,9 @@ END_MSG_MAP()
 		CAxDialogImpl<[!output MM_ROVERDLG_CLASS_NAME]>::OnInitDialog(uMsg, wParam, lParam, bHandled);
 		if (m_OnInit)
 			m_OnInit(*this);
+	[!if AM_COUNTYLINE]
+		CheckDlgButton(IDC_CHECK_COUNTYLINEMODE, m_countyLineMode);
+	[!endif]
 		bHandled = TRUE;
 		return 1;  // Let the system set the focus
 	}
@@ -60,10 +74,10 @@ END_MSG_MAP()
 	{
 		switch (m_FocusState)
 		{
-		case 1:
+		case static_cast<int>(FOCUS_STATE_ADD):
 			OnCreateNew();
 			return 0;
-		case 2:
+		case static_cast<int>(FOCUS_STATE_EXISTING):
 			OnUseExisting();
 			return 0;
 		}
@@ -84,12 +98,12 @@ END_MSG_MAP()
 	}
 	LRESULT OnQthListSetFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-		m_FocusState = 1;
+		m_FocusState = FOCUS_STATE_ADD;
 		return 0;
 	}
 	LRESULT OnQthListKillFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-		m_FocusState = 0;
+		m_FocusState = FOCUS_STATE_NONE;
 		return 0;
 	}
 
@@ -100,12 +114,12 @@ END_MSG_MAP()
 	}
 	LRESULT OnQthOldSetFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-		m_FocusState = 2;
+		m_FocusState = FOCUS_STATE_EXISTING;
 		return 0;
 	}
 	LRESULT OnQthOldKillFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-		m_FocusState = 0;
+		m_FocusState = FOCUS_STATE_NONE;
 		return 0;
 	}
 
@@ -120,6 +134,14 @@ END_MSG_MAP()
 		OnUseExisting();
 		return 0;
 	}
+[!if AM_COUNTYLINE]
+
+LRESULT OnClickedCountyLineMode (WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+{
+	m_countyLineMode = IsDlgButtonChecked(wID);
+	return 0;
+}
+[!endif]
 
 	std::string GetListText(unsigned idc)
 	{
