@@ -1922,6 +1922,8 @@ int [!output MM_CLASS_NAME]::FindAyg(int AddNew, const char *c)
 //RTTY SUPPORT....
 HRESULT [!output MM_CLASS_NAME]::WhatsTheBestField(QsoPtr_t q, const char *s, short *Offset)
 {
+    if (q == 0 || s == 0 || Offset == 0)
+        return E_POINTER;
 	//TODO
     //		*Offset = CALL_POS;
 	//		return NOERROR;
