@@ -117,7 +117,11 @@ DECLARE_INTERFACE_(IWlogMulti, IUnknown)
         unsigned QsoNum, const char FAR *TargetDir) PURE;
     STDMETHOD(GetModuleData)(THIS_ long *Data) PURE;
     STDMETHOD(SetMMParent)(THIS_ IWriteLog FAR *) PURE;
-    STDMETHOD(TranslateAccelerator)(THIS_ MSG FAR *, short) PURE;
+	/* TranslateAccelerator return S_OK, which stops WriteLog from further using the MSG, or
+	**		S_FALSE to allow WriteLog to add its Entry Window accelerators, or
+	**		E_NOTIMPL and WriteLog won't call this method on this object ever again. or
+	**      anything else and WriteLog continues processing the MSG.*/
+    STDMETHOD(TranslateAccelerator)(THIS_ MSG FAR *, short IGNORED) PURE;
 
 	//When a QSO is added to the database, WriteLog matches the
 	//new QSO's call and band against all those already in the
