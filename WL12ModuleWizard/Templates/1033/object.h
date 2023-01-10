@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 [!if CAN_LOG_ROVER]
 #include <functional>
 #include <set>
@@ -41,6 +42,9 @@ class ATL_NO_VTABLE [!output MM_CLASS_NAME] :
 [!if CABRILLO]
     , public IWlogCabrillo
 [!endif]
+[!if TQSL_ROVER]
+    , public IWlogTQslQsoLocation
+[!endif]
     , public IPersistStorage
 {
 [!if !NO_DXCC || !NO_ZONE || !NO_AYGMULT || !NO_NAMEDMULT]
@@ -62,6 +66,9 @@ public:
         COM_INTERFACE_ENTRY(IWlogScoreInfo)
 [!if CABRILLO]
         COM_INTERFACE_ENTRY(IWlogCabrillo)
+[!endif]
+[!if TQSL_ROVER]
+        COM_INTERFACE_ENTRY(IWlogTQslQsoLocation)
 [!endif]
         COM_INTERFACE_ENTRY(IPersist)
         COM_INTERFACE_ENTRY(IPersistStorage)
@@ -125,8 +132,8 @@ public:
     // IWlogMulti2  -- for RTTY
     STDMETHOD(WhatsTheBestField)(QsoPtr_t q, const char *s, short *Offset);
     STDMETHOD(IsCharOKHere)(QsoPtr_t q, char c, short Offset);
-[!endif]
 
+[!endif]
 [!if CABRILLO]
     // IWlogCabrillo Methods
 public:
@@ -140,14 +147,38 @@ public:
     STDMETHOD(FormatTxField)(QsoPtr_t q, short Field, char * Buf);
     STDMETHOD(GetRxFieldCount)(short * pCount);
     STDMETHOD(FormatRxField)(QsoPtr_t q, short Field, char * Buf);
-[!endif]
 
+[!endif]
+[!if TQSL_ROVER]
+    // IWlogTQslQsoLocation
+    STDMETHOD(GetNumLocationFields)(long* pNumfields);
+    STDMETHOD(GetFieldGABBIName)(long Numfield, char* pFieldName, long FieldNameSize);
+    STDMETHOD(GetQsoNumLocations)(QsoPtr_t q, long* pNumLocations);
+    STDMETHOD(GetQsoLocationField)(QsoPtr_t q, long Location, long FieldNum,
+        char* pFieldvalue, long FieldValueSize);
+
+[!endif]
+[!if !NO_NAMEDMULT]
+[!if NAMED_MULTI_REGION]
+    enum { REGION_NAME_FIXME1, REGION_NAME_FIXME2, NUMBER_OF_REGIONS };
+[!else]
+    enum { NUMBER_OF_REGIONS = 1 };
+[!endif]
+[!endif]
 [!if !NO_NAMEDMULT || !NO_DXCC || !NO_ZONE || !NO_AYGMULT]
 [!if NAMEDMULT_SINGLE_BAND]
-    typedef MultiplierMap_t NamedMult_t;
+[!if NAMED_MULTI_REGION]
+    typedef CMultiplierMapByRegion NamedMult_t;
+[!else]
+    typedef CMultiplierMap2 NamedMult_t;
+[!endif]
 [!endif]
 [!if NAMEDMULT_MULTI_BAND]
-    typedef CMultiplierMapByBand NamedMult_t;
+[!if NAMED_MULTI_REGION]
+    typedef CMultiplierMapByRegionByBand NamedMult_t;
+[!else]
+    typedef CMultiplierMapByBand2 NamedMult_t;
+[!endif]
 [!endif]
 [!if AYGMULT_MULTI_BAND]
     typedef CMultiplierMapByBand AygStatus_t;
@@ -167,8 +198,10 @@ public:
 [!if DXCC_MULTI_BAND]
     typedef CMultiplierMapByBand Countries_t;
  [!endif]
-   enum {  // ID's to distinguish the IMultDisplayEntry implementations
-         [!if !NO_DXCC]DXCC_MULT_ID,[!endif][!if !NO_ZONE]ZONE_MULT_ID,[!endif][!if !NO_NAMEDMULT] NAMED_MULT_ID,[!endif][!if !NO_AYGMULT] AYG_MULT_ID,[!endif]
+    enum {  // ID's to distinguish the IMultDisplayEntry implementations
+         [!if !NO_DXCC]DXCC_MULT_ID,[!endif][!if !NO_ZONE]ZONE_MULT_ID,[!endif][!if !NO_NAMEDMULT] NAMED_MULT_ID,[!endif]
+         [!if NAMED_MULTI_REGION]LAST_NAMED_ID=NAMED_MULT_ID+NUMBER_OF_REGIONS-1,[!endif]
+         [!if !NO_AYGMULT] AYG_MULT_ID,[!endif]
     };
     HRESULT get_MultWorked(int id, short Mult, short band);
 // class CDupeSheet. ********************************************
@@ -194,9 +227,18 @@ public:
 protected:
 	[!output MM_CLASS_NAME]::NamedMult_t		            m_Named;		//Number of times we've worked each multiplier
 public:
-    int MarkNamedMultWorked(int dx, int band);
-    int UnmarkNamedMultWorked(int dx, int band);
-    bool namedWorked(short dx, short band) const;
+    int MarkNamedMultWorked(int nm, int band, short region) { return m_Named.mark(nm, band, region);}
+    int UnmarkNamedMultWorked(int nm, int band, short region){ return m_Named.unmark(nm, band, region); }
+    bool namedWorked(short nm, short band, short region) const{ return m_Named.worked(nm, band, region); }
+[!if NAMEDMULT_SINGLE_BAND]
+    const [!output MM_CLASS_NAME]::NamedMult_t::MapMultToWorked_t& getWorked(short region) const { return m_Named.worked(region); }
+[!endif]
+[!if MULTI_MODE]
+    void OnWorkedBandModeQso(short band, short mode, int inc) { m_bandModeQsos[band][mode] += inc;}
+    int WorkedBandModeQso(short band, short mode) const;
+protected:
+    std::map<short, std::map<short, int>> m_bandModeQsos;
+[!endif]
 [!endif]
 [!if !NO_DXCC]
 public:
@@ -301,22 +343,49 @@ enum {	// identical rules, but different modes on different weekends
 [!endif]
 [!endif]
 [!if !NO_NAMEDMULT]
+
 	//Named multiplier support...
     CQsoField                       fRCVD;
     CQsoField                       fMLT;
-	short							m_NumNamed;
-	CComPtr<IWlNamedMult>			m_pNamedMults;
-    void SetupNamedDisplay(const char *title, IMultDisplayContainer*, IWlNamedMult *, int numMultBands);
-	CComPtr<IMultDisplayPage>		m_NamedDisplay;
-	CComPtr<IMultDisplayEntry>		m_NamedDisplayEntry;
+
+    void SetupNamedDisplay(short region, const char* title, IMultDisplayContainer*, IWlNamedMult*, int numMultBands);
+    struct NamedMultsPage {
+	    short							m_NumNamed;
+	    CComPtr<IWlNamedMult>			m_pNamedMults;
+	    CComPtr<IMultDisplayPage>		m_NamedDisplay;
+	    CComPtr<IMultDisplayEntry>		m_NamedDisplayEntry;
 [!if NAMEDMULT_MULTI_BAND]
-	[!output MM_CLASS_NAME]::MultiplierMap_t		            m_NamedMults;
+	    [!output MM_CLASS_NAME]::MultiplierMap_t		            m_NamedMults;
+        void clear() { m_NamedMults.clear(); }
+        unsigned total() const {
+            unsigned ret(0);
+            for (auto m : m_NamedMults)
+                ret += m.second;
+            return ret;
+        }
 [!endif]
 [!if NAMEDMULT_SINGLE_BAND]
-	int	    m_NamedMults;
+	    int	    m_NamedMults;
+        void clear() { m_NamedMults = 0; }
+        unsigned total() const { return m_NamedMults;}
 [!endif]
-
-    int FindNamed(const char *c);
+[!if !NAMED_MULTI_REGION]
+        NamedMultsPage & operator[] (int) { return *this;}
+        size_t size() const { return 1; }
+[!endif]
+        NamedMultsPage(int = 0)
+            : m_NumNamed(0)
+[!if NAMEDMULT_SINGLE_BAND]
+            , m_NamedMults(0)
+[!endif]
+        {}
+    };
+[!if !NAMED_MULTI_REGION]
+    NamedMultsPage m_namedMults;
+[!else]
+    std::vector<NamedMultsPage> m_namedMults;
+[!endif]
+    int FindNamed(short region, const char *c);
     // end named
 
 [!endif]
@@ -418,7 +487,7 @@ protected:
     }
 	// The MultBand's are the frequency+mode ranges where they count as a mult 
     int  NumberOfMultBands() const {
-        return m_NumberOfDupeSheetBands * static_cast<int>(NUMBER_OF_MODES_PER_MULT_BAND);
+        return m_NumberOfDupeSheetBands / static_cast<int>(NUMBER_OF_MODES_PER_MULT_BAND);
     }
     QsoPtr_t GetQsoIth(unsigned long Index) const {
         QsoPtr_t TestQ;

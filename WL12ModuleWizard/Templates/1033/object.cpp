@@ -204,7 +204,7 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
 [!endif]
 [!if !NO_NAMEDMULT]
     , fRCVD(m_qsoFields,RCVD_IDX)
-    , m_NumNamed(0)
+    , m_namedMults(NUMBER_OF_REGIONS)
 [!endif]
 [!if !NO_ZONE]
     , fZN(m_qsoFields,ZN_IDX)
@@ -223,9 +223,6 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
 [!endif]
 [!if !NO_NAMEDMULT]
     , fMLT(m_qsoFields, NAMEDMULT_IDX)
-[!if NAMEDMULT_SINGLE_BAND]
-	, m_NamedMults(0)
-[!endif]
 [!endif]
 [!if !NO_DXCC]
     , fCMULT(m_qsoFields, COUNTRY_CM_IDX)
@@ -268,9 +265,34 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
  [!endif]   
 }
 
+[!if !NO_NAMEDMULT]
+namespace {
+    const char * const IniFileName = "[!output COCLASS].ini";  //FIXME
+    const char *SectionNames[[!output MM_CLASS_NAME]::NUMBER_OF_REGIONS] = {
+        "[!output COCLASS]", // FIXME
+[!if NAMED_MULTI_REGION]
+        "[!output COCLASS]", // FIXME
+[!endif]
+    };
+    const char* PageTitles [[!output MM_CLASS_NAME]::NUMBER_OF_REGIONS] = {
+        "TODO", // FIXME
+[!if NAMED_MULTI_REGION]
+        "TODO", // FIXME
+[!endif]
+    };
+    const int MessageResourceIDs[[!output MM_CLASS_NAME]::NUMBER_OF_REGIONS] = {
+            IDS_NEWNAMED_MSG, // FIXME
+[!if NAMED_MULTI_REGION]
+            IDS_NEWNAMED_MSG, // FIXME
+[!endif]
+    };
+}
+[!endif]
+
 // dtor
 [!output MM_CLASS_NAME]::~[!output MM_CLASS_NAME]()
 {}
+
 
 HRESULT [!output MM_CLASS_NAME]::FinalConstruct()
 {
@@ -291,17 +313,20 @@ HRESULT [!output MM_CLASS_NAME]::FinalConstruct()
         hr = m_ZoneContext.Init("CQZONE.DAT");
 [!endif]
 [!if !NO_NAMEDMULT]
-    if (SUCCEEDED(hr))
-        hr = m_pNamedMults.CoCreateInstance(__uuidof(NmdMul),
-            0, CLSCTX_SERVER);
-	// TODO--you must create an INI file, make sure its in WriteLog's 
-	// \programs folder, and make sure the following names it correctly.
-    if (SUCCEEDED(hr))
-        hr = m_pNamedMults->put_FileName(reinterpret_cast<const unsigned char *>("[!output COCLASS].ini"));
-    if (SUCCEEDED(hr))
-        m_pNamedMults->Init(reinterpret_cast<const unsigned char *>("[!output COCLASS]"));
-	if (SUCCEEDED(hr))
-	    hr = m_pNamedMults->get_MultCount(&m_NumNamed);
+    for (short region = 0; region < NUMBER_OF_REGIONS; region += 1)
+    {
+        if (SUCCEEDED(hr))
+            hr = m_namedMults[region].m_pNamedMults.CoCreateInstance(__uuidof(NmdMul),
+                0, CLSCTX_SERVER);
+	    // TODO--you must create an INI file, make sure its in WriteLog's 
+	    // \programs folder, and make sure the following names it correctly.
+        if (SUCCEEDED(hr))
+            hr = m_namedMults[region].m_pNamedMults->put_FileName(reinterpret_cast<const unsigned char *>(IniFileName));
+        if (SUCCEEDED(hr))
+            m_namedMults[region].m_pNamedMults->Init(reinterpret_cast<const unsigned char *>(SectionNames[region]));
+	    if (SUCCEEDED(hr))
+	        hr = m_namedMults[region].m_pNamedMults->get_MultCount(&m_namedMults[region].m_NumNamed);
+    }
 [!endif]
 
     return hr;
@@ -318,9 +343,12 @@ void [!output MM_CLASS_NAME]::FinalRelease()
     m_ZoneContext.Release();
 [!endif]
 [!if !NO_NAMEDMULT]
-    m_NamedDisplayEntry.Release();
-    m_NamedDisplay.Release();
-    m_pNamedMults.Release();
+    for (short region = 0; region < NUMBER_OF_REGIONS; region += 1)
+    {
+        m_namedMults[region].m_NamedDisplayEntry.Release();
+        m_namedMults[region].m_NamedDisplay.Release();
+        m_namedMults[region].m_pNamedMults.Release();
+    }
 [!endif]
 [!if !NO_AYGMULT]
 	if (m_AygDisplayEntry)
@@ -398,8 +426,8 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
         }
     } else if (!myQth.empty()) // empty means MYQTH for QSO not initialized
     {
-        int qthIdx = FindNamed(myQth.c_str());
-        if (qthIdx < m_NumNamed)
+        int qthIdx = FindNamed(0, myQth.c_str());
+        if (qthIdx < m_namedMults[0].m_NumNamed)
         {   // found the logged MYQTH is in list of valid QTHs
             if (!m_dupeSheets.front()->key().empty())
             {   // make a new dupe sheet
@@ -466,26 +494,34 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 [!if !NO_NAMEDMULT]
 		//*********************************
 		//Processed named multipliers
-		int newNamedMultFlag = 0;
-		int nm = FindNamed(fRCVD(q));
-		if (nm == m_NumNamed)
-			fMLT(q) = "?";
-		else 
-			newNamedMultFlag = !qDupeSheet.MarkNamedMultWorked(nm, band);
-		if (newNamedMultFlag)
-		{
-            char buf[8];
+        bool foundNamed = false;
+        for (short region = 0; region < NUMBER_OF_REGIONS; region++)
+        {
+		    int newNamedMultFlag = 0;
+		    int nm = FindNamed(region, fRCVD(q));
+		    if (nm != m_namedMults[region].m_NumNamed)
+            {
+			    newNamedMultFlag = !qDupeSheet.MarkNamedMultWorked(nm, band, region);
+		        if (newNamedMultFlag)
+		        {
+                    char buf[8];
 [!if NAMEDMULT_MULTI_BAND]
-			_itoa_s(++m_NamedMults[band], buf, 10);
+			        _itoa_s(++m_namedMults[region].m_NamedMults[band], buf, 10);
 [!endif]
 [!if NAMEDMULT_SINGLE_BAND]
-			_itoa_s(++m_NamedMults, buf, 10);
+			        _itoa_s(++m_namedMults[region].m_NamedMults, buf, 10);
 [!endif]
-            fMLT(q) = buf;
-			Mult[BAND_SUMMARY_MUL] += 1;
-			if (m_NamedDisplay)
-				m_NamedDisplay->Invalidate(nm);
-		}
+                    fMLT(q) = buf;
+			        Mult[BAND_SUMMARY_MUL] += 1;
+			        if (m_namedMults[region].m_NamedDisplay)
+                        m_namedMults[region].m_NamedDisplay->Invalidate(nm);
+		        }
+                foundNamed = true;
+                break;
+            }
+        }
+        if (!foundNamed)
+            fMLT(q) = "?";
 
 [!endif]
 [!if !NO_ZONE]
@@ -553,18 +589,25 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
             fPTS(q) = buf;
         }
 [!endif]
+[!if MULTI_MODE]
+        unsigned modeIdx = 0;
+        if (q->mode == '3')
+            modeIdx = BAND_SUMMARY_CW;
+[!if RTTY]
+        else if (q->mode == '6')
+            modeIdx = BAND_SUMMARY_RTTY;
+[!endif]
+        else
+            modeIdx = BAND_SUMMARY_PHONE;
+[!if !NO_NAMEDMULT]
+        qDupeSheet.OnWorkedBandModeQso(band, modeIdx, 1);
+        qDupeSheet.OnWorkedBandModeQso(band, BAND_SUMMARY_MUL, points);
+        qDupeSheet.OnWorkedBandModeQso(band, BAND_SUMMARY_MUL + 1, Mult[BAND_SUMMARY_MUL]);
+[!endif]
+		Mult[modeIdx] = 1;
+[!endif]
 		if (m_bandSumm)
 		{
-[!if MULTI_MODE]
-			if (q->mode == '3')
-				Mult[BAND_SUMMARY_CW] = 1;
-[!if RTTY]
-            else if  (q->mode == '6')
-				Mult[BAND_SUMMARY_RTTY] = 1;
-[!endif]
-			else
-				Mult[BAND_SUMMARY_PHONE] = 1;
-[!endif]
 			m_bandSumm->ContributeMultipliers(
 					band,
 					BAND_SUMMARY_WIDTH, 
@@ -621,32 +664,40 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
     {
         points = PointsForQso(q);
 [!if MULTI_MODE]
-		if (q->mode == '3')
-			Mult[BAND_SUMMARY_CW] = -1;
+        unsigned modeIdx = 0;
+        if (q->mode == '3')
+            modeIdx = BAND_SUMMARY_CW;
 [!if RTTY]
         else if (q->mode == '6')
-			Mult[BAND_SUMMARY_RTTY] = -1;
+            modeIdx = BAND_SUMMARY_RTTY;
 [!endif]
-		else
-			Mult[BAND_SUMMARY_PHONE] = -1;
+        else
+            modeIdx = BAND_SUMMARY_PHONE;
+		Mult[modeIdx] = -1;
 
 [!endif]
 [!if !NO_NAMEDMULT]
-		int newNamedMultFlag = 0;
-		int nm = FindNamed(fRCVD(q));
-		if (nm != m_NumNamed)
-			newNamedMultFlag = !qDupeSheet.UnmarkNamedMultWorked(nm,band);
-		if (newNamedMultFlag)
-		{
+        for (short region = 0; region < NUMBER_OF_REGIONS; region++)
+        {
+            int newNamedMultFlag = 0;
+		    int nm = FindNamed(region, fRCVD(q));
+		    if (nm != m_namedMults[region].m_NumNamed)
+            {
+			    newNamedMultFlag = !qDupeSheet.UnmarkNamedMultWorked(nm,band,region);
+		        if (newNamedMultFlag)
+		        {
 [!if NAMEDMULT_MULTI_BAND]
-			m_NamedMults[band] -= 1;
+                    m_namedMults[region].m_NamedMults[band] -= 1;
 [!endif]
 [!if NAMEDMULT_SINGLE_BAND]
-			m_NamedMults -= 1;
+                    m_namedMults[region].m_NamedMults -= 1;
 [!endif]
-			Mult[BAND_SUMMARY_MUL] -= 1;
-			if (m_NamedDisplay)
-				m_NamedDisplay->Invalidate(nm);
+			        Mult[BAND_SUMMARY_MUL] -= 1;
+			        if (m_namedMults[region].m_NamedDisplay)
+                        m_namedMults[region].m_NamedDisplay->Invalidate(nm);
+                }
+                break;
+            }
 		}
 
 [!endif]
@@ -712,7 +763,12 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 [!if !MULTI_MODE && PTS_COLUMN]
 		Mult[BAND_SUMMARY_PTS] = -points;
 [!endif]
-		m_BandPoints[band] -= points;
+[!if MULTI_MODE && !NO_NAMEDMULT]
+        qDupeSheet.OnWorkedBandModeQso(band, modeIdx, -1);
+        qDupeSheet.OnWorkedBandModeQso(band, BAND_SUMMARY_MUL, -points);
+        qDupeSheet.OnWorkedBandModeQso(band, BAND_SUMMARY_MUL + 1, Mult[BAND_SUMMARY_MUL]);
+[!endif]
+        m_BandPoints[band] -= points;
 		m_BandQsos[band] -= 1;
 		if (m_bandSumm)
 		{
@@ -752,11 +808,9 @@ HRESULT [!output MM_CLASS_NAME]::InitQsoData()
         pDupe->InitQsoData();
 [!endif]
 [!endif]
-[!if NAMEDMULT_MULTI_BAND]
-    m_NamedMults.clear();
-[!endif]
- [!if NAMEDMULT_SINGLE_BAND]
-   m_NamedMults = 0;
+[!if !NO_NAMEDMULT]
+    for (short reg = 0; reg < NUMBER_OF_REGIONS; reg += 1)
+        m_namedMults[reg].clear();
 [!endif]
 [!if !NO_DXCC]
     m_MyCountryIndex = m_DxContext.dxcc_Home();
@@ -823,6 +877,9 @@ void [!output MM_CLASS_NAME]::CDupeSheet::InitQsoData()
 {
 [!if !NO_NAMEDMULT]
     m_Named.clear();
+[!if MULTI_MODE]
+    m_bandModeQsos.clear();
+[!endif]
 [!endif]
 [!if !NO_DXCC]
     m_Countries.clear();
@@ -839,14 +896,8 @@ void [!output MM_CLASS_NAME]::CDupeSheet::InitQsoData()
 unsigned [!output MM_CLASS_NAME]::CDupeSheet::totalQsos() const
 {   // total number of QSOs logged from this QTH
     unsigned ret = 0;
-[!if NAMEDMULT_SINGLE_BAND]
-    for (auto n : m_Named)
-        ret += n.second;
-[!endif]
-[!if NAMEDMULT_MULTI_BAND]
-    for (auto n : m_Named)
-        for (auto b : n.second)
-            ret += b.second;
+[!if !NO_NAMEDMULT]
+    ret += m_Named.total();
 [!endif]
 [!if DXCC_SINGLE_BAND]
     for (auto n : m_Countries)
@@ -879,6 +930,20 @@ unsigned [!output MM_CLASS_NAME]::CDupeSheet::totalQsos() const
 }
 
 [!endif]
+[!if MULTI_MODE && !NO_NAMEDMULT]
+int [!output MM_CLASS_NAME]::CDupeSheet::WorkedBandModeQso(short band, short mode) const
+{
+    auto itor = m_bandModeQsos.find(band);
+    if (itor != m_bandModeQsos.end())
+    {
+        auto itor2 = itor->second.find(mode);
+        if (itor2 != itor->second.end())
+            return itor2->second;
+    }
+    return 0;
+}
+[!endif]
+
 [!if !NO_DXCC]
 int [!output MM_CLASS_NAME]::CDupeSheet::MarkCountryWorked(int dx, int band) {
 [!if DXCC_SINGLE_BAND]
@@ -902,33 +967,6 @@ bool [!output MM_CLASS_NAME]::CDupeSheet::countryWorked(short dx, short band) co
 [!endif]
 [!if DXCC_MULTI_BAND]
             return m_Countries.worked(band, dx);
-[!endif]
-}
-
-[!endif]
-[!if !NO_NAMEDMULT]
-int [!output MM_CLASS_NAME]::CDupeSheet::MarkNamedMultWorked(int nm, int band) {
-[!if NAMEDMULT_MULTI_BAND]
-			return m_Named[band][nm]++;
-[!endif]
-[!if NAMEDMULT_SINGLE_BAND]
-			return m_Named[nm]++;
-[!endif]
-}
-int [!output MM_CLASS_NAME]::CDupeSheet::UnmarkNamedMultWorked(int nm, int band) {
-[!if NAMEDMULT_MULTI_BAND]
-			return --m_Named[band][nm];
-[!endif]
-[!if NAMEDMULT_SINGLE_BAND]
-			return --m_Named[nm];
-[!endif]
-}
-bool [!output MM_CLASS_NAME]::CDupeSheet::namedWorked(short nm, short band) const {
-[!if NAMEDMULT_MULTI_BAND]
-			return m_Named.worked(band,nm);
-[!endif]
-[!if NAMEDMULT_SINGLE_BAND]
-			return m_Named.worked(nm);
 [!endif]
 }
 
@@ -1145,8 +1183,9 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                             m_DxccContainer.InvalidateAll();
 [!endif]
 [!if !NO_NAMEDMULT]
-                            if (m_NamedDisplay)
-                                m_NamedDisplay->Invalidate(-1);
+                            for (short region = 0; region < NUMBER_OF_REGIONS; region += 1)
+                                if (m_namedMults[region].m_NamedDisplay)
+                                    m_namedMults[region].m_NamedDisplay->Invalidate(-1);
 [!endif]
                         }
                         break;                    
@@ -1183,8 +1222,9 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                                         m_DxccContainer.InvalidateAll();
 [!endif]
 [!if !NO_NAMEDMULT]
-                                        if (m_NamedDisplay)
-                                            m_NamedDisplay->Invalidate(-1);
+                                        for (short region = 0; region < NUMBER_OF_REGIONS; region += 1)
+                                            if (m_namedMults[region].m_NamedDisplay)
+                                                m_namedMults[region].m_NamedDisplay->Invalidate(-1);
 [!endif]
                                     }
                                     break;
@@ -1199,18 +1239,22 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
         }
 [!endif]
     }
-	if (flagNamed || fRCVD == p)      /*or received*/
+    if (flagNamed || fRCVD == p)      /*or received*/
     {
-       int n = FindNamed(fRCVD(q));
-	   if (n != m_NumNamed)
-	   {
-           int NamedWorked = get_MultWorked(NAMED_MULT_ID, n, band) == S_FALSE ? 1 : 0;
-		   if (ret <= 0)
-               ret = NamedWorked;
-		   if (NamedWorked && msgValid && (Message != 0))
-			    LoadString(g_hInstance, IDS_NEWNAMED_MSG, Message, MAX_MULT_MESSAGE_LENGTH);
-	   }
-	}
+        for (short region = 0; region < NUMBER_OF_REGIONS; region += 1)
+        {
+            int n = FindNamed(region, fRCVD(q));
+            if (n != m_namedMults[region].m_NumNamed)
+            {
+                int NamedWorked = get_MultWorked(NAMED_MULT_ID+region, n, band) == S_FALSE ? 1 : 0;
+                if (ret <= 0)
+                    ret = NamedWorked;
+                if (NamedWorked && msgValid && (Message != 0)) // FIXME. different message per region
+                    LoadString(g_hInstance, MessageResourceIDs[region], Message, MAX_MULT_MESSAGE_LENGTH);
+                break;
+            }
+        }
+    }
 
 [!endif]
 [!if !NO_ZONE]
@@ -1318,8 +1362,9 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                         m_DxccContainer.InvalidateAll();
 [!endif]
 [!if !NO_NAMEDMULT]
-                        if (m_NamedDisplay)
-                            m_NamedDisplay->Invalidate(-1);
+                        for (short region = 0; region < NUMBER_OF_REGIONS; region += 1)
+                            if (m_namedMults[region].m_NamedDisplay)
+                                m_namedMults[region].m_NamedDisplay->Invalidate(-1);
 [!endif]
                         }
                     }
@@ -1329,8 +1374,8 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
             }
             if (ret != 0)
             {   // was not in currently logged. is it some other valid QTH?
-                int n = FindNamed(myQth.c_str());
-                if (n < m_NumNamed)
+                int n = FindNamed(0, myQth.c_str());
+                if (n < m_namedMults[0].m_NumNamed)
                     ret = 0;
             }
         }
@@ -1359,12 +1404,28 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 */
 [!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
     if (!m_MultDispContainer)
-    {
-        if (SUCCEEDED(m_MultDispContainer.CoCreateInstance(
-            L"writelog.multdisp", 0, CLSCTX_ALL)))
-		{
+        m_MultDispContainer.CoCreateInstance(
+            L"writelog.multdisp", 0, CLSCTX_ALL);
+
+    if (m_MultDispContainer)
+	{
+[!if !NO_NAMEDMULT]
+        for (short region = 0; region < NUMBER_OF_REGIONS; region += 1)
+        {
+            SetupNamedDisplay(region, PageTitles[region], m_MultDispContainer,
+                m_namedMults[region].m_pNamedMults,
+[!if NAMEDMULT_MULTI_BAND]
+                NumberOfMultBands()
+[!endif]
+[!if NAMEDMULT_SINGLE_BAND]
+                1
+[!endif]
+            );
+        }
+[!endif]
+
 [!if !NO_DXCC]
-             m_DxccContainer.MakeDxccDisplays(m_MultDispContainer, 
+        m_DxccContainer.MakeDxccDisplays(m_MultDispContainer, 
 [!if DXCC_MULTI_BAND]
 												1,
 [!endif]
@@ -1372,22 +1433,9 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 												0,
 [!endif]
 												0);
-[!endif]
-        }
-    }
-[!if !NO_NAMEDMULT]
-    SetupNamedDisplay("TODO", m_MultDispContainer,
-                m_pNamedMults,
-[!if NAMEDMULT_MULTI_BAND]
-                    NumberOfMultBands()
-[!endif]
-[!if NAMEDMULT_SINGLE_BAND]
-                    1
-[!endif]
-                    );
-[!endif]
+[!endif] 
 [!if !NO_ZONE]
-    SetupZoneDisplay("TODO", m_MultDispContainer,
+        SetupZoneDisplay("TODO", m_MultDispContainer,
 [!if ZONE_MULTI_BAND]
 								NumberOfMultBands()
 [!endif]
@@ -1397,7 +1445,7 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
                                 );
 [!endif]
 [!if !NO_AYGMULT]
-    SetupAygDisplay("TODO", m_MultDispContainer,
+        SetupAygDisplay("TODO", m_MultDispContainer,
 [!if AYGMULT_MULTI_BAND]
                     NumberOfMultBands()
 [!endif]
@@ -1408,16 +1456,16 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 [!endif]
 
 [!if !NO_DXCC]
-    m_DxccContainer.InitializeEntry(m_DxContext.cList());
+        m_DxccContainer.InitializeEntry(m_DxContext.cList());
 [!if DXCC_MULTI_BAND]
-    m_DxccContainer.SetMults(this, NumberOfMultBands());	
+        m_DxccContainer.SetMults(this, NumberOfMultBands());	
 [!endif]
 [!if DXCC_SINGLE_BAND]
-    m_DxccContainer.SetMults(this);	
+        m_DxccContainer.SetMults(this);	
 [!endif]
 [!endif]
-    if (m_MultDispContainer)
         m_MultDispContainer->ShowCurrent();
+    }
 [!endif]
     return S_OK;
 }
@@ -1433,10 +1481,10 @@ void [!output MM_CLASS_NAME]::InvokeQthSelectDlg()
 [!if NO_NAMEDMULT]
             allQTHs.SendMessageA(LB_ADDSTRING, 0, (LPARAM) "FIRST QTH"); // FIXME
 [!else]
-            for (int i = 0; i < m_NumNamed; i++)
+            for (int i = 0; i < m_namedMults[0].m_NumNamed; i++)
             {   // FIXME
                 unsigned char *name;
-	            m_pNamedMults->NameFromIndex(i, &name);
+                m_namedMults[0].m_pNamedMults->NameFromIndex(i, &name);
                 allQTHs.SendMessageA(LB_ADDSTRING, 0, (LPARAM) name);
             }
 [!endif]
@@ -1488,8 +1536,9 @@ void [!output MM_CLASS_NAME]::InvokeQthSelectDlg()
                         m_DxccContainer.InvalidateAll();
 [!endif]
 [!if !NO_NAMEDMULT]
-                        if (m_NamedDisplay)
-                            m_NamedDisplay->Invalidate(-1);
+                        for (short region = 0; region < NUMBER_OF_REGIONS; region += 1)
+                            if (m_namedMults[region].m_NamedDisplay)
+                                m_namedMults[region].m_NamedDisplay->Invalidate(-1);
 [!endif]
                 }
                 break;
@@ -1510,25 +1559,26 @@ void [!output MM_CLASS_NAME]::InvokeQthSelectDlg()
 
 
 [!if !NO_NAMEDMULT]
-void [!output MM_CLASS_NAME]::SetupNamedDisplay(const char *title, IMultDisplayContainer*pDispc, IWlNamedMult *pNamedMults, int numMultBands)
+void [!output MM_CLASS_NAME]::SetupNamedDisplay(short region, const char *title, IMultDisplayContainer*pDispc, IWlNamedMult *pNamedMults, int numMultBands)
 {
-    if (!m_NamedDisplay && pDispc)
+    if (!m_namedMults[region].m_NamedDisplay && pDispc)
             pDispc->MakeDisplay(1, 0,
                             __uuidof(IMultDisplayPage),
-                            (IUnknown **)&m_NamedDisplay);
-    if (m_NamedDisplay)
+                            (IUnknown **)&m_namedMults[region].m_NamedDisplay);
+    if (m_namedMults[region].m_NamedDisplay)
     {
-        if (!m_NamedDisplayEntry)
+        if (!m_namedMults[region].m_NamedDisplayEntry)
         {
-            m_NamedDisplay->put_Title(title);
-            CComObject<CNamedDisplayHelper<[!output MM_CLASS_NAME], NAMED_MULT_ID> > *pTemp(0);
+            m_namedMults[region].m_NamedDisplay->put_Title(title);
+            CComObject<CNamedDisplayHelperPage<[!output MM_CLASS_NAME]> > *pTemp(0);
             if (SUCCEEDED(pTemp->CreateInstance(&pTemp)))
             {
+                pTemp->setRegion(NAMED_MULT_ID + region);
                 pTemp->Init(pNamedMults,
-                    m_NamedDisplay,
+                    m_namedMults[region].m_NamedDisplay,
                     numMultBands,
                     this);
-                m_NamedDisplayEntry = pTemp;
+                m_namedMults[region].m_NamedDisplayEntry = pTemp;
             }
         }
     }
@@ -1699,10 +1749,11 @@ HRESULT [!output MM_CLASS_NAME]::QsoSearch(QsoPtr_t NewQ, QsoPtr_t OldQ, int * I
 // Rovers might be in the Named mults or in the AYG mults. 
 [!endif]
 [!if !NO_NAMEDMULT]
-   if ((FindNamed(fRCVD(NewQ).str()) != m_NumNamed) &&
-        (FindNamed(fRCVD(OldQ).str()) != m_NumNamed) &&
+    // Rovers are only allowed in zeroth region
+    if ((FindNamed(0, fRCVD(NewQ).str()) != m_namedMults[0].m_NumNamed) &&
+        (FindNamed(0, fRCVD(OldQ).str()) != m_namedMults[0].m_NumNamed) &&
         (strcmp(fRCVD(NewQ).str(), fRCVD(OldQ).str()) != 0))
-			*IsGood = 1;
+        *IsGood = 1;
 [!endif]
 [!if !NO_AYGMULT]
    if ((FindAyg(FALSE, fAYG(NewQ).str()) < static_cast<int>(m_AygDisplayNames.size())) &&
@@ -1841,6 +1892,11 @@ HRESULT [!output MM_CLASS_NAME]::GetAdifName(long FieldId, long NameLen, char *N
 // multipliers
 HRESULT [!output MM_CLASS_NAME]::get_MultWorked(int id, short Mult, short band)
 {
+[!if !NO_NAMEDMULT]
+    if (id >= NAMED_MULT_ID && id < NAMED_MULT_ID + NUMBER_OF_REGIONS)
+        return currentDupeSheet().namedWorked(Mult, band, id-NAMED_MULT_ID) ? S_OK : S_FALSE;
+[!endif]
+
     switch (id)
     {
 [!if !NO_DXCC]
@@ -1850,10 +1906,6 @@ HRESULT [!output MM_CLASS_NAME]::get_MultWorked(int id, short Mult, short band)
 [!if !NO_ZONE]
     case ZONE_MULT_ID:
             return currentDupeSheet().zoneWorked(Mult, band) ? S_OK : S_FALSE;
-[!endif]
-[!if !NO_NAMEDMULT]
-    case NAMED_MULT_ID:
-            return currentDupeSheet().namedWorked(Mult, band) ? S_OK : S_FALSE;
 [!endif]
 [!if !NO_AYGMULT]
     case AYG_MULT_ID:
@@ -1913,11 +1965,12 @@ int [!output MM_CLASS_NAME]::FindZone(    /*returns zone index*/
 [!if !NO_NAMEDMULT]
 
 int [!output MM_CLASS_NAME]::FindNamed(      /*returns index of multiplier*/
+    short region,
 	const char *c)
 {
 	short i;
-	if (m_pNamedMults->IndexFromName(reinterpret_cast<const unsigned char *>(c), &i) != S_OK)
-		return m_NumNamed;
+	if (m_namedMults[region].m_pNamedMults->IndexFromName(reinterpret_cast<const unsigned char *>(c), &i) != S_OK)
+		return m_namedMults[region].m_NumNamed;
 	return i;
 }
 
@@ -1954,7 +2007,7 @@ HRESULT [!output MM_CLASS_NAME]::WhatsTheBestField(QsoPtr_t q, const char *s, sh
     if (q == 0 || s == 0 || Offset == 0)
         return E_POINTER;
 	//TODO
-    //		*Offset = CALL_POS;
+    //		*Offset = fCALL.FieldNumber();
 	//		return NOERROR;
 
     return E_NOTIMPL;
@@ -1962,7 +2015,12 @@ HRESULT [!output MM_CLASS_NAME]::WhatsTheBestField(QsoPtr_t q, const char *s, sh
 
 HRESULT  [!output MM_CLASS_NAME]::IsCharOKHere(QsoPtr_t q, char c, short Offset)
 {
-    // todo
+    //TODO. Example:
+    // if (fRCVD == Offset)
+    //{
+    //    if (!isalpha(c))
+    //        return S_FALSE;
+    //}
     return S_OK;
 }
 
@@ -2096,6 +2154,88 @@ HRESULT [!output MM_CLASS_NAME]::FormatRxField(QsoPtr_t q, short Field, char * B
 }
 [!endif]
 
+[!if TQSL_ROVER]
+// IWlogTQslQsoLocation
+// FIXME. This interface implementation works for USA state QSO parties.
+HRESULT [!output MM_CLASS_NAME]::GetNumLocationFields(long* pNumfields)
+{
+#if GRID_SQUARE_SUPPORT     // FIXME
+    *pNumfields = m_dupeSheets.size() > 1 ? 1 : 0;
+#else
+    *pNumfields = m_dupeSheets.size() > 1 ? 2 : 0;
+#endif
+    return S_OK;
+}
+
+HRESULT [!output MM_CLASS_NAME]::GetFieldGABBIName(long Numfield, char* pFieldName, long FieldNameSize)
+{
+#if GRID_SQUARE_SUPPORT     // FIXME
+    if (Numfield != 0)
+        return E_INVALIDARG;
+    strncpy_s(pFieldName, FieldNameSize, "GRIDSQUARE", FieldNameSize - 1);
+#else
+    switch (Numfield)
+    {  // order is important. STATE first
+    case 0:
+        strncpy_s(pFieldName, FieldNameSize, "US_STATE", FieldNameSize - 1);
+        break;
+    case 1:
+        strncpy_s(pFieldName, FieldNameSize, "US_COUNTY", FieldNameSize - 1);
+        break;
+    default:
+        return E_INVALIDARG;
+    }
+#endif
+    return S_OK;
+}
+
+HRESULT [!output MM_CLASS_NAME]::GetQsoNumLocations(QsoPtr_t q, long* pNumLocations)
+{
+    *pNumLocations = 1;
+    return S_OK;
+}
+
+HRESULT [!output MM_CLASS_NAME]::GetQsoLocationField(QsoPtr_t q, long Location, long FieldNum,
+    char* pFieldvalue, long FieldValueSize)
+{
+    if (Location != 0)
+        return E_INVALIDARG;
+
+#if GRID_SQUARE_SUPPORT   // FIXME
+    if (FieldNum != 0)
+        return E_INVALIDARG;
+    strncpy_s(pFieldvalue, FieldValueSize, fMYQTH(q).str(), FieldValueSize - 1);
+    return S_OK;
+#else
+    switch (FieldNum)
+    {
+    case 0:
+        // full spelling of state name StateName
+        strncpy_s(pFieldvalue, FieldValueSize, "StateName"/*FIXME*/, FieldValueSize - 1);
+        return S_OK;
+    case 1:
+        {
+        std::vector<char> NmdMul(512);
+        GetPrivateProfileString("Multipliers",
+            "Location",
+            "",
+            &NmdMul[0],
+            NmdMul.size(),
+            "WriteLog.ini");
+        std::string fn = &NmdMul[0];
+        fn += IniFileName;
+        // This INI IniSection section must be of the form:
+        // county_abbreviation=county_full_spelling
+        ::GetPrivateProfileString("IniSection"/*FIXME*/, fMYQTH(q).str(), "", pFieldvalue, FieldValueSize, fn.c_str());
+        return S_OK;
+        }
+    default:
+        return E_INVALIDARG;
+    }
+#endif
+}
+[!endif]
+
 //IWlogScoreInfo
 HRESULT [!output MM_CLASS_NAME]::MultsAndPts(long *pMultCount, long *pPtsCount)
 {
@@ -2106,10 +2246,6 @@ HRESULT [!output MM_CLASS_NAME]::MultsAndPts(long *pMultCount, long *pPtsCount)
     for (auto dxm : m_DxccMults)
 		Mults += dxm.second;
 [!endif]
-[!if NAMEDMULT_MULTI_BAND]
-    for (auto nm : m_NamedMults)
-        Mults += nm.second;
-[!endif]
 [!if ZONE_MULTI_BAND]
     for (auto zm : m_ZoneMults)
 		Mults += zm.second;
@@ -2118,12 +2254,13 @@ HRESULT [!output MM_CLASS_NAME]::MultsAndPts(long *pMultCount, long *pPtsCount)
     for (auto am : m_AygMults)
         Mults += am.second;
 [!endif]
+[!if !NO_NAMEDMULT]
+    for (short region = 0; region < NUMBER_OF_REGIONS; region += 1)
+        Mults += m_namedMults[region].total();
+[!endif]
 
 [!if DXCC_SINGLE_BAND]
 	Mults += m_DxccMults;
-[!endif]
-[!if NAMEDMULT_SINGLE_BAND]
-	Mults += m_NamedMults;
 [!endif]
 [!if ZONE_SINGLE_BAND]
 	Mults += m_ZoneMults;
@@ -2290,7 +2427,7 @@ HRESULT [!output MM_CLASS_NAME]::Save(IStorage *p, BOOL fSameAsLoad)  {
         hr = pStream->Write(&v, 1, &written);
 
 [!endif]
-if (SUCCEEDED(hr))
+    if (SUCCEEDED(hr))
         hr = p->SetClass(__uuidof([!output COCLASS]));
     if (SUCCEEDED(hr))
         hr = p->Commit(STGC_DEFAULT);

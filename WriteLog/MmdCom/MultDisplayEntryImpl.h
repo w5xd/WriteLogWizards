@@ -197,62 +197,85 @@ public:
     }
 };
 
-/* For the list-of-names Named multiplier display
-*/
-template <class T, int ID>
-class CNamedDisplayHelper : public CComObjectRootEx<CComSingleThreadModel>
+/* For the list-of-names Named multiplier display */
+template <class T>
+class CNamedDisplayHelperBase : public CComObjectRootEx<CComSingleThreadModel>
     , public IMultDisplayEntry
 {
 protected:
-    ~CNamedDisplayHelper() {}
+    virtual ~CNamedDisplayHelperBase() {}
 public:
-    CNamedDisplayHelper() : m_Module(0), m_NamedMult(0){}
+    CNamedDisplayHelperBase() : m_Module(0), m_NamedMult(0) {}
 
-    BEGIN_COM_MAP(CNamedDisplayHelper)
+    BEGIN_COM_MAP(CNamedDisplayHelperBase)
         COM_INTERFACE_ENTRY(IMultDisplayEntry)
     END_COM_MAP()
 
     DECLARE_PROTECT_FINAL_CONSTRUCT()
-    HRESULT FinalConstruct()    { 
+    HRESULT FinalConstruct() {
         return S_OK;
     }
-    void FinalRelease()    {    }
+    void FinalRelease() {    }
 
     void Init(
-		IWlNamedMult *States, 
-            IMultDisplayPage *m,
-            int bands,
-			T *p)
+        IWlNamedMult* States,
+        IMultDisplayPage* m,
+        int bands,
+        T* p)
     {
-	    m_Module = p;
-	    short Count;
-	    short ColCount;
+        m_Module = p;
+        short Count;
+        short ColCount;
         m_NamedMult = States;
-	    States->get_ColumnCount(&ColCount);
-	    m->put_ColumnCount(ColCount);
-	    States->get_MultCount(&Count);
+        States->get_ColumnCount(&ColCount);
+        m->put_ColumnCount(ColCount);
+        States->get_MultCount(&Count);
         m->put_MultCount(Count);
         m->put_BandCount(bands);
         m->put_LookupFcn(this);
     }
 
     // IMultDisplayEntry
-    STDMETHODIMP get_MultTitle(short Mult, const char **Title)
-    { return m_NamedMult->get_MultTitle(Mult, (unsigned char **)Title);    }
+    STDMETHODIMP get_MultTitle(short Mult, const char** Title)
+    {
+        return m_NamedMult->get_MultTitle(Mult, (unsigned char**)Title);
+    }
 
-    STDMETHODIMP get_Column(short Mult, short *Column)
-    { return m_NamedMult->get_Column(Mult, Column);    }
+    STDMETHODIMP get_Column(short Mult, short* Column)
+    {
+        return m_NamedMult->get_Column(Mult, Column);
+    }
 
-    STDMETHODIMP get_ColumnTitle(short Column, const char **Title)
-    { return m_NamedMult->get_ColumnTitle(Column, (unsigned char **)Title);    }
-
-    STDMETHODIMP get_MultWorked(short Mult, short band)
-    {  return m_Module->get_MultWorked(ID, Mult, band);    }
+    STDMETHODIMP get_ColumnTitle(short Column, const char** Title)
+    {
+        return m_NamedMult->get_ColumnTitle(Column, (unsigned char**)Title);
+    }
 
 protected:
-    T *m_Module;
-	IWlNamedMult *m_NamedMult;    
+    T* m_Module;
+    IWlNamedMult* m_NamedMult;
 };
+
+template <class T, int ID>
+class CNamedDisplayHelper : public CNamedDisplayHelperBase<T>
+{
+    STDMETHODIMP get_MultWorked(short Mult, short band)
+    {  return m_Module->get_MultWorked(ID, Mult, band);    }
+};
+
+template <class T>
+class CNamedDisplayHelperPage : public CNamedDisplayHelperBase<T>
+{
+public:
+    STDMETHODIMP get_MultWorked(short Mult, short band)
+    {
+        return m_Module->get_MultWorked(m_region, Mult, band);
+    }
+    void setRegion(short r) { m_region = r; }
+protected:
+    short m_region;
+};
+
 
 /* For the as-you-go multiplier display
 */
