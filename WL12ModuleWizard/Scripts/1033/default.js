@@ -22,7 +22,7 @@ function UserException(message) {
 function OnFinish(selProj, selObj) {
     var oCM;
     try {
-
+        //debugger;
         /* validate */
         var strClassName = wizard.FindSymbol("MM_CLASS_NAME");
         var strContestDisplay = wizard.FindSymbol("CONTEST_NAME");
@@ -106,7 +106,7 @@ function OnFinish(selProj, selObj) {
         oResHelper.OpenResourceFile(strProjectRC);
 
         var strSymbolValue = oResHelper.AddResource(strRGSID, strProjectPath + strRGSFile, "REGISTRY");
-        if (strSymbolValue == null) return;
+        if (strSymbolValue == null) throw new UserException("default.js: failed to add REGISTRY resource");;
         wizard.AddSymbol("RGS_ID", strSymbolValue.split("=").shift());
 
         var strRCTemplFile = strTemplatePath +  "\\dialog.rc";

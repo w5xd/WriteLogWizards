@@ -272,6 +272,13 @@
                           <div class="itemTextRadioB" id="DIV9">
                               <label for="NAMEDMULT_MULTI_BAND" id="LABEL14">By Band</label>
                           </div>
+                          <br>
+                          <span class="itemText">
+                              <input class="CheckBox" type="checkbox" id="NAMED_MULTI_REGION"  >
+                              <div class="itemTextCheckboxA">
+                                  <label for="NAMED_MULTI_REGION">Multiple named mult pages</label>
+                              </div>
+                          </span>
                       </span>                      
                   </td>
                     <td valign="TOP" colspan='3'>
@@ -288,6 +295,13 @@
                               <input class="CheckBox" type="checkbox" id="AM_ROVER" onclick='OnAmRoverClick(document, this);' >
                               <div class="itemTextCheckboxA">
                                   <label for="AM_ROVER" id="LABEL6">Can be Rover</label>
+                              </div>
+                          </span>
+                          <br>
+                          <span class="itemText">
+                              <input class="CheckBox" type="checkbox" id="TQSL_ROVER" onclick='OnTqslRoverClick(document, this);' >
+                              <div class="itemTextCheckboxA">
+                                  <label for="TQSL_ROVER" >TQSL Rover support</label>
                               </div>
                           </span>
                           <br>
@@ -415,11 +429,24 @@
             if (isDisabledNow)
                 amRoverCheck.checked = false;
             }
+        var tqslRoverCheck = document.getElementById("TQSL_ROVER");
+        if (tqslRoverCheck) {
+            tqslRoverCheck.disabled = isDisabledNow;
+            if (isDisabledNow)
+                tqslRoverCheck.checked = false;
+        }
         var amCountyLineCheck = document.getElementById("AM_COUNTYLINE");
         if (amCountyLineCheck) {
             if (isDisabledNow)
                 amCountyLineCheck.checked = false;
             amCountyLineCheck.disabled = isDisabledNow;
+
+        var multiPageCheck = document.getElementById("NAMED_MULTI_REGION");
+        if (multiPageCheck) {
+            if (isDisabledNow)
+                multiPageCheck.checked = false;
+            multiPageCheck.disabled = isDisabledNow;
+        }
     }
 }
 
@@ -496,6 +523,14 @@ function Next(document, linkto)
                 logRoverCheck.checked = true;
             }
         }
+        else {
+            var tqslRoverCheck = document.getElementById("TQSL_ROVER");
+            if (tqslRoverCheck)
+                tqslRoverCheck.checked = false;
+        }
+    }
+    
+    function OnTqslRoverClick(document, cb) {
     }
 
 </SCRIPT>
