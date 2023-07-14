@@ -1607,7 +1607,9 @@ void [!output MM_CLASS_NAME]::SetupAygDisplay(const char *title, IMultDisplayCon
                 m_AygDisplayEntry = pTemp;
             }
 		}
-	}
+        CComQIPtr<IMultDisplayPageOptions> opt = m_AygDisplay;
+        opt->put_Sort(1);
+    }
 }
 [!endif]
 

@@ -172,7 +172,7 @@ DECLARE_INTERFACE_(IWlogMulti2, IWlogMulti)
 	//Take the QSO being edited and a string, where does the
 	//the string best fit? return the value in Offset
 	STDMETHOD(WhatsTheBestField)(QsoPtr_t q, const char *s, short *Offset) PURE;
-	STDMETHOD(IsCharOKHere)(QsoPtr_t q, char c,	short Offset) PURE;
+	STDMETHOD(IsCharOKHere)(QsoPtr_t q, char c,	short Offset) PURE;	// S_OK, and only S_OK, means character is allowed for this field 
 };
 
 

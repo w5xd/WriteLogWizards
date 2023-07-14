@@ -43,6 +43,11 @@ DECLARE_INTERFACE_(IMultDisplayPage2, IMultDisplayPage)
     STDMETHOD(put_DefaultScrollMultPos)(short Mult) = 0;
 };
 
+DECLARE_INTERFACE_(IMultDisplayPageOptions, IUnknown)
+{
+    STDMETHOD(put_Sort)(unsigned short sort) = 0;
+};
+
 DECLARE_INTERFACE_(IMultDisplayEntry, IUnknown)
 {
     STDMETHOD(get_MultWorked)(short Mult, short band)=0;
@@ -56,5 +61,6 @@ DEFINE_WL_GUID(IMultDisplayContainer,"C7212133-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IMultDisplayPage,"C7212131-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IMultDisplayPage2,"C7212136-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IMultDisplayEntry,"C7212132-7716-101A-AA54-00608C61D0B1");
+DEFINE_WL_GUID(IMultDisplayPageOptions, "C7212101-7716-101A-AA54-00608C61D0B1");
 #endif
 #endif
