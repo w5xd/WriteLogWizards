@@ -113,7 +113,7 @@ public:
         auto itor = m_worked.find(band);
         if (itor == m_worked.end())
             return 0;
-        return itor->second.numWorked(band, m, region);
+        return itor->second.numWorked(m, band, region);
     }
     void clear() { m_worked.clear(); }
     unsigned total() const
