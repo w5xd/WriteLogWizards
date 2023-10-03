@@ -1,4 +1,5 @@
 #include <ole2.h>
+#include <string>
 #include "dxpref.h"
 #include "wlmuldsp.h"
 #include "MultDEnt.h"
@@ -305,6 +306,11 @@ void CDxccDispContainer::MakeDxccDisplays(IMultDisplayContainer *pDispCon,
 void CDxccDispContainer::InitializeEntry(
                                          const struct country_stru *cList)
 {
+    InitializeEntry(0, cList);
+}
+
+void CDxccDispContainer::InitializeEntry(const char* prefix, const country_stru*cList)
+{
     int i;
     for (i = 0; i < DIM(m_DxccDisplay); i += 1)	//DO go through MM continent
     {
@@ -312,9 +318,12 @@ void CDxccDispContainer::InitializeEntry(
         {
             if (!m_DxccDispEntry[i])
             {
-                m_DxccDisplay[i]->put_Title(Continents[i].FullName);
-                m_DxccDispEntry[i] = 
-						CreateEntry(cList, i);
+                std::string title = Continents[i].FullName;
+                if (prefix && *prefix)
+                    title = prefix + title;
+                m_DxccDisplay[i]->put_Title(title.c_str());
+                m_DxccDispEntry[i] =
+                    CreateEntry(cList, i);
             }
         }
     }
