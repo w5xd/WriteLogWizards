@@ -172,12 +172,17 @@ public:
         const char * operator =(const char *pSrc)
         {
             char *pDest = m_dest;
-            for (unsigned c = m_wid; c > 0; c -= 1)
-            {
+            bool terminated = (m_wid == 0);
+            for (int c = static_cast<int>(m_wid)-1; c > 0; c -= 1)
+            {   //one fewer assignments than m_wid
                 if (!(*pDest++ = *pSrc++))
+                {
+                    terminated = true;
                     break; // stop at null
-                *pDest = 0; // ensure trailing null
+                }
             }
+            if (!terminated)
+                *pDest = 0;
             return m_dest;
         }
 
