@@ -1680,7 +1680,7 @@ HRESULT [!output MM_CLASS_NAME]::Score( // not a good name anymore. "ParameterSe
 HRESULT [!output MM_CLASS_NAME]::GetModuleData(long * Data)
 {
 // MODULE_DATA_SCORE   Enables WriteLog's Contest/Parameter-Setup menu item.
-// MODULE_DATA_NOBSM   WriteLog has first column QSO count in its bandsummary UNLESS module sets this in GetModuleData
+// MODULE_DATA_NOBSM   Without this flag, WriteLog does both: (a) sets first column QSO count and (b) creates per-band rows if g_Bands has only one entry
     *Data =
 [!if MULTI_MODE]
 		MODULE_DATA_NOBSM |
