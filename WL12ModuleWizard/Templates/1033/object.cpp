@@ -356,6 +356,9 @@ void [!output MM_CLASS_NAME]::FinalRelease()
     m_AygDisplayEntry.Release();
     m_AygDisplay.Release();
 [!endif]
+[!if !NO_NAMEDMULT || !NO_DXCC || !NO_ZONE || !NO_AYGMULT]
+    m_MultDispContainer.Release();
+[!endif]
 }
 
 // IWlogMulti Methods
@@ -1404,68 +1407,71 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 */
 [!if !NO_NAMEDMULT||!NO_DXCC||!NO_ZONE||!NO_AYGMULT]
     if (!m_MultDispContainer)
+    {
         m_MultDispContainer.CoCreateInstance(
             L"writelog.multdisp", 0, CLSCTX_ALL);
 
-    if (m_MultDispContainer)
-	{
+        if (m_MultDispContainer)
+	    {
 [!if !NO_NAMEDMULT]
-        for (short region = 0; region < NUMBER_OF_REGIONS; region += 1)
-        {
-            SetupNamedDisplay(region, PageTitles[region], m_MultDispContainer,
-                m_namedMults[region].m_pNamedMults,
+            for (short region = 0; region < NUMBER_OF_REGIONS; region += 1)
+            {
+                SetupNamedDisplay(region, PageTitles[region], m_MultDispContainer,
+                    m_namedMults[region].m_pNamedMults,
 [!if NAMEDMULT_MULTI_BAND]
-                NumberOfMultBands()
-[!endif]
-[!if NAMEDMULT_SINGLE_BAND]
-                1
-[!endif]
-            );
-        }
-[!endif]
-
-[!if !NO_DXCC]
-        m_DxccContainer.MakeDxccDisplays(m_MultDispContainer, 
-[!if DXCC_MULTI_BAND]
-												1,
-[!endif]
-[!if DXCC_SINGLE_BAND]
-												0,
-[!endif]
-												0);
-[!endif] 
-[!if !NO_ZONE]
-        SetupZoneDisplay("TODO", m_MultDispContainer,
-[!if ZONE_MULTI_BAND]
-								NumberOfMultBands()
-[!endif]
-[!if ZONE_SINGLE_BAND]
-								1
-[!endif]
-                                );
-[!endif]
-[!if !NO_AYGMULT]
-        SetupAygDisplay("TODO", m_MultDispContainer,
-[!if AYGMULT_MULTI_BAND]
                     NumberOfMultBands()
 [!endif]
-[!if AYGMULT_SINGLE_BAND]
+[!if NAMEDMULT_SINGLE_BAND]
                     1
 [!endif]
-                    );
+                );
+            }
 [!endif]
 
 [!if !NO_DXCC]
-        m_DxccContainer.InitializeEntry(m_DxContext.cList());
+            m_DxccContainer.MakeDxccDisplays(m_MultDispContainer, 
 [!if DXCC_MULTI_BAND]
-        m_DxccContainer.SetMults(this, NumberOfMultBands());	
+												    1,
 [!endif]
 [!if DXCC_SINGLE_BAND]
-        m_DxccContainer.SetMults(this);	
+												    0,
 [!endif]
+												    0);
+[!endif] 
+[!if !NO_ZONE]
+            SetupZoneDisplay("TODO", m_MultDispContainer,
+[!if ZONE_MULTI_BAND]
+								    NumberOfMultBands()
 [!endif]
-        m_MultDispContainer->ShowCurrent();
+[!if ZONE_SINGLE_BAND]
+								    1
+[!endif]
+                                    );
+[!endif]
+[!if !NO_AYGMULT]
+            SetupAygDisplay("TODO", m_MultDispContainer,
+[!if AYGMULT_MULTI_BAND]
+                        NumberOfMultBands()
+[!endif]
+[!if AYGMULT_SINGLE_BAND]
+                        1
+[!endif]
+                        );
+[!endif]
+
+[!if !NO_DXCC]
+            m_DxccContainer.InitializeEntry(m_DxContext.cList());
+[!if DXCC_MULTI_BAND]
+            m_DxccContainer.SetMults(this, NumberOfMultBands());	
+[!endif]
+[!if DXCC_SINGLE_BAND]
+            m_DxccContainer.SetMults(this);	
+[!endif]
+        }
+[!endif]
     }
+    if (m_MultDispContainer)
+        m_MultDispContainer->ShowCurrent();
 [!endif]
     return S_OK;
 }

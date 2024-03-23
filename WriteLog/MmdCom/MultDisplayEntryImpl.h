@@ -215,7 +215,9 @@ public:
     HRESULT FinalConstruct() {
         return S_OK;
     }
-    void FinalRelease() {    }
+    void FinalRelease() {  
+        m_NamedMult.Release();
+    }
 
     void Init(
         IWlNamedMult* States,
@@ -253,7 +255,7 @@ public:
 
 protected:
     T* m_Module;
-    IWlNamedMult* m_NamedMult;
+    CComPtr<IWlNamedMult> m_NamedMult;
 };
 
 template <class T, int ID>
