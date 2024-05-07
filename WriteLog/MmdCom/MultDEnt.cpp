@@ -296,7 +296,8 @@ void CDxccDispContainer::MakeDxccDisplays(IMultDisplayContainer *pDispCon,
 		//go through MM continent under caller control
     for (i = 0; i < (NUM_CONTINENTS + IncludeMM); i += 1)
     {
-        pDispCon->MakeDisplay(MultiBand, FixedColumns,
+        if (!m_DxccDisplay[i])
+        	pDispCon->MakeDisplay(MultiBand, FixedColumns,
                         __uuidof(IMultDisplayPage),
                         (IUnknown **) &m_DxccDisplay[i]);
     }
