@@ -41,6 +41,9 @@ class ATL_NO_VTABLE [!output MM_CLASS_NAME] :
     , public IWlogScoreInfo
 [!if CABRILLO]
     , public IWlogCabrillo
+[!if MULTIPLE_NAMED_IN_QSO && !NO_NAMEDMULT]
+    , public IWlogCabrillo2
+[!endif]
 [!endif]
 [!if TQSL_ROVER]
     , public IWlogTQslQsoLocation
@@ -66,6 +69,9 @@ public:
         COM_INTERFACE_ENTRY(IWlogScoreInfo)
 [!if CABRILLO]
         COM_INTERFACE_ENTRY(IWlogCabrillo)
+[!if MULTIPLE_NAMED_IN_QSO && !NO_NAMEDMULT]
+        COM_INTERFACE_ENTRY(IWlogCabrillo2)
+[!endif]
 [!endif]
 [!if TQSL_ROVER]
         COM_INTERFACE_ENTRY(IWlogTQslQsoLocation)
@@ -147,7 +153,11 @@ public:
     STDMETHOD(FormatTxField)(QsoPtr_t q, short Field, char * Buf);
     STDMETHOD(GetRxFieldCount)(short * pCount);
     STDMETHOD(FormatRxField)(QsoPtr_t q, short Field, char * Buf);
-
+[!if MULTIPLE_NAMED_IN_QSO && !NO_NAMEDMULT]
+// IWlogCabrillo2 Methods
+    STDMETHOD(LinesForQSO)(QsoPtr_t q, short* pLines);
+    STDMETHOD(SetCurrentLineNumber)(short LineNo);
+[!endif]
 [!endif]
 [!if TQSL_ROVER]
     // IWlogTQslQsoLocation
@@ -162,7 +172,7 @@ public:
 [!if NAMED_MULTI_REGION]
     enum { REGION_NAME_FIXME1, REGION_NAME_FIXME2, NUMBER_OF_REGIONS };
 [!else]
-    enum { NUMBER_OF_REGIONS = 1 };
+    enum { REGION_NAME_FIXME1, NUMBER_OF_REGIONS = 1 };
 [!endif]
 [!endif]
 [!if !NO_NAMEDMULT || !NO_DXCC || !NO_ZONE || !NO_AYGMULT]
@@ -385,7 +395,23 @@ enum {	// identical rules, but different modes on different weekends
 [!else]
     std::vector<NamedMultsPage> m_namedMults;
 [!endif]
-    int FindNamed(short region, const char *c);
+[!if MULTIPLE_NAMED_IN_QSO]
+    typedef std::set<short> Named_t;
+[!else]
+    typedef int Named_t;
+[!endif]
+    Named_t FindNamed(short region, const char *c);
+    bool validNamed(short region, const Named_t &);
+[!if MULTIPLE_NAMED_IN_QSO && CABRILLO]
+
+    short                           m_Cabrillo2LineNumber;
+[!if MULTIPLE_NAMED_IN_QSO_TX]
+    Named_t                         m_Cabrillo2Mine;
+    Named_t::const_iterator         m_Cabrillo2MineItor;
+[!endif]
+    Named_t                         m_Cabrillo2His;
+    Named_t::const_iterator         m_Cabrillo2HisItor;
+[!endif]
     // end named
 
 [!endif]

@@ -1,15 +1,15 @@
 <HTML DIR="LTR">
 
 <HEAD>
-	<TITLE>'WL12ModuleWizard'</TITLE>
-	<META NAME="vs_targetSchema" CONTENT="http://schemas.microsoft.com/intellisense/ie5">
-	<LINK ID="LINKURL" REL="stylesheet" HREF="../../1033/NewStyles.css">
+    <TITLE>'WL12ModuleWizard'</TITLE>
+    <META NAME="vs_targetSchema" CONTENT="http://schemas.microsoft.com/intellisense/ie5">
+    <LINK ID="LINKURL" REL="stylesheet" HREF="../../1033/NewStyles.css">
 
-	<!--  -->
-	<!-- The SYMBOL tag is used to set the default values for the user-defined symbols.-->
-	<!--  -->
+    <!--  -->
+    <!-- The SYMBOL tag is used to set the default values for the user-defined symbols.-->
+    <!--  -->
 
-	<SYMBOL NAME='WIZARD_DIALOG_TITLE' TYPE=text VALUE='WL12ModuleWizard'></SYMBOL>
+    <SYMBOL NAME='WIZARD_DIALOG_TITLE' TYPE=text VALUE='WL12ModuleWizard'></SYMBOL>
     <symbol name='CABRILLO' type="checkbox" value="false"></symbol>
     <symbol name='RTTY' type="checkbox" value="false"></symbol>
     <symbol name='CABRILLO' type="checkbox" value="false"></symbol>
@@ -31,6 +31,8 @@
     <symbol name='NO_NAMEDMULT' type="checkbox" value="true"></symbol>
     <symbol name='NAMEDMULT_SINGLE_BAND' type="checkbox" value="false"></symbol>
     <symbol name='NAMEDMULT_MULTI_BAND' type="checkbox" value="false"></symbol>
+    <symbol name='MULTIPLE_NAMED_IN_QSO' type="checkbox" value="false"></symbol>
+    <symbol name='MULTIPLE_NAMED_IN_QSO_TX' type="checkbox" value="false"></symbol>
 
     <symbol name='NO_ZONE' type="checkbox" value="true"></symbol>
     <symbol name='ZONE_SINGLE_BAND' type="checkbox" value="false"></symbol>
@@ -39,371 +41,378 @@
     <symbol name='NO_AYGMULT' type="checkbox" value="true"></symbol>
     <symbol name='AYGMULT_SINGLE_BAND' type="checkbox" value="false"></symbol>
     <symbol name='AYGMULT_MULTI_BAND' type="checkbox" value="false"></symbol>
-    
+
     <SYMBOL NAME='SOURCE_FILTER' TYPE=text VALUE='txt'></SYMBOL>
-	<SYMBOL NAME='APP_TYPE_SUMMARY' TYPE=text VALUE='//TODO: Application summary'></SYMBOL>
+    <SYMBOL NAME='APP_TYPE_SUMMARY' TYPE=text VALUE='//TODO: Application summary'></SYMBOL>
+    <style type="text/css">
+        .auto-style2 {
+            height: 124px;
+        }
+    </style>
 </HEAD>
 
 <BODY BGCOLOR="BUTTONFACE" TOPMARGIN="0" LEFTMARGIN="0" RIGHTMARGIN="0" BOTTOMMARGIN="0" ONLOAD="InitDocument(document);" ONKEYDOWN="OnKey();" ONKEYPRESS="OnPress();">
 
-<TABLE CLASS="ONE" HEIGHT="100%" WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+    <TABLE CLASS="ONE" HEIGHT="100%" WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0">
 
-<COL WIDTH="100%">
+        <COL WIDTH="100%">
 
-  <!--OPEN OF INTRODUCTORY INFORMATION TABLE//-->
-  <TR VALIGN="TOP">
-	<TD HEIGHT="79" WIDTH="100%" COLSPAN="2">
-	 <TABLE CLASS="TWO" BORDER="0" CELLPADDING="0" CELLSPACING="0">
-	 <COL WIDTH="12"><COL><COL WIDTH="12">
-	  <TR>
-	   <TD VALIGN="TOP" HEIGHT="12" WIDTH="12">&nbsp;</TD>
-  
-	   <TD VALIGN="TOP" HEIGHT="12">&nbsp;</TD>
-  
-	   <TD VALIGN="TOP" HEIGHT="12" WIDTH="12">&nbsp;</TD>
-  
-	   <TD CLASS="IMAGE" VALIGN="BOTTOM" WIDTH="110" ROWSPAN="2">
-		<DIV CLASS="SMALLA" ID="Layer0">
-		 <IMG CLASS="SMALLEST" SRC="../../Images/WL12ModuleWizard.gif" WIDTH="63" HEIGHT="63" ALT="" BORDER="0">
-		</DIV>
-	   </TD>
-
-	   <TD VALIGN="TOP" HEIGHT="12" WIDTH="6" ROWSPAN="2">&nbsp;</TD>
-	  </TR>
-	 
-	  <TR>
-	   <TD VALIGN="TOP" HEIGHT="65" WIDTH="12">&nbsp;</TD>
-	  
-	   <TD VALIGN="TOP" HEIGHT="65">
-		<H4 CLASS="HEAD" ID="HEAD">WriteLog Contest Module Wizard V12</H4>
-		<P CLASS="SUBHEAD" ID="SUBHEAD">Add WriteLog V12 module to a project</P>
-	   </TD>
-	  
-	   <TD VALIGN="TOP" HEIGHT="65" WIDTH="12">&nbsp;</TD>
-	  </TR>
-	 
-	  <TR>
-	   <TD VALIGN="TOP" CLASS="RULE" COLSPAN="5" HEIGHT="2">
-		<TABLE BORDER="0" WIDTH="100%" HEIGHT="1" CELLPADDING="0" CELLSPACING="0">
-	  	 <TR VALIGN="TOP">
-	  	  <TD HEIGHT="1" WIDTH="100%" BGCOLOR="BUTTONSHADOW"><IMG SRC="../../Images/spacer.gif" HEIGHT="1" WIDTH="1" ALT=""></TD>
-	  	  <TD HEIGHT="1" WIDTH="1" BGCOLOR="WINDOW"><IMG SRC="../../Images/spacer.gif" HEIGHT="1" WIDTH="1" ALT=""></TD>
-	  	 </TR>
-		</TABLE>
-	   </TD>
-	  </TR>
-	 </TABLE>
-	</TD>
-  </TR>
-  <!--CLOSE OF INTRODUCTORY INFORMATION TABLE//-->
-
-  <!--OPEN OF NAVIGATION, CONTENT, AND BUTTON TABLES//-->
-  <TR VALIGN="TOP">
-  
-	   <TD VALIGN="TOP" HEIGHT="100%">
-	   <!--OPEN OF CONTENT AND BUTTON TABLE//-->
-	   
-	   	<TABLE CLASS="ONE" BORDER="0" CELLPADDING="0" CELLSPACING="0">
-		<COL WIDTH="100%">
-		 <TR VALIGN="TOP">
-		  <TD HEIGHT="100%">
-	   	  <!--OPEN OF CONTENT//-->
-		  
-          <table class="CONTENT" border="0" cellpadding="0" cellspacing="0">
-              <col width="12"><col width="100"><col width="12"><col width="100"><col width="12"><col width="100"><col width="12"><col width="100">
-              <col width="12"><col width="100"><col width="12"><col width="100"><col width="12" />
-              <tr>
-                  <td></td>
-                  <td valign="TOP" colspan="9" height='18'>
-                      Select the options for the contest. Click Finish, and a new class will be added to your project.
-                  </td>
-              </tr>
-              <tr valign="TOP">
-                  <td valign="TOP" >&nbsp;</td>
-                  <td valign="TOP" colspan="3">
-                      <span class="itemTextTop">
-                          <input class="CheckBox" type="checkbox" id="RTTY" title="RTTY check box.">
-                          <div class="itemTextCheckboxA">
-                              <label for="RTTY" id="AUT_ID">Rtty Support</label>
-                          </div>
-                      </span>
-                      <br>
-                      <span class="itemText">
-                          <input class="CheckBox" type="checkbox" id="CABRILLO">
-                          <div class="itemTextCheckboxA">
-                              <label for="CABRILLO" id="LABEL1">Cabrillo Support</label>
-                          </div>
-                      </span>
-                      <br>
-                      <span class="itemText">
-                          <input class="CheckBox" type="checkbox" id="NR_IN_EXCHANGE">
-                          <div class="itemTextCheckboxA">
-                              <label for="NR_IN_EXCHANGE" id="LABEL5">NR in exchange</label>
-                          </div>
-                      </span>
-                  </td>
-                  <td valign="TOP" >&nbsp;</td>
-                  <td valign="TOP" colspan='3'>
-                      <span class="itemTextTop">
-                          <input class="CheckBox" type="checkbox" id="PTS_COLUMN">
-                          <div class="itemTextCheckboxA">
-                              <label for="PTS_COLUMN" id="AUT_IDx5">Pts column</label>
-                          </div>
-                      </span>
-                      <br>
-                      <span class="itemText">
-                          <input class="CheckBox" type="checkbox" id="RST_IN_EXCHANGE">
-                          <div class="itemTextCheckboxA">
-                              <label for="RST_IN_EXCHANGE" id="LABEL2">RST in exchange</label>
-                          </div>
-                      </span>
-                  </td>
-                  <td valign="TOP" >&nbsp;</td>
-                  <td valign="TOP" colspan='4'>
-                      <span class="itemTextTop">
-                          Mode support:
-                          <p class="Spacer">&nbsp;</p>
-                          <input type="radio" class="Radio" name="radioGroupMode" id="SINGLE_MODE">
-                          <div class="itemTextRadioB">
-                              <label for="SINGLE_MODE">Single compiled-in mode</label>
-                          </div>
-                          <br>
-                          <input type="radio" class="Radio" name="radioGroupMode" id="ASK_MODE">
-                          <div class="itemTextRadioB">
-                              <label for="ASK_MODE" id="LABEL3">Ask at startup for single mode</label>
-                          </div>
-                          <br>
-                          <input type="radio" class="Radio" name="radioGroupMode" id="MULTI_MODE">
-                          <div class="itemTextRadioB">
-                              <label for="MULTI_MODE">Work multiple modes on each band</label>
-                          </div>
-                      </span>
-                  </td>
-                </tr>
-              <tr> <td valign="TOP" height='12' colspan="7">   &nbsp;  </td>   </tr>
-              <tr valign="TOP">
-                  <td>&nbsp;</td>
-                  <td valign="TOP" colspan='3'>
-                      <br />
-                      <span class="itemTextTop">
-                          DXCC:
-                          <p class="Spacer">&nbsp;</p>
-                          <input type="radio" class="Radio" name="radioGroup1" id="NO_DXCC">
-                          <div class="itemTextRadioB" id="AUT_ID1">
-                              <label for="NO_DXCC" id="AUT_ID2">None</label>
-                          </div>
-                          <br>
-                          <input type="radio" class="Radio" name="radioGroup1" id="DXCC_SINGLE_BAND">
-                          <div class="itemTextRadioB" id="AUT_ID3">
-                              <label for="DXCC_SINGLE_BAND" id="AUT_ID4">Yes</label>
-                          </div>
-                          <br>
-                          <input type="radio" class="Radio" name="radioGroup1" id="DXCC_MULTI_BAND">
-                          <div class="itemTextRadioB" id="AUT_IDx3">
-                              <label for="DXCC_MULTI_BAND" id="AUT_IDx4">By Band</label>
-                          </div>
-                      </span>
-                  </td>
-                  <td>   &nbsp;    </td>
-                  <td valign="TOP" colspan='3'>
-                      <br />
-                      <span class="itemTextTop">
-                          Mults as you go:
-                          <p class="Spacer">&nbsp;</p>
-                          <input type="radio" class="Radio" name="radioGroup3" id="NO_AYGMULT" onclick='OnNoAygMult(document);'>
-                          <div class="itemTextRadioB" id="DIV4">
-                              <label for="NO_AYGMULT" id="LABEL9">None</label>
-                          </div>
-                          <br>
-                          <input type="radio" class="Radio" name="radioGroup3" id="AYGMULT_SINGLE_BAND" onclick='OnAygMult(document);'>
-                          <div class="itemTextRadioB" id="DIV5">
-                              <label for="AYGMULT_SINGLE_BAND" id="LABEL10">Yes</label>
-                          </div>
-                          <br>
-                          <input type="radio" class="Radio" name="radioGroup3" id="AYGMULT_MULTI_BAND" onclick='OnAygMult(document);'>
-                          <div class="itemTextRadioB" id="DIV6">
-                              <label for="AYGMULT_MULTI_BAND" id="LABEL11">By Band</label>
-                          </div>
-                      </span>
-                  </td>
-                  <td valign="TOP" >&nbsp;</td>
-                  <td valign="TOP" colspan='4'>
-                      <br />
-                      <span class="itemText">
-                          Zones:
-                          <p class="Spacer">&nbsp;</p>
-                          <input type="radio" class="Radio" name="radioGroup2" id="NO_ZONE">
-                          <div class="itemTextRadioB" id="DIV1">
-                              <label for="NO_ZONE">None</label>
-                          </div>
-                          <br>
-                          <input type="radio" class="Radio" name="radioGroup2" id="ZONE_SINGLE_BAND">
-                          <div class="itemTextRadioB" id="DIV2">
-                              <label for="ZONE_SINGLE_BAND">Yes</label>
-                          </div>
-                          <br>
-                          <input type="radio" class="Radio" name="radioGroup2" id="ZONE_MULTI_BAND">
-                          <div class="itemTextRadioB" id="DIV3">
-                              <label for="ZONE_MULTI_BAND">By Band</label>
-                          </div>
-                      </span>
-
-                  </td>
-              </tr>
-              <tr> <td valign="TOP" height='18' colspan="7">   &nbsp;  </td>   </tr>
-
-              <tr valign="TOP">
-                  <td>&nbsp;</td>
-                  <td valign="TOP" colspan='3'>
-                      <span class="itemText">
-                          Named Mults:
-                          <p class="Spacer">      &nbsp;</p>
-                          <input type="radio" class="Radio" name="radioGroup4" id="NO_NAMEDMULT" onclick='OnNoNamedMult(document);'>
-                          <div class="itemTextRadioB" id="DIV7">
-                              <label for="NO_NAMEDMULT" id="LABEL12">None</label>
-                          </div>
-                          <br>
-                          <input type="radio" class="Radio" name="radioGroup4" id="NAMEDMULT_SINGLE_BAND" onclick="OnNamedMult(document);">
-                          <div class="itemTextRadioB" id="DIV8">
-                              <label for="NAMEDMULT_SINGLE_BAND" id="LABEL13">Yes</label>
-                          </div>
-                          <br>
-                          <input type="radio" class="Radio" name="radioGroup4" id="NAMEDMULT_MULTI_BAND" onclick="OnNamedMult(document);">
-                          <div class="itemTextRadioB" id="DIV9">
-                              <label for="NAMEDMULT_MULTI_BAND" id="LABEL14">By Band</label>
-                          </div>
-                          <br>
-                          <span class="itemText">
-                              <input class="CheckBox" type="checkbox" id="NAMED_MULTI_REGION"  >
-                              <div class="itemTextCheckboxA">
-                                  <label for="NAMED_MULTI_REGION">Multiple named mult pages</label>
-                              </div>
-                          </span>
-                      </span>                      
-                  </td>
-                    <td valign="TOP" colspan='3'>
-                          <span class="itemText">
-                              Roving stations:
-                            <p class="Spacer">      &nbsp;</p>
-                              <input class="CheckBox" type="checkbox" id="CAN_LOG_ROVER"  >
-                              <div class="itemTextCheckboxA">
-                                  <label for="CAN_LOG_ROVER" id="LABEL8">Dupe received as Rover</label>
-                              </div>
-                          </span>
-                          <br>
-                          <span class="itemText">
-                              <input class="CheckBox" type="checkbox" id="AM_ROVER" onclick='OnAmRoverClick(document, this);' >
-                              <div class="itemTextCheckboxA">
-                                  <label for="AM_ROVER" id="LABEL6">Can be Rover</label>
-                              </div>
-                          </span>
-                          <br>
-                          <span class="itemText">
-                              <input class="CheckBox" type="checkbox" id="TQSL_ROVER" onclick='OnTqslRoverClick(document, this);' >
-                              <div class="itemTextCheckboxA">
-                                  <label for="TQSL_ROVER" >TQSL Rover support</label>
-                              </div>
-                          </span>
-                          <br>
-                          <span class="itemText">
-                              <input class="CheckBox" type="checkbox" id="AM_COUNTYLINE"  onclick='OnAmCountyLineClick(document, this);'>
-                              <div class="itemTextCheckboxA">
-                                  <label for="AM_COUNTYLINE" id="LABEL7">Automate county line</label>
-                              </div>
-                          </span>
-                        </td>
-              </tr>
-
-              <tr> <td valign="TOP" height='18' colspan="11">   &nbsp;    </td>  </tr>
-              <tr valign="TOP">
-                  <td>&nbsp;</td>
-                  <td valign="TOP" colspan='10'>
-                      <br/>
-                      <span class="itemText">
-                          <label for="CONTEST_NAME" id="LABEL15">Contest Display Name:</label>
-                          <input type="text" id="CONTEST_NAME">
-                      </span>
-                      <span class="itemText">
-                          <label for="MM_CLASS_NAME">Class Name:</label>
-                          <input type="text" id="MM_CLASS_NAME">
-                      </span>
-                  </td>
-              </tr>
-              <tr>
-                  <td valign="TOP" height="100%" colspan="7">&nbsp;</td>
-              </tr>
-          </table>
-
-			
-	   	  <!--CLOSE OF CONTENT//-->
-		  </TD>
-		 </TR>
-		 <TR VALIGN="BOTTOM">
-		  <TD>
-	   	  <!--OPEN OF BUTTON HTML//-->
-		  
-		  	<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
-			<COL WIDTH="12"><COL><COL WIDTH="75"><COL WIDTH="4"><COL WIDTH="75"><COL WIDTH="4"><COL WIDTH="75"><COL WIDTH="12">
-			 <TR>
-  			  <TD VALIGN="TOP" CLASS="RULE" COLSPAN="8" HEIGHT="2">
-				<TABLE BORDER="0" WIDTH="100%" HEIGHT="1" CELLPADDING="0" CELLSPACING="0">
-  	 			 <TR VALIGN="TOP">
-  	  			  <TD HEIGHT="1" WIDTH="100%" BGCOLOR="BUTTONSHADOW"><IMG SRC="../../Images/spacer.gif" HEIGHT="1" WIDTH="1" ALT=""></TD>
-  	  			  <TD HEIGHT="1" WIDTH="1" BGCOLOR="WINDOW"><IMG SRC="../../Images/spacer.gif" HEIGHT="1" WIDTH="1" ALT=""></TD>
-  	 			 </TR>
-				</TABLE>
-  			  </TD>
- 			  </TR>
+        <!--OPEN OF INTRODUCTORY INFORMATION TABLE//-->
+        <TR VALIGN="TOP">
+            <TD HEIGHT="40" WIDTH="100%" COLSPAN="2">
+                <TABLE CLASS="TWO" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+                    <COL WIDTH="12">
+                    <COL>
+                    <COL WIDTH="12">
  
- 			  <TR>
-  			  <TD VALIGN="TOP" HEIGHT="11" COLSPAN="8">
-  				&nbsp;
-  			  </TD>
- 			 </TR>
- 
- 			<TR>
-  			  <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="12">
-  				&nbsp;
-  			  </TD>
-  			  <TD VALIGN="TOP" HEIGHT="23">
-  				&nbsp;
-  			  </TD>
-  			  <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="75">
-  				<BUTTON CLASS="BUTTONS" ID="FinishBtn" ACCESSKEY="F" onClick="OnFinish(document);"><U>F</U>inish</BUTTON>
-  			  </TD>
-  			  <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="4">
-  				&nbsp;
-  			  </TD>
-  			  <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="75">
-  				<BUTTON CLASS="BUTTONS" ID="CancelBtn" ACCESSKEY="C" onClick="window.external.Finish(document, 'cancel');"><U>C</U>ancel</BUTTON>
-  			  </TD>
-  			  <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="4">
-  				&nbsp;
-  			  </TD>
-  			  <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="75">
-  				<BUTTON CLASS="BUTTONS" ID="HelpBtn" ACCESSKEY="H" onClick="window.external.OnHelp('vc.appwiz.custom.overview');"><U>H</U>elp</BUTTON>
-  			  </TD>
-  			  <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="12">
-  				&nbsp;
-  			  </TD>
- 			 </TR>
- 
- 			 <TR>
-  			  <TD VALIGN="TOP" HEIGHT="12" COLSPAN="8">
-  				&nbsp;
-  			  </TD>
- 			 </TR>
-			</TABLE>
-			
-	   	  <!--CLOSE OF BUTTON HTML//-->
-		  </TD>
-		 </TR>
-		</TABLE>
-	
-  	<!--CLOSE OF NAVIGATION, CONTENT, AND BUTTON TABLES//-->
- 	</TD>
-  </TR>
-</TABLE>
+                    <TR>
+                        <TD VALIGN="TOP" HEIGHT="30" WIDTH="12">&nbsp;</TD>
+
+                        <TD VALIGN="TOP" HEIGHT="65">
+                            <H4 CLASS="HEAD" ID="HEAD">WriteLog Contest Module Wizard V12</H4>
+                            <P CLASS="SUBHEAD" ID="SUBHEAD">Add WriteLog V12 module to a project</P>
+                        </TD>
+
+                        <TD VALIGN="TOP" HEIGHT="65" WIDTH="12">&nbsp;</TD>
+                    </TR>
+
+                 </TABLE>
+            </TD>
+        </TR>
+        <!--CLOSE OF INTRODUCTORY INFORMATION TABLE//-->
+        <!--OPEN OF NAVIGATION, CONTENT, AND BUTTON TABLES//-->
+        <TR VALIGN="TOP">
+
+            <TD VALIGN="TOP" HEIGHT="100%">
+                <!--OPEN OF CONTENT AND BUTTON TABLE//-->
+
+                <TABLE CLASS="ONE" BORDER="0" CELLPADDING="0" CELLSPACING="0">
+                    <COL WIDTH="100%">
+                    <TR VALIGN="TOP">
+                        <TD HEIGHT="100%">
+                            <!--OPEN OF CONTENT//-->
+
+                            <table class="CONTENT" border="0" cellpadding="0" cellspacing="0">
+                                <col width="12">
+                                <col width="100">
+                                <col width="12">
+                                <col width="100">
+                                <col width="12">
+                                <col width="100">
+                                <col width="12">
+                                <col width="100">
+                                <col width="12">
+                                <col width="100">
+                                <col width="12">
+                                <col width="100">
+                                <col width="12" />
+                                <tr>
+                                    <td></td>
+                                    <td valign="TOP" colspan="9" height='18'>
+                                        Select the options for the contest. Click Finish, and a new class will be added to your project.
+                                    </td>
+                                </tr>
+                                <tr valign="TOP">
+                                    <td valign="TOP">&nbsp;</td>
+                                    <td valign="TOP" colspan="3">
+                                        <span class="itemTextTop">
+                                            <input class="CheckBox" type="checkbox" id="RTTY" title="RTTY check box.">
+                                            <div class="itemTextCheckboxA">
+                                                <label for="RTTY" id="AUT_ID">Rtty Support</label>
+                                            </div>
+                                        </span>
+                                        <br>
+                                        <span class="itemText">
+                                            <input class="CheckBox" type="checkbox" id="CABRILLO">
+                                            <div class="itemTextCheckboxA">
+                                                <label for="CABRILLO" id="LABEL1">Cabrillo Support</label>
+                                            </div>
+                                        </span>
+                                        <br>
+                                        <span class="itemText">
+                                            <input class="CheckBox" type="checkbox" id="NR_IN_EXCHANGE">
+                                            <div class="itemTextCheckboxA">
+                                                <label for="NR_IN_EXCHANGE" id="LABEL5">NR in exchange</label>
+                                            </div>
+                                        </span>
+                                    </td>
+                                    <td valign="TOP">&nbsp;</td>
+                                    <td valign="TOP" colspan='3'>
+                                        <span class="itemTextTop">
+                                            <input class="CheckBox" type="checkbox" id="PTS_COLUMN">
+                                            <div class="itemTextCheckboxA">
+                                                <label for="PTS_COLUMN" id="AUT_IDx5">Pts column</label>
+                                            </div>
+                                        </span>
+                                        <br>
+                                        <span class="itemText">
+                                            <input class="CheckBox" type="checkbox" id="RST_IN_EXCHANGE">
+                                            <div class="itemTextCheckboxA">
+                                                <label for="RST_IN_EXCHANGE" id="LABEL2">RST in exchange</label>
+                                            </div>
+                                        </span>
+                                    </td>
+                                    <td valign="TOP">&nbsp;</td>
+                                    <td valign="TOP" colspan='4'>
+                                        <span class="itemTextTop">
+                                            Mode support:
+                                            <p class="Spacer">&nbsp;</p>
+                                            <input type="radio" class="Radio" name="radioGroupMode" id="SINGLE_MODE">
+                                            <div class="itemTextRadioB">
+                                                <label for="SINGLE_MODE">Single compiled-in mode</label>
+                                            </div>
+                                            <br>
+                                            <input type="radio" class="Radio" name="radioGroupMode" id="ASK_MODE">
+                                            <div class="itemTextRadioB">
+                                                <label for="ASK_MODE" id="LABEL3">Ask at startup for single mode</label>
+                                            </div>
+                                            <br>
+                                            <input type="radio" class="Radio" name="radioGroupMode" id="MULTI_MODE">
+                                            <div class="itemTextRadioB">
+                                                <label for="MULTI_MODE">Work multiple modes on each band</label>
+                                            </div>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr> <td valign="TOP" height='5' colspan="7">   &nbsp;  </td>   </tr>
+                                <tr valign="TOP">
+                                    <td class="auto-style2"></td>
+                                    <td valign="TOP" colspan='3' class="auto-style2">
+                                        <br />
+                                        <span class="itemTextTop">
+                                            DXCC:
+                                            <p class="Spacer">&nbsp;</p>
+                                            <input type="radio" class="Radio" name="radioGroup1" id="NO_DXCC">
+                                            <div class="itemTextRadioB" id="AUT_ID1">
+                                                <label for="NO_DXCC" id="AUT_ID2">None</label>
+                                            </div>
+                                            <br>
+                                            <input type="radio" class="Radio" name="radioGroup1" id="DXCC_SINGLE_BAND">
+                                            <div class="itemTextRadioB" id="AUT_ID3">
+                                                <label for="DXCC_SINGLE_BAND" id="AUT_ID4">Yes</label>
+                                            </div>
+                                            <br>
+                                            <input type="radio" class="Radio" name="radioGroup1" id="DXCC_MULTI_BAND">
+                                            <div class="itemTextRadioB" id="AUT_IDx3">
+                                                <label for="DXCC_MULTI_BAND" id="AUT_IDx4">By Band</label>
+                                            </div>
+                                        </span>
+                                    </td>
+                                    <td class="auto-style2">   &nbsp;    </td>
+                                    <td valign="TOP" colspan='3' class="auto-style2">
+                                        <br />
+                                        <span class="itemTextTop">
+                                            Mults as you go:
+                                            <p class="Spacer">&nbsp;</p>
+                                            <input type="radio" class="Radio" name="radioGroup3" id="NO_AYGMULT" onclick='OnNoAygMult(document);'>
+                                            <div class="itemTextRadioB" id="DIV4">
+                                                <label for="NO_AYGMULT" id="LABEL9">None</label>
+                                            </div>
+                                            <br>
+                                            <input type="radio" class="Radio" name="radioGroup3" id="AYGMULT_SINGLE_BAND" onclick='OnAygMult(document);'>
+                                            <div class="itemTextRadioB" id="DIV5">
+                                                <label for="AYGMULT_SINGLE_BAND" id="LABEL10">Yes</label>
+                                            </div>
+                                            <br>
+                                            <input type="radio" class="Radio" name="radioGroup3" id="AYGMULT_MULTI_BAND" onclick='OnAygMult(document);'>
+                                            <div class="itemTextRadioB" id="DIV6">
+                                                <label for="AYGMULT_MULTI_BAND" id="LABEL11">By Band</label>
+                                            </div>
+                                        </span>
+                                    </td>
+                                    <td valign="TOP" class="auto-style2"></td>
+                                    <td valign="TOP" colspan='4' class="auto-style2">
+                                        <br />
+                                        <span class="itemText">
+                                            Zones:
+                                            <p class="Spacer">&nbsp;</p>
+                                            <input type="radio" class="Radio" name="radioGroup2" id="NO_ZONE">
+                                            <div class="itemTextRadioB" id="DIV1">
+                                                <label for="NO_ZONE">None</label>
+                                            </div>
+                                            <br>
+                                            <input type="radio" class="Radio" name="radioGroup2" id="ZONE_SINGLE_BAND">
+                                            <div class="itemTextRadioB" id="DIV2">
+                                                <label for="ZONE_SINGLE_BAND">Yes</label>
+                                            </div>
+                                            <br>
+                                            <input type="radio" class="Radio" name="radioGroup2" id="ZONE_MULTI_BAND">
+                                            <div class="itemTextRadioB" id="DIV3">
+                                                <label for="ZONE_MULTI_BAND">By Band</label>
+                                            </div>
+                                        </span>
+
+                                    </td>
+                                </tr>
+                                <tr> <td valign="TOP" height='5' colspan="7">   &nbsp;  </td>   </tr>
+                                <tr valign="TOP">
+                                    <td>&nbsp;</td>
+                                    <td valign="TOP" colspan='3'>
+                                        <span class="itemText">
+                                            Named Mults:
+                                            <p class="Spacer">      &nbsp;</p>
+                                            <input type="radio" class="Radio" name="radioGroup4" id="NO_NAMEDMULT" onclick='OnNoNamedMult(document);'>
+                                            <div class="itemTextRadioB" id="DIV7">
+                                                <label for="NO_NAMEDMULT" id="LABEL12">None</label>
+                                            </div>
+                                            <br>
+                                            <input type="radio" class="Radio" name="radioGroup4" id="NAMEDMULT_SINGLE_BAND" onclick="OnNamedMult(document);">
+                                            <div class="itemTextRadioB" id="DIV8">
+                                                <label for="NAMEDMULT_SINGLE_BAND" id="LABEL13">Yes</label>
+                                            </div>
+                                            <br>
+                                            <input type="radio" class="Radio" name="radioGroup4" id="NAMEDMULT_MULTI_BAND" onclick="OnNamedMult(document);">
+                                            <div class="itemTextRadioB" id="DIV9">
+                                                <label for="NAMEDMULT_MULTI_BAND" id="LABEL14">By Band</label>
+                                            </div>
+                                            <br>
+                                            <span class="itemText">
+                                                <input class="CheckBox" type="checkbox" id="MULTIPLE_NAMED_IN_QSO" onclick="OnNamedMult(document);">
+                                                <div class="itemTextCheckboxA">
+                                                    <label for="MULTIPLE_NAMED_IN_QSO">Multiple named mults in a QSO entry</label>
+                                                </div>
+                                                <br>
+                                                <input class="CheckBox" type="checkbox" id="MULTIPLE_NAMED_IN_QSO_TX">
+                                                <div class="itemTextCheckboxA">
+                                                    <label for="MULTIPLE_NAMED_IN_QSO_TX">Multiple TX named mults in an entry</label>
+                                                </div>
+                                                <br>
+                                                <input class="CheckBox" type="checkbox" id="NAMED_MULTI_REGION">
+                                                <div class="itemTextCheckboxA">
+                                                    <label for="NAMED_MULTI_REGION">Multiple named mult pages</label>
+                                                </div>
+                                            </span>
+                                        </span>
+                                    </td>
+                                    <td valign="TOP" colspan='3'>
+                                        <span class="itemText">
+                                            Roving stations:
+                                            <p class="Spacer">      &nbsp;</p>
+                                            <input class="CheckBox" type="checkbox" id="CAN_LOG_ROVER">
+                                            <div class="itemTextCheckboxA">
+                                                <label for="CAN_LOG_ROVER" id="LABEL8">Dupe received as Rover</label>
+                                            </div>
+                                        </span>
+                                        <br>
+                                        <span class="itemText">
+                                            <input class="CheckBox" type="checkbox" id="AM_ROVER" onclick='OnAmRoverClick(document, this);'>
+                                            <div class="itemTextCheckboxA">
+                                                <label for="AM_ROVER" id="LABEL6">Can be Rover</label>
+                                            </div>
+                                        </span>
+                                        <br>
+                                        <span class="itemText">
+                                            <input class="CheckBox" type="checkbox" id="TQSL_ROVER" onclick='OnTqslRoverClick(document, this);'>
+                                            <div class="itemTextCheckboxA">
+                                                <label for="TQSL_ROVER">TQSL Rover support</label>
+                                            </div>
+                                        </span>
+                                        <br>
+                                        <span class="itemText">
+                                            <input class="CheckBox" type="checkbox" id="AM_COUNTYLINE" onclick='OnAmCountyLineClick(document, this);'>
+                                            <div class="itemTextCheckboxA">
+                                                <label for="AM_COUNTYLINE" id="LABEL7">Automate county line</label>
+                                            </div>
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr valign="TOP">
+                                    <td>&nbsp;</td>
+                                    <td valign="TOP" colspan='10'>
+                                        <br />
+                                        <span class="itemText">
+                                            <label for="CONTEST_NAME" id="LABEL15">Contest Display Name:</label>
+                                            <input type="text" id="CONTEST_NAME">
+                                        </span>
+                                        <span class="itemText">
+                                            <label for="MM_CLASS_NAME">Class Name:</label>
+                                            <input type="text" id="MM_CLASS_NAME">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td valign="TOP" height="100%" colspan="7">&nbsp;</td>
+                                </tr>
+                            </table>
+
+
+                            <!--CLOSE OF CONTENT//-->
+                        </TD>
+                    </TR>
+                    <TR VALIGN="BOTTOM">
+                        <TD>
+                            <!--OPEN OF BUTTON HTML//-->
+
+                            <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+                                <COL WIDTH="12">
+                                <COL>
+                                <COL WIDTH="75">
+                                <COL WIDTH="4">
+                                <COL WIDTH="75">
+                                <COL WIDTH="4">
+                                <COL WIDTH="75">
+                                <COL WIDTH="12">
+                                <TR>
+                                    <TD VALIGN="TOP" CLASS="RULE" COLSPAN="8" HEIGHT="2">
+                                        <TABLE BORDER="0" WIDTH="100%" HEIGHT="1" CELLPADDING="0" CELLSPACING="0">
+                                            <TR VALIGN="TOP">
+                                                <TD HEIGHT="1" WIDTH="100%" BGCOLOR="BUTTONSHADOW"><IMG SRC="../../Images/spacer.gif" HEIGHT="1" WIDTH="1" ALT=""></TD>
+                                                <TD HEIGHT="1" WIDTH="1" BGCOLOR="WINDOW"><IMG SRC="../../Images/spacer.gif" HEIGHT="1" WIDTH="1" ALT=""></TD>
+                                            </TR>
+                                        </TABLE>
+                                    </TD>
+                                </TR>
+
+                                <TR>
+                                    <TD VALIGN="TOP" HEIGHT="11" COLSPAN="8">
+                                        &nbsp;
+                                    </TD>
+                                </TR>
+
+                                <TR>
+                                    <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="12">
+                                        &nbsp;
+                                    </TD>
+                                    <TD VALIGN="TOP" HEIGHT="23">
+                                        &nbsp;
+                                    </TD>
+                                    <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="75">
+                                        <BUTTON CLASS="BUTTONS" ID="FinishBtn" ACCESSKEY="F" onClick="OnFinish(document);"><U>F</U>inish</BUTTON>
+                                    </TD>
+                                    <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="4">
+                                        &nbsp;
+                                    </TD>
+                                    <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="75">
+                                        <BUTTON CLASS="BUTTONS" ID="CancelBtn" ACCESSKEY="C" onClick="window.external.Finish(document, 'cancel');"><U>C</U>ancel</BUTTON>
+                                    </TD>
+                                    <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="4">
+                                        &nbsp;
+                                    </TD>
+                                    <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="75">
+                                        <BUTTON CLASS="BUTTONS" ID="HelpBtn" ACCESSKEY="H" onClick="window.external.OnHelp('vc.appwiz.custom.overview');"><U>H</U>elp</BUTTON>
+                                    </TD>
+                                    <TD VALIGN="MIDDLE" HEIGHT="23" WIDTH="12">
+                                        &nbsp;
+                                    </TD>
+                                </TR>
+
+                                <TR>
+                                    <TD VALIGN="TOP" HEIGHT="12" COLSPAN="8">
+                                        &nbsp;
+                                    </TD>
+                                </TR>
+                            </TABLE>
+
+                            <!--CLOSE OF BUTTON HTML//-->
+                        </TD>
+                    </TR>
+                </TABLE>
+
+                <!--CLOSE OF NAVIGATION, CONTENT, AND BUTTON TABLES//-->
+            </TD>
+        </TR>
+    </TABLE>
 
 
 </BODY>
@@ -428,7 +437,7 @@
             amRoverCheck.disabled = isDisabledNow;
             if (isDisabledNow)
                 amRoverCheck.checked = false;
-            }
+        }
         var tqslRoverCheck = document.getElementById("TQSL_ROVER");
         if (tqslRoverCheck) {
             tqslRoverCheck.disabled = isDisabledNow;
@@ -441,59 +450,67 @@
                 amCountyLineCheck.checked = false;
             amCountyLineCheck.disabled = isDisabledNow;
 
-        var multiPageCheck = document.getElementById("NAMED_MULTI_REGION");
-        if (multiPageCheck) {
-            if (isDisabledNow)
-                multiPageCheck.checked = false;
-            multiPageCheck.disabled = isDisabledNow;
+            var multiPageCheck = document.getElementById("NAMED_MULTI_REGION");
+            if (multiPageCheck) {
+                if (isDisabledNow)
+                    multiPageCheck.checked = false;
+                multiPageCheck.disabled = isDisabledNow;
+            }
         }
-    }
-}
+        var amCountyLineQsoCheck = document.getElementById("MULTIPLE_NAMED_IN_QSO");
+        var amCountyLineQsoCheckR = document.getElementById("MULTIPLE_NAMED_IN_QSO_TX");
+        if (amCountyLineQsoCheck && amCountyLineQsoCheckR) {
+            if (isDisabledNow) {
+                amCountyLineQsoCheck.checked = false;
+                amCountyLineQsoCheckR.checked = false;
+            }
+            amCountyLineQsoCheck.disabled = isDisabledNow;
+            amCountyLineQsoCheckR.disabled = isDisabledNow;
+            amCountyLineQsoCheckR.disabled = !amCountyLineQsoCheck.checked;
+            if (!amCountyLineQsoCheck.checked) {
+                amCountyLineQsoCheckR.checked = false;
+            }
+        }
+     }
 
-// This is an example of a function which initializes the page
-//
-function InitDocument(document)
-{
-	setDirection();
-	
-	if (window.external.FindSymbol('DOCUMENT_FIRST_LOAD'))
-	{
-		// This function sets the default symbols based 
-		// on the values specified in the SYMBOL tags above
-		//
-		window.external.SetDefaults(document);
-	}
+    // This is an example of a function which initializes the page
+    //
+    function InitDocument(document) {
+        setDirection();
 
-	// Load the document and initialize the controls 
-	// with the appropriate symbol values
-	//
-    window.external.Load(document);
+        if (window.external.FindSymbol('DOCUMENT_FIRST_LOAD')) {
+            // This function sets the default symbols based
+            // on the values specified in the SYMBOL tags above
+            //
+            window.external.SetDefaults(document);
+        }
 
-    NamedMultGuiUpdate(document, true);
-}
+        // Load the document and initialize the controls
+        // with the appropriate symbol values
+        //
+        window.external.Load(document);
 
-// If the wizard has more than 1 page, this 
-// function will browse to the page specified
-//
-function Next(document, linkto)
-{
-	window.external.Next(document, linkto);
-}
-
-// This is an example of a function which
-// gets called when the user clicks on 'Finish'
-//
-    function OnFinish(document)
-{
-	OnWizFinish(document);
-    }
-
-    function OnNoNamedMult(document)
-    {
         NamedMultGuiUpdate(document, true);
     }
-    function OnNamedMult(document)
-    {
+
+    // If the wizard has more than 1 page, this
+    // function will browse to the page specified
+    //
+    function Next(document, linkto) {
+        window.external.Next(document, linkto);
+    }
+
+    // This is an example of a function which
+    // gets called when the user clicks on 'Finish'
+    //
+    function OnFinish(document) {
+        OnWizFinish(document);
+    }
+
+    function OnNoNamedMult(document) {
+        NamedMultGuiUpdate(document, true);
+    }
+    function OnNamedMult(document) {
         NamedMultGuiUpdate(document, false);
     }
     function OnNoAygMult(document) {
@@ -529,24 +546,24 @@ function Next(document, linkto)
                 tqslRoverCheck.checked = false;
         }
     }
-    
+
     function OnTqslRoverClick(document, cb) {
     }
 
 </SCRIPT>
 <SCRIPT ID="INCLUDE_SCRIPT" LANGUAGE="JSCRIPT"></SCRIPT>
 <SCRIPT ID="INCLUDE_COMMON" LANGUAGE="JSCRIPT"></SCRIPT>
-<!-- 
-Common.js is a script file which contains the helper functions 
+<!--
+Common.js is a script file which contains the helper functions
 used by the wizards.  Include this line if you want to
 call these functions from your html scripts.
 //-->
 <SCRIPT>
-	var strPath = window.external.FindSymbol("PRODUCT_INSTALLATION_DIR");
-	strPath += "VCWizards/";
-	strPath += window.external.GetHostLocale();
-	var strScriptPath = strPath + "/Script.js";
-	var strCommonPath = strPath + "/Common.js";
-	document.scripts("INCLUDE_SCRIPT").src = strScriptPath;
-	document.scripts("INCLUDE_COMMON").src = strCommonPath;
+    var strPath = window.external.FindSymbol("PRODUCT_INSTALLATION_DIR");
+    strPath += "VCWizards/";
+    strPath += window.external.GetHostLocale();
+    var strScriptPath = strPath + "/Script.js";
+    var strCommonPath = strPath + "/Common.js";
+    document.scripts("INCLUDE_SCRIPT").src = strScriptPath;
+    document.scripts("INCLUDE_COMMON").src = strCommonPath;
 </SCRIPT>

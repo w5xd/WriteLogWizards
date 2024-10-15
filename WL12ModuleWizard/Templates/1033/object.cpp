@@ -259,6 +259,9 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
     , m_currentDupeSheet(0)
 [!endif]
     , m_NumberOfDupeSheetBands(0)
+[!if MULTIPLE_NAMED_IN_QSO && CABRILLO && !NO_NAMEDMULT]
+    , m_Cabrillo2LineNumber(0)
+[!endif]
 {
  [!if AM_ROVER]
     m_dupeSheets.push_back(std::make_shared<CDupeSheet>());
@@ -429,8 +432,8 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
         }
     } else if (!myQth.empty()) // empty means MYQTH for QSO not initialized
     {
-        int qthIdx = FindNamed(0, myQth.c_str());
-        if (qthIdx < m_namedMults[0].m_NumNamed)
+        auto qthIdx = FindNamed(REGION_NAME_FIXME1, myQth.c_str());
+        if (validNamed(REGION_NAME_FIXME1, qthIdx))
         {   // found the logged MYQTH is in list of valid QTHs
             if (!m_dupeSheets.front()->key().empty())
             {   // make a new dupe sheet
@@ -500,26 +503,33 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
         bool foundNamed = false;
         for (short region = 0; region < NUMBER_OF_REGIONS; region++)
         {
-		    int newNamedMultFlag = 0;
-		    int nm = FindNamed(region, fRCVD(q));
-		    if (nm != m_namedMults[region].m_NumNamed)
+		    auto nm = FindNamed(region, fRCVD(q));
+		    if (validNamed(region,nm))
             {
-			    newNamedMultFlag = !qDupeSheet.MarkNamedMultWorked(nm, band, region);
-		        if (newNamedMultFlag)
-		        {
-                    char buf[8];
+[!if !MULTIPLE_NAMED_IN_QSO]
+                {
+                    auto n = nm;
+[!else]
+                for (auto n : nm)
+                {
+[!endif]
+                    int newNamedMultFlag = !qDupeSheet.MarkNamedMultWorked(n, band, region);
+                    if (newNamedMultFlag)
+                    {
+                        char buf[8];
 [!if NAMEDMULT_MULTI_BAND]
-			        _itoa_s(++m_namedMults[region].m_NamedMults[band], buf, 10);
+                        _itoa_s(++m_namedMults[region].m_NamedMults[band], buf, 10);
 [!endif]
 [!if NAMEDMULT_SINGLE_BAND]
-			        _itoa_s(++m_namedMults[region].m_NamedMults, buf, 10);
+                        _itoa_s(++m_namedMults[region].m_NamedMults, buf, 10);
 [!endif]
-                    fMLT(q) = buf;
-			        Mult[BAND_SUMMARY_MUL] += 1;
-			        if (m_namedMults[region].m_NamedDisplay)
-                        m_namedMults[region].m_NamedDisplay->Invalidate(nm);
-		        }
-                foundNamed = true;
+                        fMLT(q) = buf;
+                        Mult[BAND_SUMMARY_MUL] += 1;
+                        if (m_namedMults[region].m_NamedDisplay)
+                            m_namedMults[region].m_NamedDisplay->Invalidate(n);
+                    }
+                    foundNamed = true;
+                }
                 break;
             }
         }
@@ -682,22 +692,29 @@ HRESULT [!output MM_CLASS_NAME]::QsoRem(QsoPtr_t q)
 [!if !NO_NAMEDMULT]
         for (short region = 0; region < NUMBER_OF_REGIONS; region++)
         {
-            int newNamedMultFlag = 0;
-		    int nm = FindNamed(region, fRCVD(q));
-		    if (nm != m_namedMults[region].m_NumNamed)
+		    auto nm = FindNamed(region, fRCVD(q));
+		    if (validNamed(region,nm))
             {
-			    newNamedMultFlag = !qDupeSheet.UnmarkNamedMultWorked(nm,band,region);
-		        if (newNamedMultFlag)
-		        {
-[!if NAMEDMULT_MULTI_BAND]
-                    m_namedMults[region].m_NamedMults[band] -= 1;
+[!if !MULTIPLE_NAMED_IN_QSO]
+                {
+                    auto n = nm;
+[!else]
+                for (auto n : nm)
+                {
 [!endif]
-[!if NAMEDMULT_SINGLE_BAND]
-                    m_namedMults[region].m_NamedMults -= 1;
-[!endif]
-			        Mult[BAND_SUMMARY_MUL] -= 1;
-			        if (m_namedMults[region].m_NamedDisplay)
-                        m_namedMults[region].m_NamedDisplay->Invalidate(nm);
+                    int newNamedMultFlag = !qDupeSheet.UnmarkNamedMultWorked(n, band, region);
+                    if (newNamedMultFlag)
+                    {
+                        [!if NAMEDMULT_MULTI_BAND]
+                        m_namedMults[region].m_NamedMults[band] -= 1;
+                        [!endif]
+                        [!if NAMEDMULT_SINGLE_BAND]
+                        m_namedMults[region].m_NamedMults -= 1;
+                        [!endif]
+                        Mult[BAND_SUMMARY_MUL] -= 1;
+                        if (m_namedMults[region].m_NamedDisplay)
+                            m_namedMults[region].m_NamedDisplay->Invalidate(n);
+                    }
                 }
                 break;
             }
@@ -1246,14 +1263,21 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
     {
         for (short region = 0; region < NUMBER_OF_REGIONS; region += 1)
         {
-            int n = FindNamed(region, fRCVD(q));
-            if (n != m_namedMults[region].m_NumNamed)
+            auto n = FindNamed(region, fRCVD(q));
+            if (validNamed(region,n))
             {
-                int NamedWorked = get_MultWorked(NAMED_MULT_ID+region, n, band) == S_FALSE ? 1 : 0;
-                if (ret <= 0)
-                    ret = NamedWorked;
-                if (NamedWorked && msgValid && (Message != 0)) // FIXME. different message per region
-                    LoadString(g_hInstance, MessageResourceIDs[region], Message, MAX_MULT_MESSAGE_LENGTH);
+[!if !MULTIPLE_NAMED_IN_QSO]
+                auto nn = n;
+[!else]
+                for (auto nn : n)
+[!endif]
+                {
+                    int NamedWorked = get_MultWorked(NAMED_MULT_ID + region, nn, band) == S_FALSE ? 1 : 0;
+                    if (ret <= 0)
+                        ret = NamedWorked;
+                    if (NamedWorked && msgValid && (Message != 0)) // FIXME. different message per region
+                        LoadString(g_hInstance, MessageResourceIDs[region], Message, MAX_MULT_MESSAGE_LENGTH);
+                }
                 break;
             }
         }
@@ -1377,8 +1401,8 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
             }
             if (ret != 0)
             {   // was not in currently logged. is it some other valid QTH?
-                int n = FindNamed(0, myQth.c_str());
-                if (n < m_namedMults[0].m_NumNamed)
+                auto n = FindNamed(REGION_NAME_FIXME1, myQth.c_str());
+                if (validNamed(REGION_NAME_FIXME1,n))
                     ret = 0;
             }
         }
@@ -1467,8 +1491,8 @@ HRESULT [!output MM_CLASS_NAME]::Display(HWND Window)
 [!if DXCC_SINGLE_BAND]
             m_DxccContainer.SetMults(this);	
 [!endif]
-        }
 [!endif]
+        }
     }
     if (m_MultDispContainer)
         m_MultDispContainer->ShowCurrent();
@@ -1758,8 +1782,8 @@ HRESULT [!output MM_CLASS_NAME]::QsoSearch(QsoPtr_t NewQ, QsoPtr_t OldQ, int * I
 [!endif]
 [!if !NO_NAMEDMULT]
     // Rovers are only allowed in zeroth region
-    if ((FindNamed(0, fRCVD(NewQ).str()) != m_namedMults[0].m_NumNamed) &&
-        (FindNamed(0, fRCVD(OldQ).str()) != m_namedMults[0].m_NumNamed) &&
+    if (validNamed(REGION_NAME_FIXME1,FindNamed(REGION_NAME_FIXME1, fRCVD(NewQ).str())) &&
+        validNamed(REGION_NAME_FIXME1,FindNamed(REGION_NAME_FIXME1, fRCVD(OldQ).str())) &&
         (strcmp(fRCVD(NewQ).str(), fRCVD(OldQ).str()) != 0))
         *IsGood = 1;
 [!endif]
@@ -1972,14 +1996,56 @@ int [!output MM_CLASS_NAME]::FindZone(    /*returns zone index*/
 [!endif]
 [!if !NO_NAMEDMULT]
 
-int [!output MM_CLASS_NAME]::FindNamed(      /*returns index of multiplier*/
+[!output MM_CLASS_NAME]::Named_t [!output MM_CLASS_NAME]::FindNamed(      /*returns index of multiplier*/
     short region,
 	const char *c)
 {
-	short i;
+[!if !MULTIPLE_NAMED_IN_QSO]
+    short i;
 	if (m_namedMults[region].m_pNamedMults->IndexFromName(reinterpret_cast<const unsigned char *>(c), &i) != S_OK)
 		return m_namedMults[region].m_NumNamed;
 	return i;
+[!else]
+    Named_t ret;
+    std::vector<unsigned char> mul;
+    for (;; c += 1)
+    {
+        auto w = *c;
+        if (isalpha(w))
+            mul.push_back((unsigned char)w);
+        else
+            if (!mul.empty())
+            {
+                short i;
+                short value = -1;
+                mul.push_back(0);
+                if (m_namedMults[region].m_pNamedMults->IndexFromName(reinterpret_cast<const unsigned char*>(&mul[0]), &i) != S_OK)
+                    i = -1;
+                ret.insert(i);
+                mul.clear();
+            }
+        if (!*c)
+            break;
+    }
+    return ret;
+[!endif]
+}
+
+bool [!output MM_CLASS_NAME]::validNamed(
+    short region,
+    const Named_t& r)
+{
+[!if !MULTIPLE_NAMED_IN_QSO]
+    return (r >= 0) && (r < m_namedMults[region].m_NumNamed);
+[!else]
+    bool valid = false;
+    for (const auto n : r)
+        if ((n < 0) || (n >= m_namedMults[region].m_NumNamed))
+            return false;
+        else
+            valid = true;
+    return valid;
+[!endif]
 }
 
 [!endif]
@@ -2105,7 +2171,20 @@ HRESULT [!output MM_CLASS_NAME]::FormatTxField(QsoPtr_t q, short Field, char *Bu
 [!endif]
 [!if !NO_NAMEDMULT]
 	case 0:	//TODO
+[!if MULTIPLE_NAMED_IN_QSO && MULTIPLE_NAMED_IN_QSO_TX]
+        if (m_Cabrillo2Mine.size() < 2)
+            wsprintf(Buf, "%-6.6s ", currentDupeSheet().key().c_str());
+        else
+        {
+            char* Name = "";
+            auto which = *m_Cabrillo2MineItor;
+            if ((which >= 0) && (which < m_namedMults[REGION_NAME_FIXME1].m_NumNamed))
+                m_namedMults[REGION_NAME_FIXME1].m_pNamedMults->NameFromIndex(which, reinterpret_cast<unsigned char**>(&Name));
+            wsprintf(Buf, "%-6.6s ", (char*)Name);
+        }
+[!else]
 		wsprintf(Buf, "%-6.6s ", currentDupeSheet().key().c_str());
+[!endif]
 		break;
 [!endif]
 [!if NR_IN_EXCHANGE]
@@ -2150,7 +2229,20 @@ HRESULT [!output MM_CLASS_NAME]::FormatRxField(QsoPtr_t q, short Field, char * B
 [!endif]
 [!if !NO_NAMEDMULT]
 	case 0:	//TODO
-		wsprintf(Buf, "%-6.6s ", fRCVD(q).str());
+[!if !MULTIPLE_NAMED_IN_QSO]
+            wsprintf(Buf, "%-6.6s ", fRCVD(q).str());
+[!else]
+        if (m_Cabrillo2His.size() < 2)
+            wsprintf(Buf, "%-6.6s ", fRCVD(q).str());
+        else
+        {
+            char* Name = "";
+            auto which = *m_Cabrillo2HisItor;
+            if ((which >= 0) && (which < m_namedMults[REGION_NAME_FIXME1].m_NumNamed))
+                m_namedMults[REGION_NAME_FIXME1].m_pNamedMults->NameFromIndex(which, reinterpret_cast<unsigned char**>(&Name));
+            wsprintf(Buf, "%-6.6s ", (char*)Name);
+        }
+[!endif]
 		break;
 [!endif]
 #endif
@@ -2160,6 +2252,64 @@ HRESULT [!output MM_CLASS_NAME]::FormatRxField(QsoPtr_t q, short Field, char * B
 	}
     return E_NOTIMPL;
 }
+[!if MULTIPLE_NAMED_IN_QSO && !NO_NAMEDMULT]
+
+// IWlogCabrillo2
+HRESULT [!output MM_CLASS_NAME]::LinesForQSO(QsoPtr_t q, short* pLines)
+{
+[!if MULTIPLE_NAMED_IN_QSO_TX]
+[!if AM_ROVER]
+    m_Cabrillo2Mine = FindNamed(REGION_NAME_FIXME1, fMYQTH(q).str());
+[!else]
+    m_Cabrillo2Mine = FindNamed(REGION_NAME_FIXME1, currentDupeSheet().key().c_str());
+[!endif]
+    m_Cabrillo2MineItor = m_Cabrillo2Mine.begin();
+[!endif]
+    m_Cabrillo2His = FindNamed(REGION_NAME_FIXME1, fRCVD(q).str());
+    m_Cabrillo2HisItor = m_Cabrillo2His.begin();
+    m_Cabrillo2LineNumber = 0;
+[!if MULTIPLE_NAMED_IN_QSO_TX]
+    *pLines = static_cast<short>(m_Cabrillo2Mine.size() * m_Cabrillo2His.size());
+[!else]
+    *pLines = static_cast<short>(m_Cabrillo2His.size());
+[!endif]
+    return S_OK;
+}
+
+HRESULT [!output MM_CLASS_NAME]::SetCurrentLineNumber(short LineNo)
+{
+    auto diff = LineNo - m_Cabrillo2LineNumber;
+    m_Cabrillo2LineNumber = LineNo;
+    if (diff > 0)
+    {
+        if (!m_Cabrillo2His.empty())
+        {
+            m_Cabrillo2HisItor++;
+            if (m_Cabrillo2HisItor == m_Cabrillo2His.end())
+            {
+                m_Cabrillo2HisItor = m_Cabrillo2His.begin();
+[!if MULTIPLE_NAMED_IN_QSO_TX]
+                if (!m_Cabrillo2Mine.empty())
+                {
+                    m_Cabrillo2MineItor++;
+                    if (m_Cabrillo2MineItor == m_Cabrillo2Mine.end())
+                        m_Cabrillo2MineItor = m_Cabrillo2Mine.begin();
+                }
+[!endif]
+            }
+        }
+[!if MULTIPLE_NAMED_IN_QSO_TX]
+        else if (!m_Cabrillo2Mine.empty())
+        {
+            m_Cabrillo2MineItor++;
+            if (m_Cabrillo2MineItor == m_Cabrillo2Mine.end())
+                m_Cabrillo2MineItor = m_Cabrillo2Mine.begin();
+        }
+[!endif]
+    }
+    return S_OK;
+}
+[!endif]
 [!endif]
 
 [!if TQSL_ROVER]

@@ -23,6 +23,7 @@
 #include <atlcom.h>
 #include <atlctl.h>
 #include <map>
+#include <set>
 #include <vector>
 #include <string>
 #include <memory>
