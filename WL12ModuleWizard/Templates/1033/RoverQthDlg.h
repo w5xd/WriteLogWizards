@@ -12,7 +12,7 @@ class [!output MM_ROVERDLG_CLASS_NAME] :
 {
 public:
 	typedef std::function<void([!output MM_ROVERDLG_CLASS_NAME] &)> InitDialogFcn_t;
-	[!output MM_ROVERDLG_CLASS_NAME](const InitDialogFcn_t &f) : m_FocusState(0)
+	[!output MM_ROVERDLG_CLASS_NAME] (const InitDialogFcn_t& f) : m_FocusState(0)
 		, m_OnInit(f)
 [!if AM_COUNTYLINE]
 		, m_countyLineMode(0)
@@ -49,7 +49,7 @@ BEGIN_MSG_MAP([!output MM_ROVERDLG_CLASS_NAME])
 
 	COMMAND_HANDLER(IDC_CHECK_COUNTYLINEMODE, BN_CLICKED, OnClickedCountyLineMode)
 [!endif]
-	
+
 	CHAIN_MSG_MAP(CAxDialogImpl<[!output MM_ROVERDLG_CLASS_NAME]>)
 END_MSG_MAP()
 
@@ -58,19 +58,19 @@ END_MSG_MAP()
 //  LRESULT CommandHandler(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled);
 //  LRESULT NotifyHandler(int idCtrl, LPNMHDR pnmh, BOOL& bHandled);
 
-	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
 	{
 		CAxDialogImpl<[!output MM_ROVERDLG_CLASS_NAME]>::OnInitDialog(uMsg, wParam, lParam, bHandled);
 		if (m_OnInit)
 			m_OnInit(*this);
-	[!if AM_COUNTYLINE]
+[!if AM_COUNTYLINE]
 		CheckDlgButton(IDC_CHECK_COUNTYLINEMODE, m_countyLineMode);
-	[!endif]
+[!endif]
 		bHandled = TRUE;
 		return 1;  // Let the system set the focus
 	}
 
-	LRESULT OnClickedOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	LRESULT OnClickedOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL & bHandled)
 	{
 		switch (m_FocusState)
 		{
@@ -85,63 +85,80 @@ END_MSG_MAP()
 		return 0;
 	}
 
-	LRESULT OnClickedCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	LRESULT OnClickedCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL & bHandled)
 	{
 		EndDialog(IDCANCEL);
 		return 0;
 	}
 
-	LRESULT OnQthListDblClick(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	LRESULT OnQthListDblClick(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL & bHandled)
 	{
 		OnCreateNew();
 		return 0;
 	}
-	LRESULT OnQthListSetFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	LRESULT OnQthListSetFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL & bHandled)
 	{
 		m_FocusState = FOCUS_STATE_ADD;
 		return 0;
 	}
-	LRESULT OnQthListKillFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	LRESULT OnQthListKillFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL & bHandled)
 	{
 		m_FocusState = FOCUS_STATE_NONE;
 		return 0;
 	}
 
-	LRESULT OnQthOldDblClick(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	LRESULT OnQthOldDblClick(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL & bHandled)
 	{
 		OnUseExisting();
 		return 0;
 	}
-	LRESULT OnQthOldSetFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	LRESULT OnQthOldSetFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL & bHandled)
 	{
 		m_FocusState = FOCUS_STATE_EXISTING;
 		return 0;
 	}
-	LRESULT OnQthOldKillFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	LRESULT OnQthOldKillFocus(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL & bHandled)
 	{
 		m_FocusState = FOCUS_STATE_NONE;
 		return 0;
 	}
 
-	LRESULT OnClickedCreateNew(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	LRESULT OnClickedCreateNew(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL & bHandled)
 	{
 		OnCreateNew();
 		return 0;
 	}
 
-	LRESULT OnClickedUseExisting(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	LRESULT OnClickedUseExisting(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL & bHandled)
 	{
 		OnUseExisting();
 		return 0;
 	}
 [!if AM_COUNTYLINE]
 
-LRESULT OnClickedCountyLineMode (WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
-{
-	m_countyLineMode = IsDlgButtonChecked(wID);
-	return 0;
-}
+	LRESULT OnClickedCountyLineMode(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL & bHandled)
+	{
+		m_countyLineMode = IsDlgButtonChecked(wID);
+		return 0;
+	}
 [!endif]
+
+	void getListItem(ATL::CWindow list, int item, std::string & ret, const std::function<void()>&f = std::function<void()>())
+	{
+		auto nchars = list.SendMessageA(LB_GETTEXTLEN, item);
+		if (nchars > 0)
+		{
+			if (f)
+				f();
+			std::vector<char> buf(nchars + 1);
+			list.SendMessageA(LB_GETTEXT, item, (LPARAM)&buf[0]);
+			for (auto c : buf)
+				if (!c)
+					break;
+				else
+					ret.push_back(c);
+		}
+	}
 
 	std::string GetListText(unsigned idc)
 	{
@@ -149,25 +166,38 @@ LRESULT OnClickedCountyLineMode (WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL&
 		auto list = GetDlgItem(idc);
 		auto cursel = list.SendMessageA(LB_GETCURSEL);
 		if (cursel != LB_ERR)
+			getListItem(list, cursel, ret);
+		return ret;
+	}
+
+[!if MULTIPLE_NAMED_IN_QSO_TX]
+	std::string GetListTextM(unsigned idc)
+	{
+		std::string ret;
+		auto list = GetDlgItem(idc);
+		static const int MAX_SELECTIONS = 4;
+		auto selcount = list.SendMessageA(LB_GETSELCOUNT);
+		if ((selcount > 0) && (selcount <= MAX_SELECTIONS))
 		{
-			auto nchars = list.SendMessageA(LB_GETTEXTLEN, cursel);
-			if (nchars > 0)
+			auto f = std::function<void()>();
+			std::vector<int> selections(selcount);
+			list.SendMessageA(LB_GETSELITEMS, selcount, reinterpret_cast<LPARAM>(&selections[0]));
+			for (auto idc : selections)
 			{
-					std::vector<char> buf(nchars+1);
-					list.SendMessageA(LB_GETTEXT, cursel, (LPARAM)&buf[0]);
-					for (auto c : buf)
-						if (!c)
-							break;
-						else
-							ret.push_back(c);
+				getListItem(list, idc, ret, f);
+				f = [&ret]() {
+					ret.push_back('/'); };
 			}
 		}
 		return ret;
 	}
+[!else]
+	std::string GetListTextM(unsigned idc) {return GetListText(idc);}
+[!endif]
 
 	void OnCreateNew()
 	{
-		m_result = GetListText(IDC_QTHLIST1);
+		m_result = GetListTextM(IDC_QTHLIST1);
 		if (!m_result.empty())
 				EndDialog(IDC_CREATE_NEW);
 	}

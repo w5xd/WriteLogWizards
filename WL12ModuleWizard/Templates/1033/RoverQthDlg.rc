@@ -8,12 +8,19 @@ CAPTION "Dupe Sheet Select"
 FONT 10, "Arial", 0, 0, 0x0
 BEGIN
     GROUPBOX        "&Create a new dupe sheet by selecting the QTH where you are located:",-1,6,0,244,76
-    LISTBOX         14113,12,18,120,52,WS_VSCROLL | WS_TABSTOP
+[!if !MULTIPLE_NAMED_IN_QSO_TX]
+    LISTBOX         14113, 7, 14, 120, 58, WS_VSCROLL | WS_TABSTOP
+[!else]
+    LISTBOX         14113, 7, 14, 120, 58, LBS_MULTIPLESEL | WS_VSCROLL | WS_TABSTOP
+[!endif]
     PUSHBUTTON      "Create &New",14114,195,56,50,14
     GROUPBOX        "... or &Switch back to a previously visited QTH",-1,2,84,249,60
     LISTBOX         14116,10,100,124,40,LBS_SORT | LBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "Use &Existing",14115,193,124,50,14
 [!if AM_COUNTYLINE]
-    CONTROL         "County &Line Mode", 14117, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 7, 151, 82, 10
+    CONTROL         "Separate each QSO on County &Line", 14117, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 7, 151, 137, 10
+[!endif]
+[!if MULTIPLE_NAMED_IN_QSO_TX]
+    CTEXT           "Select multiple if on county line", IDC_STATIC, 129, 25, 115, 10
 [!endif]
 END
