@@ -260,7 +260,8 @@ const struct exfa_stru [!output MM_CLASS_NAME]::g_Layout[] =
 [!endif]
     , m_NumberOfDupeSheetBands(0)
 [!if MULTIPLE_NAMED_IN_QSO && CABRILLO && !NO_NAMEDMULT]
-    , m_Cabrillo2LineNumber(0)
+    , m_Cabrillo2LineNumber(-1)
+    , m_Cabrillo2QsoLineIdx(-1)
 [!endif]
 {
  [!if AM_ROVER]
@@ -2157,7 +2158,11 @@ HRESULT [!output MM_CLASS_NAME]::GetTxFieldCount(short * pCount)
 }
 HRESULT [!output MM_CLASS_NAME]::FormatTxField(QsoPtr_t q, short Field, char *Buf)
 {
-	*Buf = 0;
+[!if MULTIPLE_NAMED_IN_QSO_TX]
+    if (q->GlobalIndex != m_Cabrillo2QsoLineIdx)
+        m_Cabrillo2Mine.clear();
+[!endif]
+    *Buf = 0;
 	switch (Field)
 	{
 #if 0 // TODO
@@ -2173,17 +2178,17 @@ HRESULT [!output MM_CLASS_NAME]::FormatTxField(QsoPtr_t q, short Field, char *Bu
 	case 0:	//TODO
 [!if MULTIPLE_NAMED_IN_QSO && MULTIPLE_NAMED_IN_QSO_TX]
         if (m_Cabrillo2Mine.size() < 2)
-            wsprintf(Buf, "%-6.6s ", currentDupeSheet().key().c_str());
+            wsprintf(Buf, "%-6s ", currentDupeSheet().key().c_str());
         else
         {
             char* Name = "";
             auto which = *m_Cabrillo2MineItor;
             if ((which >= 0) && (which < m_namedMults[REGION_NAME_FIXME1].m_NumNamed))
                 m_namedMults[REGION_NAME_FIXME1].m_pNamedMults->NameFromIndex(which, reinterpret_cast<unsigned char**>(&Name));
-            wsprintf(Buf, "%-6.6s ", (char*)Name);
+            wsprintf(Buf, "%-6s ", (char*)Name);
         }
 [!else]
-		wsprintf(Buf, "%-6.6s ", currentDupeSheet().key().c_str());
+		wsprintf(Buf, "%-6s ", currentDupeSheet().key().c_str());
 [!endif]
 		break;
 [!endif]
@@ -2210,7 +2215,11 @@ HRESULT [!output MM_CLASS_NAME]::GetRxFieldCount(short * pCount)
 }
 HRESULT [!output MM_CLASS_NAME]::FormatRxField(QsoPtr_t q, short Field, char * Buf)
 {
-	*Buf = 0;
+[!if MULTIPLE_NAMED_IN_QSO]
+    if (q->GlobalIndex != m_Cabrillo2QsoLineIdx)
+        m_Cabrillo2His.clear();
+[!endif]
+    *Buf = 0;
 	switch (Field)
 	{
 #if 0 // TODO
@@ -2230,17 +2239,17 @@ HRESULT [!output MM_CLASS_NAME]::FormatRxField(QsoPtr_t q, short Field, char * B
 [!if !NO_NAMEDMULT]
 	case 0:	//TODO
 [!if !MULTIPLE_NAMED_IN_QSO]
-            wsprintf(Buf, "%-6.6s ", fRCVD(q).str());
+            wsprintf(Buf, "%-6s ", fRCVD(q).str());
 [!else]
         if (m_Cabrillo2His.size() < 2)
-            wsprintf(Buf, "%-6.6s ", fRCVD(q).str());
+            wsprintf(Buf, "%-6s ", fRCVD(q).str());
         else
         {
             char* Name = "";
             auto which = *m_Cabrillo2HisItor;
             if ((which >= 0) && (which < m_namedMults[REGION_NAME_FIXME1].m_NumNamed))
                 m_namedMults[REGION_NAME_FIXME1].m_pNamedMults->NameFromIndex(which, reinterpret_cast<unsigned char**>(&Name));
-            wsprintf(Buf, "%-6.6s ", (char*)Name);
+            wsprintf(Buf, "%-6s ", (char*)Name);
         }
 [!endif]
 		break;
@@ -2268,6 +2277,7 @@ HRESULT [!output MM_CLASS_NAME]::LinesForQSO(QsoPtr_t q, short* pLines)
     m_Cabrillo2His = FindNamed(REGION_NAME_FIXME1, fRCVD(q).str());
     m_Cabrillo2HisItor = m_Cabrillo2His.begin();
     m_Cabrillo2LineNumber = 0;
+    m_Cabrillo2QsoLineIdx = q->GlobalIndex;
 [!if MULTIPLE_NAMED_IN_QSO_TX]
     *pLines = static_cast<short>(m_Cabrillo2Mine.size() * m_Cabrillo2His.size());
 [!else]

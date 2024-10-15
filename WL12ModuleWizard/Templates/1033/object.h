@@ -411,6 +411,7 @@ enum {	// identical rules, but different modes on different weekends
 [!endif]
     Named_t                         m_Cabrillo2His;
     Named_t::const_iterator         m_Cabrillo2HisItor;
+    unsigned long                   m_Cabrillo2QsoLineIdx;
 [!endif]
     // end named
 
