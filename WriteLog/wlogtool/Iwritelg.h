@@ -171,7 +171,7 @@ DECLARE_INTERFACE_(IWlogMulti2, IWlogMulti)
 {
 	//Take the QSO being edited and a string, where does the
 	//the string best fit? return the value in Offset
-	STDMETHOD(WhatsTheBestField)(QsoPtr_t q, const char *s, short *Offset) PURE;
+	STDMETHOD(WhatsTheBestField)(QsoPtr_t q, const char *s, short *Offset) PURE; // SUCCEEDED assigns Entry Window the given offset
 	STDMETHOD(IsCharOKHere)(QsoPtr_t q, char c,	short Offset) PURE;	// S_OK, and only S_OK, means character is allowed for this field 
 };
 
@@ -318,6 +318,17 @@ DECLARE_INTERFACE_(IWlogCabrillo4, IUnknown)
 	STDMETHOD(FormatModeField)(THIS_ QsoPtr_t q, short RowNumber, short len, char *pBuf) PURE;
 	STDMETHOD(FormatDateField)(THIS_ QsoPtr_t q, short RowNumber, short len, char *pBuf) PURE;
 	STDMETHOD(FormatTimeField)(THIS_ QsoPtr_t q, short RowNumber, short len, char *pBuf) PURE;
+};
+
+/* When writing a file, there is context maintained by the contest module
+** that should be unique to the file writer. As of WriteLog 12.84, all modules
+** that implement IWlogCabrillo2, IWlogCabrillo3 and IWlogCabrillo4
+** do NOT implement them on the main module IUnknown identity but on the
+** object returned by GetIterator
+*/
+DECLARE_INTERFACE_(IWlogCabrilloFileIterator, IUnknown)
+{
+	STDMETHOD(GetIterator)(THIS_ IWlogCabrillo * *pIterator) PURE;
 };
 
 DECLARE_INTERFACE_(IWlogCabrilloOptions, IUnknown)
@@ -607,6 +618,7 @@ DEFINE_WL_GUID(IWlogCabrillo4, "C7212180-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogCabrilloOptions, "C721218D-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogCabrilloSettings, "C7212198-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogCabrilloHelper, "C721217C-7716-101A-AA54-00608C61D0B1");
+DEFINE_WL_GUID(IWlogCabrilloFileIterator, "C7212290-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogMultiADIF, "C7212174-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogMultiADIF2, "C7212129-7716-101A-AA54-00608C61D0B1");
 DEFINE_WL_GUID(IWlogMultiSingleMinutes, "C7212176-7716-101A-AA54-00608C61D0B1");

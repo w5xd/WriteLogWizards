@@ -4,7 +4,7 @@ CAPTION "Dialog"
 FONT 8, "MS Sans Serif"
 BEGIN
 [!if AM_COUNTYLINE]
-    CONTROL         "County Line Mode",14117,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,16,82,10
+    CONTROL         "Separate each QSO on County &Line",14117,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,16,82,10
 [!endif]
 [!if !NO_AYGMULT]
     LTEXT           "My AYG TODO",IDC_STATIC,17,32,50,8

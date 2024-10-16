@@ -70,6 +70,7 @@
     <ClCompile Include="Templates\1033\object.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Templates\1033\CabrilloIterator.h" />
     <ClInclude Include="Templates\1033\dialog.h" />
     <ClInclude Include="Templates\1033\object.h" />
     <ClInclude Include="Templates\1033\RoverQthDlg.h" />

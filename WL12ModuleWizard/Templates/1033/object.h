@@ -42,7 +42,7 @@ class ATL_NO_VTABLE [!output MM_CLASS_NAME] :
 [!if CABRILLO]
     , public IWlogCabrillo
 [!if MULTIPLE_NAMED_IN_QSO && !NO_NAMEDMULT]
-    , public IWlogCabrillo2
+    , public IWlogCabrilloFileIterator
 [!endif]
 [!endif]
 [!if TQSL_ROVER]
@@ -70,7 +70,7 @@ public:
 [!if CABRILLO]
         COM_INTERFACE_ENTRY(IWlogCabrillo)
 [!if MULTIPLE_NAMED_IN_QSO && !NO_NAMEDMULT]
-        COM_INTERFACE_ENTRY(IWlogCabrillo2)
+        COM_INTERFACE_ENTRY(IWlogCabrilloFileIterator)
 [!endif]
 [!endif]
 [!if TQSL_ROVER]
@@ -153,11 +153,12 @@ public:
     STDMETHOD(FormatTxField)(QsoPtr_t q, short Field, char * Buf);
     STDMETHOD(GetRxFieldCount)(short * pCount);
     STDMETHOD(FormatRxField)(QsoPtr_t q, short Field, char * Buf);
-[!if MULTIPLE_NAMED_IN_QSO && !NO_NAMEDMULT]
-// IWlogCabrillo2 Methods
-    STDMETHOD(LinesForQSO)(QsoPtr_t q, short* pLines);
-    STDMETHOD(SetCurrentLineNumber)(short LineNo);
+[!if MULTIPLE_NAMED_IN_QSO]
+    // Inherited via IWlogCabrilloFileIterator
+    friend class [!output MM_CABRILLOITERATOR_CLASS_NAME];
+    virtual HRESULT __stdcall GetIterator(IWlogCabrillo * *pIterator) override;
 [!endif]
+
 [!endif]
 [!if TQSL_ROVER]
     // IWlogTQslQsoLocation
@@ -402,17 +403,6 @@ enum {	// identical rules, but different modes on different weekends
 [!endif]
     Named_t FindNamed(short region, const char *c);
     bool validNamed(short region, const Named_t &);
-[!if MULTIPLE_NAMED_IN_QSO && CABRILLO]
-
-    short                           m_Cabrillo2LineNumber;
-[!if MULTIPLE_NAMED_IN_QSO_TX]
-    Named_t                         m_Cabrillo2Mine;
-    Named_t::const_iterator         m_Cabrillo2MineItor;
-[!endif]
-    Named_t                         m_Cabrillo2His;
-    Named_t::const_iterator         m_Cabrillo2HisItor;
-    unsigned long                   m_Cabrillo2QsoLineIdx;
-[!endif]
     // end named
 
 [!endif]

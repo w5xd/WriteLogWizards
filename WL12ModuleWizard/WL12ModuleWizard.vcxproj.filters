@@ -87,6 +87,9 @@
     <ClInclude Include="Templates\1033\RoverQthDlg.h">
       <Filter>Template Files</Filter>
     </ClInclude>
+    <ClInclude Include="Templates\1033\CabrilloIterator.h">
+      <Filter>Template Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Templates\1033\dialog.rc">

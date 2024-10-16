@@ -92,6 +92,13 @@ function OnFinish(selProj, selObj) {
         if (wizard.FindSymbol("AM_ROVER")) {
             wizard.AddSymbol("CAN_LOG_ROVER", true);
         }
+        var projFilters = selProj.Object.Filters;
+        var filterRc = projFilters.Item("Resource Files");
+        if (!filterRc) filterRc = selProj.Object;
+        var filterHh = projFilters.Item("Header Files");
+        if (!filterHh) filterHh = selProj.Object;
+        var filterCc = projFilters.Item("Source Files");
+        if (!filterCc) filterCc = selProj.Object;
 
         // add RGS file resource
         var strRGSFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + ".rgs");
@@ -101,6 +108,7 @@ function OnFinish(selProj, selObj) {
         wizard.AddSymbol("MM_DLG_CLASS_NAME", strDlgClassName);
 
         RenderAddTemplate(wizard, "object.rgs", strRGSFile, false, false);
+        filterRc.AddFile(strRGSFile);
 
         var oResHelper = wizard.ResourceHelper;
         oResHelper.OpenResourceFile(strProjectRC);
@@ -139,19 +147,35 @@ function OnFinish(selProj, selObj) {
             strDlgClassName = "C" + strShortName + "RoverSelectDialog";
             wizard.AddSymbol("MM_ROVERDLG_CLASS_NAME", strDlgClassName);
             var strSelDlgHeaderFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + "SelectDlg.h");
-            RenderAddTemplate(wizard, "RoverQthDlg.h", strSelDlgHeaderFile, selObj, false);
+            RenderAddTemplate(wizard, "RoverQthDlg.h", strSelDlgHeaderFile, false, false);
             wizard.AddSymbol("MM_ROVERDLG_CLASS_FILENAME", strSelDlgHeaderFile);
+            filterHh.AddFile(strSelDlgHeaderFile);
         }
 
-        RenderAddTemplate(wizard, "object.h", strHeaderFile, selObj, true);
-        RenderAddTemplate(wizard, "object.cpp", strImplFile, selObj, false);
-        RenderAddTemplate(wizard, "dialog.h", strDlgHeaderFile, selObj, false);
+        if (wizard.FindSymbol("MULTIPLE_NAMED_IN_QSO") && wizard.FindSymbol("CABRILLO")) {
+            strDlgClassName = "C" + strShortName + "CabrilloIterator";
+            wizard.AddSymbol("MM_CABRILLOITERATOR_CLASS_NAME", strDlgClassName);
+            var strSelDlgHeaderFile = GetUniqueFileName(strProjectPath, CreateASCIIName(strShortName) + "CabrilloIterator.h");
+            RenderAddTemplate(wizard, "CabrilloIterator.h", strSelDlgHeaderFile, false, false);
+            wizard.AddSymbol("MM_CABRILLOITERATOR_CLASS_FILENAME", strSelDlgHeaderFile);
+            filterHh.AddFile(strSelDlgHeaderFile);
+        }
+
+        RenderAddTemplate(wizard, "object.h", strHeaderFile, false, false);
+        filterHh.AddFile(strHeaderFile);
+        RenderAddTemplate(wizard, "object.cpp", strImplFile, false, false);
+        filterCc.AddFile(strImplFile);
+        RenderAddTemplate(wizard, "dialog.h", strDlgHeaderFile, false, false);
+        filterHh.AddFile(strDlgHeaderFile);
 
         if (!wizard.FindSymbol("NO_DXCC")) {
             var strMulDBase = "MulDEntInc.cpp";
             var strMulDFile = GetUniqueFileName(strProjectPath, strMulDBase);
             if (strMulDBase == strMulDFile) // only add it once.
-                RenderAddTemplate(wizard, "multdent.cpp", strMulDFile, selObj, false);
+            {
+                RenderAddTemplate(wizard, "multdent.cpp", strMulDFile, false, false);
+                filterCc.AddFile(strMulDFile);
+            }
         }
 
         // Generate WXS
