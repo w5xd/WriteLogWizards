@@ -2,14 +2,14 @@
 Tools for WriteLog contest module development
 This repo contains:<ol>
 <li>Check branches in this repo for older versions of Visual Studio
-<li>Source code for Visual Studio 2019 wizards that create WriteLog contest module implementations.
-<li>Instructions for using Visual Studio 2019 Community Edition.
+<li>Source code for Visual Studio 2019/2022 wizards that create WriteLog contest module implementations.
+<li>Instructions for using Visual Studio 2019/2022 Community Edition.
 <li> The necessary header files and import libraries to build WriteLog contest modules.
 </ol>
 
-Developing in VS 2019 targets only WriteLog version 12. (The VS2013 nor VS2019
+Developing in VS 2019/2022 targets only WriteLog version 12. (The VS2013 nor VS2019
 C++ runtime is not installed by the WL11 installer.)
-Developing in VS 2019 can target both WriteLog 11 and 12, <b>but</b> you must arrange to install
+Developing in VS 2019/2022 can target both WriteLog 11 and 12, <b>but</b> you must arrange to install
 the VS 2019 runtime when your module is installed on WriteLog versions older than 12.55.
 
 <h2>The Directory Structure</h2>
@@ -20,10 +20,13 @@ Is not part of this repo, but <i>is</i> in .gitignore. It is where you should ha
 VS File/New-project wizard place any newly created WL module development projects.
 
 <code><b>WL12ModuleWizard/</b></code><br/>
-contains the source of the module create wizard.
+contains the source of the module create wizard. Works for 2019 and 2022
 
 <code><b>WL12ProjectWizard2019/</b></code><br/>
 contains the source of the VS2019 project create wizard.
+
+<code><b>WL12ProjectWizard2022/</b></code><br/>
+contains the source of the VS2022 project create wizard.
 
 <code><b>WriteLog/</b></code><br/>
 contains the source of the various headers and import libraries required by the generated project. These headers
@@ -44,10 +47,11 @@ to enable source-code compatible development of module developed using the old V
 wizard last updated in 2008 (and most of which dates from 2000--or earlier.)
 
 <h2>The wizards</h2>
-You must already have VS 2019 installed. The Community Edition 2019 is 
+You must already have VS 2019 or 2022 installed. The Community Edition 2019 or 2022 is 
 supported for WriteLog module development.
 It takes two wizard operations to create a WriteLog contest module:<ol>
 <li>The wl12ProjectWizard2019 creates a skeleton project from the VS File/New-Project menu.
+<li>The wl12ProjectWizard2022 creates a skeleton project from the VS File/New-Project menu.
 <li>The WL12ModuleWizard adds skeleton header/cpp/wxs files to such a project for a contest. 
 </ol>
 <h3>Deploying the wizards</h3>
@@ -62,19 +66,19 @@ deploy the wizard in your <code><i>&lt;MyDocuments&gt;</i></code> folder, which 
 if you don't like the way the wizards work, you are welcome to change them to suit yourself.
 
 <h4>Deploy the Project Wizard</h4>
-Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>&#92Visual Studio 2019&#92;</code>. 
+Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>&#92Visual Studio 2022&#92;</code>. 
 Create a subfolder named 
-<code>&#92Wizards&#92</code> and copy these 3 files (and only these 3) from the <code>WL12ProjectWizard2019</code> 
+<code>&#92Wizards&#92</code> and copy these 3 files (and only these 3) from the <code>WL12ProjectWizard2022</code> 
 repo folder: <ul>
-<li>WL12ProjectWizard2019.ico
-<li>WL12ProjectWizard2019.vsdir
-<li>WL12ProjectWizard2019.vsz
+<li>WL12ProjectWizard2022.ico
+<li>WL12ProjectWizard2022.vsdir
+<li>WL12ProjectWizard2022.vsz
 </ul> 
 Edit that last file, the .vsz file, to correct the absolute path. Make it point to the corresponding directory in your fetched version of this git repo:
-<pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL12ProjectWizard2019"</code>
+<pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL12ProjectWizard2022"</code>
 </pre>.
 
-There is no need to copy the files out of your git work area.
+For VS version 2019, substitute it above. There is no need to copy the files out of your git work area.
 <p>Now File/New Project in Visual Studio should show this entry that wasn't there before. </p>
 <p align="center"><img width="70%" alt="ProjectNew2019.png" src="ProjectNew2019.png"/></p>
 <p>In order for the directory structure to match that assumed by the module wizard, when creating a
@@ -85,18 +89,26 @@ and turn <b>on</b> the <i>Place solution and project in the same directory</i> c
 Getting a new item into the Visual Studio Add/New-Item menu apparently cannot be done
 in My Documents like a project wizard. Its deployment requires administrator privilege. 
 You must create files in the Visual Studio installation directory. The directory to find is:
-<pre><code>C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\VC\vcprojectitems</code> 
+<pre><code>C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\VC\vcprojectitems
+or
+C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\VC\vcprojectitems
+</code> 
 </pre>In that vcprojectitems directory, you need two things: <ul>
 <li>Create a folder named <code>LocalItems</code>.</li>
 <li>Into that same vcprojectitems folder, copy the file (unchanged) from this repo: 
 <code>WL12ModuleWizard/Deploy/LocalItems.vsdir</code>.</li>
 </ul>
-And then into that newly created LocalItems folder, copy these three files from the repo's WL12ModuleWizard folder:<ol>
+And then into that newly created LocalItems folder, copy three files from the repo's WL12ModuleWizard folder, as appropriate
+for your Visual Studio version:<ol>
 <li>WL12ModuleWizard2019.ico</li>
 <li>WL12ModuleWizard2019.vsdir</li>
 <li>WL12ModuleWizard2019.vsz</li>
-</ol>
-That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work 
+</ol>or
+<ol>
+<li>WL12ModuleWizard2022.ico</li>
+<li>WL12ModuleWizard2022.vsdir</li>
+<li>WL12ModuleWizard2022.vsz</li>
+</ol>That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work 
 area: just point that vsz file to the appropriate subdirectory in your fetched copy of this git repo. Once installed, and in 
 Visual Studio with a WL project open, a right mouse click on the project looks like this:
 <p align="center"><img  alt="AddNewItem.png" src="AddNewItem.png"/></p>
@@ -130,6 +142,13 @@ they're going to be. This can be used for logging those contests where the
 that are the multipliers for the contest. You will need to create (and distribute)
 an INI file that has the multipliers in it along with any ALIAS names you want
 to all refer to the same multiplier
+<ul>
+<li><i>Multiple named mults in a QSO Entry</i> generates code to handle receipt of multiple states, provinces, counties, etc.
+all in one entry with a comma, hyphen or slash between them.
+<li><i>Multiple TX named mults in an entry</i> generates the additional code when the log is from a juristiction that allows
+transmitting multiple QTHs as one QSO. Not all QSO party rules allow for this. Some require a separate QSO per.
+<li><i>Multiple named mult pages</i> generates code for the module to support, for example, named states separate from
+named provinces separate from named counties.
 <li><i>Roving Stations</i>
 <ul>
 <li><i>Dupe received as Rover</i> The received exchange makes a matching call and band 
@@ -138,11 +157,12 @@ not a duplicate.</li>
 <li><i>Automate county line</i> When operating from a county/grid boundary, press TAB on an empty QSO Window
 and WriteLog fills in the next county/grid you haven't already logged for that call and band.</li>
 </ul></li>
+</ul>
 <li><i>Contest Display Name</i> is what the user will see in the WriteLog Select Contest list.
 <li><i>Class Name</i> is the name of the C++ class to be generated. The wizard has to generate
 a name for the corresponding COM coclass which it does this way: if you start the name of the 
 class with a "C" (capital C) then the coclass is the name of the C++ class with no leading C. 
-Otherwise, the name of the coclass is the name of the C++ class with CoClass appended
+Otherwise, the name of the coclass is the name of the C++ class with CoClass appended.
 </ul>
 
 <h2>Installer support</h2>

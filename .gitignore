@@ -1,7 +1,7 @@
 Projects/
 */.vs/
-*/Debug/
-*/Release/
+*/*Debug/
+*/*Release/
 *~
 *.vcproj.*.user
 *.vcxproj.user

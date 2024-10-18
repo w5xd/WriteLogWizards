@@ -31,9 +31,16 @@ function OnFinish(selProj, selObj) {
 
         // distinguish the name of the C++ class from the name of its COM coclass
         var strShortName;
-        if (strClassName.length > 1 && strClassName.substring(0,1) == "C")
-            strShortName = strClassName.substring(1);
-        else
+        if (strClassName.length > 2) {
+            var c1 = strClassName.substring(0, 1);
+            if (c1 == 'C') {
+                var c2 = strClassName.substring(1, 2).toUpperCase();
+                if ((c2 >= 'A') && (c2 <= 'Z'))
+                    strShortName = strClassName.substring(1);
+            }
+        }
+
+        if (!strShortName)
             strShortName = strClassName + "CoClass";
 
         wizard.AddSymbol("COCLASS", strShortName);

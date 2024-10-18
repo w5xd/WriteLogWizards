@@ -1,0 +1,14 @@
+readme.txt
+dllmain.cpp
+dllmain.h
+Resource.h
+stdafx.cpp
+stdafx.h
+targetver.h
+product.wxs
+TemplateContestModule.cpp
+TemplateContestModule.def
+TemplateContestModule.rc
+TemplateContestModule.rc2
+TemplateContestModule.rgs
+TemplateContestModule.idl
