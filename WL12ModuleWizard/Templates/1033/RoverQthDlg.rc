@@ -18,7 +18,7 @@ BEGIN
     LISTBOX         14116,10,100,124,40,LBS_SORT | LBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "Use &Existing",14115,193,124,50,14
 [!if AM_COUNTYLINE]
-    CONTROL         "Separate each QSO on County &Line", 14117, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 7, 151, 137, 10
+    CONTROL         "Separate QSO mode on my County &Line", 14117, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 7, 151, 137, 10
 [!endif]
 [!if MULTIPLE_NAMED_IN_QSO_TX]
     CTEXT           "Select multiple if on county line", IDC_STATIC, 129, 25, 115, 10

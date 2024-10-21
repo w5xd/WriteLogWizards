@@ -332,7 +332,6 @@ HRESULT [!output MM_CLASS_NAME]::FinalConstruct()
 	        hr = m_namedMults[region].m_pNamedMults->get_MultCount(&m_namedMults[region].m_NumNamed);
     }
 [!endif]
-
     return hr;
 }
 
@@ -410,8 +409,8 @@ HRESULT [!output MM_CLASS_NAME]::GetLayout(ConstBandPtr_t * b, ConstExfPtr_t * e
         return *m_dupeSheets[q->DupeSheet - 1]; // is valid
     return *m_dupeSheets[0];
 }
-[!endif]
 
+[!endif]
 HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 {
 [!if AM_ROVER]
@@ -536,7 +535,6 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
         }
         if (!foundNamed)
             fMLT(q) = "?";
-
 [!endif]
 [!if !NO_ZONE]
 		//*********************************
@@ -561,8 +559,8 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
 			if (m_ZoneDisplay)
 				m_ZoneDisplay->Invalidate(z);
 		}
-
 [!endif]
+
 [!if !NO_AYGMULT]
 		//*********************************
 		//Process multiplier list built as you go...
@@ -645,7 +643,6 @@ HRESULT [!output MM_CLASS_NAME]::QsoAdd(QsoPtr_t q)
     if (m_countyLineMode && q->dupe == ' ')
         m_currentDupeSheet = 0;
 [!endif]
-
 
 	// If the multiplier module returns S_FALSE, WriteLog completely
 	// resorts all QSOs (by calling InitQsoData and QsoAdd for each QSO).

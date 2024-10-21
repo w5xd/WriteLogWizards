@@ -22,7 +22,9 @@ function UserException(message) {
 function OnFinish(selProj, selObj) {
     var oCM;
     try {
-        //debugger;
+        /* uncomment to break in debugger....VS 2022 crashes here instead.
+        debugger;
+        */
         /* validate */
         var strClassName = wizard.FindSymbol("MM_CLASS_NAME");
         var strContestDisplay = wizard.FindSymbol("CONTEST_NAME");

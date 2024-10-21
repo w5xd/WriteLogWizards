@@ -37,7 +37,7 @@ public:
                 auto which = *m_Cabrillo2MineItor;
                 if ((which >= 0) && (which < m_target->m_namedMults[[!output MM_CLASS_NAME]::REGION_NAME_FIXME1].m_NumNamed))
                     m_target->m_namedMults[[!output MM_CLASS_NAME]::REGION_NAME_FIXME1].m_pNamedMults->NameFromIndex(which, reinterpret_cast<unsigned char**>(&Name));
-                wsprintf(Buf, "%-6s ", (char*)Name);
+                wsprintf(Buf, "%-6s ", Name);
             }
             return S_OK;
         default:
@@ -62,7 +62,7 @@ public:
                 auto which = *m_Cabrillo2HisItor;
                 if ((which >= 0) && (which < m_target->m_namedMults[[!output MM_CLASS_NAME]::REGION_NAME_FIXME1].m_NumNamed))
                     m_target->m_namedMults[[!output MM_CLASS_NAME]::REGION_NAME_FIXME1].m_pNamedMults->NameFromIndex(which, reinterpret_cast<unsigned char**>(&Name));
-                wsprintf(Buf, "%-6s ", (char*)Name);
+                wsprintf(Buf, "%-6s ", Name);
             }
             return S_OK;
         default: break;
