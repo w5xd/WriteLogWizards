@@ -428,6 +428,8 @@ DECLARE_INTERFACE_(IWlogMultiADIF, IUnknown)
 
 DECLARE_INTERFACE_(IWlogMultiADIF2, IUnknown)
 {
+// WriteLog will use IWlogMultiADIF2 to ADD tag names to those that it will give the multiplier module.
+// This tags are in addition to the one WriteLog computes from the fields column title and/or GetAdifName
 	STDMETHOD(NumberAdifReadFields)(THIS_ long Offset, unsigned short *) PURE;
 	STDMETHOD(GetAdifReadFieldTag)(THIS_ long Offset, unsigned short which, char *pIn, unsigned short pInLen) PURE;
 };

@@ -186,6 +186,12 @@ public:
             return m_dest;
         }
 
+        const accessor& operator = (const accessor& other)
+        {
+            assign(other);
+            return *this;
+        }
+
         void assign(const accessor &other)
         {
             operator = (static_cast<const char *>(other));
