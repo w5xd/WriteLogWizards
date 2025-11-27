@@ -1,11 +1,12 @@
 #include <windows.h>
 #include <ole2.h>
+#include <atomic>
 #include "mmdcf.h"
 
 
 //Count number of objects and number of locks.
-static ULONG       g_cObj=0;
-static ULONG       g_cLock=0;
+static std::atomic<ULONG>       g_cObj = 0;
+static std::atomic<ULONG>      g_cLock = 0;
 
 
 /*
@@ -31,16 +32,18 @@ static ULONG       g_cLock=0;
  *  HRESULT         NOERROR on success, otherwise contains an error SCODE.
  */
 
-HRESULT FAR PASCAL DllGetClassObject(REFCLSID rclsid, REFIID riid
-    , LPVOID FAR *ppv)
-	{
+HRESULT PASCAL DllGetClassObject(REFCLSID rclsid, REFIID riid
+    , LPVOID * ppv)
+{
+    if (!ppv)
+        return E_POINTER;
 #ifdef _AFXDLL
-	AFX_MANAGE_STATE(AfxGetStaticModuleState( ));
+    AFX_MANAGE_STATE(AfxGetStaticModuleState());
 #endif
-	int ClassIndex;
+    int ClassIndex;
 
-	ClassIndex = SupportedClsid(rclsid);
-	if (ClassIndex < 0)
+    ClassIndex = SupportedClsid(rclsid);
+    if (ClassIndex < 0)
         return ResultFromScode(E_FAIL);
 
     //Check that we can provide the interface
@@ -48,16 +51,16 @@ HRESULT FAR PASCAL DllGetClassObject(REFCLSID rclsid, REFIID riid
         return ResultFromScode(E_NOINTERFACE);
 
     //Return our IClassFactory for Koala objects
-	*ppv=(LPVOID)new CWlMmdFactory(ClassIndex);
+    *ppv = (LPVOID)new CWlMmdFactory(ClassIndex);
 
-    if (NULL==*ppv)
+    if (NULL == *ppv)
         return ResultFromScode(E_OUTOFMEMORY);
 
     //Don't forget to AddRef the object through any interface we return
     ((LPUNKNOWN)*ppv)->AddRef();
 
     return NOERROR;
-    }
+}
 
 /*
  * DllCanUnloadNow
@@ -74,13 +77,13 @@ HRESULT FAR PASCAL DllGetClassObject(REFCLSID rclsid, REFIID riid
  */
 
 STDAPI DllCanUnloadNow(void)
-    {
+{
     SCODE   sc;
 
     //Our answer is whether there are any object or locks
-    sc=(0L==g_cObj && 0==g_cLock) ? S_OK : S_FALSE;
+    sc = (0L == g_cObj && 0 == g_cLock) ? S_OK : S_FALSE;
     return ResultFromScode(sc);
-    }
+}
 
 
 /*
@@ -98,15 +101,15 @@ STDAPI DllCanUnloadNow(void)
  *  None
  */
 
-static void FAR PASCAL ObjectDestroyed(void)
-    {
+static void PASCAL ObjectDestroyed(void)
+{
     g_cObj--;
     return;
-    }
+}
 
 void CWlMmdFactory::AdjustObjectCount(int i)
 {
-	g_cObj += i;
+    g_cObj += i;
 }
 
 /*
@@ -118,17 +121,16 @@ void CWlMmdFactory::AdjustObjectCount(int i)
  */
 
 CWlMmdFactory::CWlMmdFactory(int ClassId)
-    {
-	m_cRef=0L;
-	ClsId = ClassId;
+{
+    m_cRef = 0L;
+    ClsId = ClassId;
     return;
-    }
+}
 
 
 CWlMmdFactory::~CWlMmdFactory(void)
-    {
-    return;
-    }
+{
+}
 
 /*
  * CWlMmdFactory::QueryInterface
@@ -136,45 +138,43 @@ CWlMmdFactory::~CWlMmdFactory(void)
  * CWlMmdFactory::Release
  */
 
-STDMETHODIMP CWlMmdFactory::QueryInterface(REFIID riid, LPVOID FAR *ppv)
-    {
-    *ppv=NULL;
+STDMETHODIMP CWlMmdFactory::QueryInterface(REFIID riid, LPVOID FAR* ppv)
+{
+    if (!ppv)
+        return E_POINTER;
+    *ppv = NULL;
 
     //Any interface on this object is the object pointer.
     if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_IClassFactory))
-        *ppv=(LPVOID)this;
+        *ppv = (LPVOID)this;
 
     /*
      * If we actually assign an interface to ppv we need to AddRef it
      * since we're returning a new pointer.
      */
-    if (NULL!=*ppv)
-        {
+    if (NULL != *ppv)
+    {
         ((LPUNKNOWN)*ppv)->AddRef();
-        return NOERROR;
-        }
-
-    return ResultFromScode(E_NOINTERFACE);
+        return S_OK;
     }
+
+    return E_NOINTERFACE;
+}
 
 
 STDMETHODIMP_(ULONG) CWlMmdFactory::AddRef(void)
-    {
+{
     return ++m_cRef;
-    }
+}
 
 
 STDMETHODIMP_(ULONG) CWlMmdFactory::Release(void)
-    {
-    ULONG           cRefT;
-
-    cRefT=--m_cRef;
-
-    if (0L==m_cRef)
+{
+    ULONG  cRefT = --m_cRef;
+    if (0L == m_cRef)
         delete this;
-
     return cRefT;
-    }
+}
 
 
 /*
@@ -199,36 +199,36 @@ STDMETHODIMP_(ULONG) CWlMmdFactory::Release(void)
  */
 
 STDMETHODIMP CWlMmdFactory::CreateInstance(LPUNKNOWN punkOuter
-    , REFIID riid, LPVOID FAR *ppvObj)
-    {
-    IUnknown FAR *      pObj;
+    , REFIID riid, LPVOID FAR* ppvObj)
+{
+    IUnknown FAR* pObj;
     HRESULT             hr;
 #ifdef _AFXDLL
-	AFX_MANAGE_STATE(AfxGetStaticModuleState( ));
+    AFX_MANAGE_STATE(AfxGetStaticModuleState());
 #endif
 
-    *ppvObj=NULL;
-    hr=ResultFromScode(E_OUTOFMEMORY);
+    * ppvObj = NULL;
+    hr = ResultFromScode(E_OUTOFMEMORY);
 
     //Verify that if there is a controlling unknown it's asking for IUnknown
-    if (NULL!=punkOuter && !IsEqualIID(riid, IID_IUnknown))
+    if (NULL != punkOuter && !IsEqualIID(riid, IID_IUnknown))
         return ResultFromScode(E_NOINTERFACE);
 
     //Create the object telling it a function to notify us when it's gone.
-	pObj= MmdCreateInstance(ClsId, punkOuter, ObjectDestroyed);
+    pObj = MmdCreateInstance(ClsId, punkOuter, ObjectDestroyed);
 
-    if (NULL==pObj)
+    if (NULL == pObj)
         return hr;
 
-	pObj->AddRef();
-	g_cObj++;
+    pObj->AddRef();
+    g_cObj++;
 
-	hr=pObj->QueryInterface(riid, ppvObj);
-	//Kill the object if initial creation failed.
-	pObj->Release();
+    hr = pObj->QueryInterface(riid, ppvObj);
+    //Kill the object if initial creation failed.
+    pObj->Release();
 
-	return hr;
-    }
+    return hr;
+}
 
 /*
  * CWlMmdFactory::LockServer
@@ -247,11 +247,11 @@ STDMETHODIMP CWlMmdFactory::CreateInstance(LPUNKNOWN punkOuter
  */
 
 STDMETHODIMP CWlMmdFactory::LockServer(BOOL fLock)
-    {
+{
     if (fLock)
         g_cLock++;
     else
         g_cLock--;
 
-    return NOERROR;
-    }
+    return S_OK;
+}
