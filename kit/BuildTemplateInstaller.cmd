@@ -2,7 +2,7 @@
 @rem first we package the Project wizard
 @set outputFile=WL12_VS2019_ContestModuleWizards.zip
 @set projWizardZip=WL12ProjectWizard.zip
-@if exist "" del /q "%projWizardZip%"
+@if exist "%projWizardZip%" del /q "%projWizardZip%"
 @pushd ..\WL12ProjectWizard\WL12ContestTemplate
 @7z a "..\..\kit\%projWizardZip%" *.*
 @popd
