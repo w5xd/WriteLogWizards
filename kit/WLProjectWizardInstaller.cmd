@@ -1,6 +1,6 @@
 @rem the file WL12ProjectWizard.zip should have been downloaded and unzipped colocated here
 @rem This installer is for VS2022 and ONLY for the WL12 Project wizard (not the Item wizard). 
-@set VSfolderName=Visual Studio 2022
+@set VSfolderName=Visual Studio 2019
 @set projWizardZip=WL12ProjectWizard.zip
 @set KEY_NAME=HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders
 @set VALUE_NAME=Personal
