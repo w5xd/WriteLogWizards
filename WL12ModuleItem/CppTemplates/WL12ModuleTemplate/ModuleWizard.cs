@@ -201,6 +201,10 @@ namespace WL12ModuleItem.CppTemplates.WL12ModuleTemplate
             return resourceDefines;
         }
 
+        // The .vstemplate processor cannot do nested if/else, nor any compound logic other than AND.
+        // The conversion process for them involves picking out those cases and it generates
+        // the class CompositeSymbols. createCompoundExpressions() here takes those generated
+        // expressions and places them in the replacementsDictionary.
         void createCompoundExpressions(Dictionary<string, string> replacementsDictionary)
         {
             var separators = new string[] { "!", "&&", "||" };
@@ -360,6 +364,7 @@ namespace WL12ModuleItem.CppTemplates.WL12ModuleTemplate
             return m_dte.Solution.Projects.Item(1);
         }
 
+        // a bunch of stuff this class needs to communicate from one call to the next
         class ProjectMisc {
             public string resourcehFilePath;
             public string resourceFilePath;
@@ -408,8 +413,7 @@ namespace WL12ModuleItem.CppTemplates.WL12ModuleTemplate
         }
 
         void IWizard.BeforeOpeningFile(ProjectItem projectItem)
-        {
-        }
+        { }
 
         Dictionary<string, FinishEditFileInterface> itemsToEdit = new Dictionary<string, FinishEditFileInterface>();
 
@@ -461,8 +465,8 @@ namespace WL12ModuleItem.CppTemplates.WL12ModuleTemplate
         }
 
         void IWizard.ProjectFinishedGenerating(Project project)
-        {
-        }
+        {}
+
         void IWizard.RunFinished()
         {
             if (userCanceled)
@@ -479,8 +483,10 @@ namespace WL12ModuleItem.CppTemplates.WL12ModuleTemplate
             postFinishEdit();
         }
 
+        /* At RunFinished() time  there are several different file types to "edit"
+        ** That is, a file that must be opened and read, and then written, but with
+        ** modifications based on running this wizard. */
         delegate void writeItem(string s);
-
         abstract class FinishEditFileInterface
         {
             public abstract string initDestinationFile(out IEnumerable<string> inLines);
@@ -558,7 +564,6 @@ namespace WL12ModuleItem.CppTemplates.WL12ModuleTemplate
                     cb(sb.ToString());
                 }
             }
-
             public void AddRgs(string fname, string idstring)
             {
                 rgsItems.Add(new RGS(fname, idstring));
