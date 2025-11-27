@@ -9,5 +9,6 @@
 		)
 	)
 )
+@rem replace the generaged CompositeSymbols.cs source file
 %exe% -s symbol_table.txt -cs
 move /y CompositeSymbols.cs WL12ModuleItem\CppTemplates\WL12ModuleTemplate
