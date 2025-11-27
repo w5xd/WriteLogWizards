@@ -1,6 +1,6 @@
 @rem Run this file after the building the full WL12ModuleItemVsix solution in Release-AnyCPU
 @rem first we package the Project wizard
-@set outputFile=WL12_VS2022_ContestModuleWizards.zip
+@set outputFile=WL12_VS2026_ContestModuleWizards.zip
 @set projWizardZip=WL12ProjectWizard.zip
 @if exist "" del /q "%projWizardZip%"
 @pushd ..\WL12ProjectWizard\WL12ContestTemplate

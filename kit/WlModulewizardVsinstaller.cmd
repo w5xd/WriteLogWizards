@@ -1,8 +1,9 @@
-@rem This installs ONLY the WL12 Contest module wizard, and only for VS version 2022
+
+@rem This installs ONLY the WL12 Contest module wizard, and only for VS version 2026
 @rem The trick here that I found documented only at:
 @rem https://learn.microsoft.com/en-us/visualstudio/install/import-export-installation-configurations?view=visualstudio
 @rem It is the --allowUnsignedExtensions.
-@set installPath=C:\Program Files\Microsoft Visual Studio\2022\Community
+@set installPath=C:\Program Files\Microsoft Visual Studio\18\Community
 @set vsix=%~dp0WL12ModuleItem.vsix
 @rem json requires doubled backslashes
 @set vsix=%vsix:\=\\%
