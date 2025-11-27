@@ -1,0 +1,23 @@
+$if$ (0) /*Copyright (c) 2025 by Wayne E. Wright, W5XD
+This template was converted from the version used for the old vsz template technology.
+The old style used [!if ]. The new one uses the "if" that commands the processor to skip this very commentary.
+The difference between the two is (a) that the old tech supported nested "if" clauses while the new one does not,
+and (b) the old style supported && and || operators and the new one only supports string compare for "if" clauses.
+The way I made this work was to extract all the compounded conditional expressions that in the old tech were
+evaluated by the template processor, and make the wizard here evaluate the expressions and write a separate
+for each expression.*/$endif$$if$ ($AM_COUNTYLINE$ == 0)$IDD_ROVERSELECT_DIALOGID$ DIALOGEX 0, 0, 251, 148
+$endif$$if$ ($AM_COUNTYLINE$ == 1)$IDD_ROVERSELECT_DIALOGID$ DIALOGEX 0, 0, 251, 168
+$endif$STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Dupe Sheet Select"
+FONT 10, "Arial", 0, 0, 0x0
+BEGIN
+    GROUPBOX        "&Create a new dupe sheet by selecting the QTH where you are located:",-1,6,0,244,76
+$if$ ($MULTIPLE_NAMED_IN_QSO_TX$ == 0)    LISTBOX         IDC_QTHLIST1, 7, 14, 120, 58, WS_VSCROLL | WS_TABSTOP
+$endif$$if$ ($MULTIPLE_NAMED_IN_QSO_TX$ == 1)    LISTBOX         IDC_QTHLIST1, 7, 14, 120, 58, LBS_MULTIPLESEL | WS_VSCROLL | WS_TABSTOP
+$endif$    PUSHBUTTON      "Create &New", IDC_CREATE_NEW,195,56,50,14
+    GROUPBOX        "... or &Switch back to a previously visited QTH",-1,2,84,249,60
+    LISTBOX         IDC_QTH_OLD_LIST,10,100,124,40,LBS_SORT | LBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Use &Existing", IDC_USE_EXISTING,193,124,50,14
+$if$ ($AM_COUNTYLINE$ == 1)    CONTROL         "Separate QSO mode on my County &Line", IDC_CHECK_COUNTYLINEMODE, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 7, 151, 137, 10
+$endif$$if$ ($MULTIPLE_NAMED_IN_QSO_TX$ == 1)    CTEXT           "Select multiple if on county line", IDC_STATIC, 129, 25, 115, 10
+$endif$END

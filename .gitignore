@@ -1,5 +1,6 @@
 Projects/
-*/.vs/
+ModuleTemplate/
+*.vs/
 */*Debug/
 */*Release/
 *~
@@ -11,3 +12,4 @@ Projects/
 *.swp
 *.sdf
 *.opensdf
+symbol_table.txt

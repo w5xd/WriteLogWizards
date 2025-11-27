@@ -1,0 +1,38 @@
+$if$ (0) /*Copyright (c) 2025 by Wayne E. Wright, W5XD
+This template was converted from the version used for the old vsz template technology.
+The old style used [!if ]. The new one uses the "if" that commands the processor to skip this very commentary.
+The difference between the two is (a) that the old tech supported nested "if" clauses while the new one does not,
+and (b) the old style supported && and || operators and the new one only supports string compare for "if" clauses.
+The way I made this work was to extract all the compounded conditional expressions that in the old tech were
+evaluated by the template processor, and make the wizard here evaluate the expressions and write a separate
+for each expression.*/$endif$<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <!-- The WL Module wizard emits this file but does not add it to any project
+       TODO: add this wxs file to a WIX project.
+       TODO: add <ComponentRef Id="COM_$BASE_NAME$_reg"/> to your <Feature> in product.wxs
+       TODO: add <ComponentRef Id="COM_$BASE_NAME$_data"/> to your <Feature> in product.wxs
+  -->
+  <Fragment>
+    <DirectoryRef Id="WlPrograms">
+      <Component Id = "COM_$BASE_NAME$_reg" DiskId = '1' Win64='no' Guid = "{$WXS_COMPONENT_GUID_1$}">
+        <RegistryValue Root = "HKCR"
+                       Key = "CLSID\{$CLSID_REGISTRY_FORMAT$}\Implemented Categories\{C7212159-7716-101A-AA54-00608C61D0B1}"
+                       Type = "string" Value = "" />
+        <RegistryValue Root = "HKCR" Key = "CLSID\{$CLSID_REGISTRY_FORMAT$}\InprocServer32"
+                       Value = "[WlProgramsFolder]$PROJECT_NAME$.dll" Type = "string" />
+        <RegistryValue Root = "HKCR" Key = "CLSID\{$CLSID_REGISTRY_FORMAT$}\WritelogMMD"
+                       Value = "$CONTEST_NAME$" Type = "string" />
+      </Component>
+    </DirectoryRef>
+
+    <!--If your module has no data files, this entire DirectoryRef and contained Component may be deleted-->
+    <DirectoryRef Id="WriteLogCommonAppData">
+      <Component Id="COM_$BASE_NAME$_data" Win64="no" DiskId='1' Guid="{$WXS_COMPONENT_GUID_2$}">
+        <!-- TODO ... and any data files
+        <File Id='COM_$BASE_NAME$_data' Source="<path to data file to install in ProgramData\WriteLog >" />
+        -->
+        <CreateFolder/> <!--The directory should already be there. but without this directive WIX won't compile-->
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+</Wix>

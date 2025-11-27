@@ -1,42 +1,53 @@
-# WriteLogWizards
-Tools for WriteLog contest module development
+# VSIX WriteLogWizards
+Tools for WriteLog contest module development.
 This repo contains:<ol>
-<li>Check branches in this repo for older versions of Visual Studio
-<li>Source code for Visual Studio 2019/2022 wizards that create WriteLog contest module implementations.
-<li>Instructions for using Visual Studio 2019/2022 Community Edition.
-<li> The necessary header files and import libraries to build WriteLog contest modules.
+<li>The necessary header files and import libraries to build and install WriteLog contest modules.
+<li>Wizards for Visual Studio versions 2019, 2022 and 2026
+<li>Source code for those wizards in item (2).
 </ol>
 
-Developing in VS 2019/2022 targets only WriteLog version 12. (The VS2013 nor VS2019
-C++ runtime is not installed by the WL11 installer.)
-Developing in VS 2019/2022 can target both WriteLog 11 and 12, <b>but</b> you must arrange to install
-the VS 2019 runtime when your module is installed on WriteLog versions older than 12.55.
+The list above is in priority order. That is, you must have item (1) in order to develop a WriteLog
+contest dll. The <code><b>WriteLog</b></code> folder has what is needed. Item (2) you may use to generate a 
+Visual Studio project and classes within
+it using helper classes in the headers and libraries, but nothing forces you to use
+the wizards to create source code.  Item (3) is unlikely you'll need. See the bottom of this page for more.
+
+Developing this kit targets only WriteLog version 12. The
+resulting dll's can be installed without the VC++ runtimes unless you care to
+support yours being installed in WriteLog versions older than 12.55. In that case,
+you must arrange to install the newer C++ runtimes (v142 and later).
+
+This November 2025 update is a complete re-implementation using VSIX technology compared to the 
+WriteLog module development kit posted here for many years. Users of those older wizards
+will hardly notice a difference, except that these are far simpler to install into your
+Visual Studio development system. Specifically:
+<ul>
+<li>The GUI presented in Visual Studio for adding a Project and a contest's Project Item 
+is almost unchanged from the .vsz version.
+<li>In all Visual Studio versions, there is a WriteLog V12 "New Project" template under Visual Studio's
+File/New-Project, and there is a WL12 Contest Module Template under Visual Studio "Add New Item..."
+</ul>
 
 <h2>The Directory Structure</h2>
-The wizards generate code that assumes the relative file paths set up in this repo:
+
+You start by cloning or duplicating this git repository. Unless you expect to change the wizards themselves,
+you do not need to keep any of the cloned folders under version control. Use version control on
+the files you place under the <code><b>Projects</b></code> folder. You also need a version of Visual Studio
+installed.
+
+The wizards generate code that <i>assumes</i> the relative file paths set up in this repository, else Visual
+Studio will be unable to build them:
 
 <code><b>Projects/</b></code><br/>
-Is not part of this repo, but <i>is</i> in .gitignore. It is where you should have the 
-VS File/New-project wizard place any newly created WL module development projects.
-
-<code><b>WL12ModuleWizard/</b></code><br/>
-contains the source of the module create wizard. Works for 2019 and 2022
-
-<code><b>WL12ProjectWizard2019/</b></code><br/>
-contains the source of the VS2019 project create wizard.
-
-<code><b>WL12ProjectWizard2022/</b></code><br/>
-contains the source of the VS2022 project create wizard.
+It is
+required when you create a new project (vcxproj) that you CHECK ON the "put sln and project 
+in the same folder button", and that you place your new project in this <code><b>Projects/</b></code><br/> folder.
+The folder is not archived in this repository, and is prevented from that by .gitignore.
 
 <code><b>WriteLog/</b></code><br/>
 contains the source of the various headers and import libraries required by the generated project. These headers
-and libraries suffice for both WL11 and WL12 (all versions of Visual Studio). You do <i>not</i> edit anything here, with <b>one</b> exception:
-
-<code><b>WriteLog/include/</b></code><br/>
-is where it is suggested you put your own common headers you want available across multiple modules. 
-The wizards arrange for this directory to be in the include path for both C++ and .rc compiles, so this
-is a good place to put, for example, source code for any copyright or version information you want
-in common across your modules.
+and libraries suffice for both WL11 and WL12 (all versions of Visual Studio). 
+You do <i>not</i> edit anything here.
 
 <pre><code><b>WriteLog/generated/
 WriteLog/MmdCom/
@@ -46,71 +57,38 @@ for your development because much of it is archaic. The reason the archaic stuff
 to enable source-code compatible development of module developed using the old Visual Studio 6
 wizard last updated in 2008 (and most of which dates from 2000--or earlier.)
 
+<code><b>WL12ModuleItem/</b></code><br/>
+contains the source of the module create wizard VSIX component. This is internal wizard implementation
+details
+
+<code><b>WL12ProjectWizard/</b></code><br/>
+contains the source of the project create wizard.This is internal wizard implementation details.
+
 <h2>The wizards</h2>
-You must already have VS 2019 or 2022 installed. The Community Edition 2019 or 2022 is 
-supported for WriteLog module development.
-It takes two wizard operations to create a WriteLog contest module:<ol>
-<li>The wl12ProjectWizard2019 creates a skeleton project from the VS File/New-Project menu.
-<li>The wl12ProjectWizard2022 creates a skeleton project from the VS File/New-Project menu.
-<li>The WL12ModuleWizard adds skeleton header/cpp/wxs files to such a project for a contest. 
-</ol>
+You must already have VS 2019, 2022, or 2026 installed. 
+
 <h3>Deploying the wizards</h3>
+The <b>Releases</b> tab on github for this repository has links to version-specific zip
+files containing the wizard code. Download the appropriate zip file and unzip it into
+any temporary folder you choose. Look at the ReadMe.txt there for further instructions.
 There are two wizards: one for creating a project, and one for adding a module to a project.
-Follow the one-time editing instructions below.
-There is more than one way to accomplish deployment, but here
-is one that works and is minimally intrusive on your system.
+The zip file has a separate <code>cmd</code> file for install each. The <code>cmd</code> files 
+can be run multiple
+times if you think they didn't work. The module wizard can only be uninstalled using the
+Visual Studio installer. The project wizard install is simply a copy of a zip file placed
+in a Visual Studio specific sub folder of your Documents folder. You have to track the
+zip file down and delete  it manually to uninstall.
 
-For all wizards it is not necessary to use Visual Studio to File/Open-Project of any of the
-.sln/.vcproj/.vcxproj files in the repo Wizard/ folders. Doing so MIGHT cause VS to auto-magically 
-deploy the wizard in your <code><i>&lt;MyDocuments&gt;</i></code> folder, which might or might not conflict with the instructions below. Of course, 
-if you don't like the way the wizards work, you are welcome to change them to suit yourself.
+</ol>Once installed, and in Visual Studio use File/New-Project and find the WriteLog
+Project wizard.
 
-<h4>Deploy the Project Wizard</h4>
-Visual Studio should have already created the directory <code><i>&lt;MyDocuments&gt;</i>&#92Visual Studio 2022&#92;</code>. 
-Create a subfolder named 
-<code>&#92Wizards&#92</code> and copy these 3 files (and only these 3) from the <code>WL12ProjectWizard2022</code> 
-repo folder: <ul>
-<li>WL12ProjectWizard2022.ico
-<li>WL12ProjectWizard2022.vsdir
-<li>WL12ProjectWizard2022.vsz
-</ul> 
-Edit that last file, the .vsz file, to correct the absolute path. Make it point to the corresponding directory in your fetched version of this git repo:
-<pre><code>Param="ABSOLUTE_PATH = c:\wherever\WriteLogWizards\WL12ProjectWizard2022"</code>
-</pre>.
-
-For VS version 2019, substitute it above. There is no need to copy the files out of your git work area.
-<p>Now File/New Project in Visual Studio should show this entry that wasn't there before. </p>
-<p align="center"><img width="70%" alt="ProjectNew2019.png" src="ProjectNew2019.png"/></p>
-<p>In order for the directory structure to match that assumed by the module wizard, when creating a
-new project, browse to the Projects directory in this repo (create it, if necessary),
-and turn <b>on</b> the <i>Place solution and project in the same directory</i> check box.</p>
-
-<h4>Deploy the ModuleWizard</h4>
-Getting a new item into the Visual Studio Add/New-Item menu apparently cannot be done
-in My Documents like a project wizard. Its deployment requires administrator privilege. 
-You must create files in the Visual Studio installation directory. The directory to find is:
-<pre><code>C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\VC\vcprojectitems
-or
-C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\VC\vcprojectitems
-</code> 
-</pre>In that vcprojectitems directory, you need two things: <ul>
-<li>Create a folder named <code>LocalItems</code>.</li>
-<li>Into that same vcprojectitems folder, copy the file (unchanged) from this repo: 
-<code>WL12ModuleWizard/Deploy/LocalItems.vsdir</code>.</li>
+<p align='center'><img src='ProjectNew2019.png' alt='ProjectNew2019.png'/></p>
+Be sure to <ul>
+<li>Check the Place solution and project in the same directory
+<li>Place the new file in the Projects directory of this repository, as shown.
 </ul>
-And then into that newly created LocalItems folder, copy three files from the repo's WL12ModuleWizard folder, as appropriate
-for your Visual Studio version:<ol>
-<li>WL12ModuleWizard2019.ico</li>
-<li>WL12ModuleWizard2019.vsdir</li>
-<li>WL12ModuleWizard2019.vsz</li>
-</ol>or
-<ol>
-<li>WL12ModuleWizard2022.ico</li>
-<li>WL12ModuleWizard2022.vsdir</li>
-<li>WL12ModuleWizard2022.vsz</li>
-</ol>That .vsz file must be edited to correct the <code>ABSOLUTE_PATH</code>. Again, there is no need to copy files out of the git work 
-area: just point that vsz file to the appropriate subdirectory in your fetched copy of this git repo. Once installed, and in 
-Visual Studio with a WL project open, a right mouse click on the project looks like this:
+<p align="center"><img  alt="ProjectNewSettings.png" src="ProjectNewSettings.png"/></p>
+with a WL project open, a right mouse click on the project looks like this:
 <p align="center"><img  alt="AddNewItem.png" src="AddNewItem.png"/></p>
 <p align="center"><img width="70%" alt="AddContest.png" src="AddContest.png"/></p>
 You use the Add New Item repeatedly in order to support more than one contest from a single .DLL. 
@@ -190,47 +168,8 @@ and add the <module-name>.wxs file. The project also needs a Reference to WixUIE
 Edit the various TODO's in the two wxs files. (Or more wxs files if you put support more than one contest in your
 project). 
 
-<h2>Source code changes required for older modules</h2>
-There are a handful of bugs in the header files generated using the old Visual Studio 6 
-WriteLog contest wizard. It is recommended that any new work on those old modules be
-done using the software development environment published here, and with Visual Studio
-2008 (or VS 2013 if WL12 and later support is all that is desired.) Start by placing
-the old module's source code in its own new folder under Projects in the directory
-tree created by this repo. You do not run any of the wizards in order to rebuild an old project. This
-exercise is just to use the latest versions of the header files, which have some
-templates and preprocessor directives that have been improved since the VS 6 wizard 
-was deployed.
-
-There are a couple of source code changes required in old modules to make them compile
-in this updated environment:
-<ol>
-<li> Place the old source code directory in the new Projects folder here.
-<li>The include path structure has changed. The easiest way to deal 
-with this is to edit only the .vcproj as text. 
-<ul><li>Replace this: <code>..\..\Wlogtool</code>
-with <code>..\..\WriteLog\Wlogtool</code>. 
-<li>Similarly, replace <code>..\..\include</code> 
-with <code>..\..\WriteLog\include</code>. 
-<li>This one is slightly different: <code>..\mmdcom</code> becomes
-<code>..\..\WriteLog\mmdcom</code>.
-<li>Finally, to the include file paths, add this directory which did
-not appear in the old wizard: <code>..\..\WriteLog\generated</code>
-</ul>
-<li>The clsid.c file won't compile anymore. Because it references headers that now only work in C++.
-Using the VS Solution explorer, rename it to clsid.cpp.
-<li>clsid.cpp still might not compile if the &lt;projectname&gt;mm.h file won't compile stand-alone.
-One simple way to fix this is to split out from &lt;projectname&gt;mm.h the bit that clsid.cpp needs
-into a separate file.
-<ul>
-<li>Create a new header file named, say, &lt;projectname&gt;guid.h.
-<li>Cut from &lt;projectname&gt;mm.h all the lines that look like this: <br/>
-<code>DEFINE_GUID(CLSID_EuRttyMmd, 0xC7212160, 0x7716, 0x101A,
-	0xAA, 0x54, 0x00, 0x60, 0x8C, 0x61, 0xD0, 0xB1);
-/* C7212160-7716-101A-AA54-00608C61D0B1 */
-</code>
-<li> and paste those lines into &lt;projectname&gt;guid.h
-<li> Update &lt;projectname&gt;mm.h to #include the new guid.h
-<li> Change clsid.cpp to #include the new guid.h <i>instead of</i> mm.h.
-</ul>
-</ol>
-
+<h2>Change the wizards?</h2>
+The wizard code is here in the repository, but is unlikely you'll ever touch it. 
+Unless you don't like the way the wizards work, simply do not ever open any of the solution or project
+files except those you create under the <code><b>Projects</b></code> folder. Changing the wizards
+also requires you to use a git branch specific to the Visual Studio version for the wizard you want to change.

@@ -1,0 +1,26 @@
+[!if !AM_COUNTYLINE]
+[!output IDD_ROVERSELECT_DIALOGID] DIALOGEX 0, 0, 251, 148
+[!else]
+[!output IDD_ROVERSELECT_DIALOGID] DIALOGEX 0, 0, 251, 168
+[!endif]
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Dupe Sheet Select"
+FONT 10, "Arial", 0, 0, 0x0
+BEGIN
+    GROUPBOX        "&Create a new dupe sheet by selecting the QTH where you are located:",-1,6,0,244,76
+[!if !MULTIPLE_NAMED_IN_QSO_TX]
+    LISTBOX         IDC_QTHLIST1, 7, 14, 120, 58, WS_VSCROLL | WS_TABSTOP
+[!else]
+    LISTBOX         IDC_QTHLIST1, 7, 14, 120, 58, LBS_MULTIPLESEL | WS_VSCROLL | WS_TABSTOP
+[!endif]
+    PUSHBUTTON      "Create &New", IDC_CREATE_NEW,195,56,50,14
+    GROUPBOX        "... or &Switch back to a previously visited QTH",-1,2,84,249,60
+    LISTBOX         IDC_QTH_OLD_LIST,10,100,124,40,LBS_SORT | LBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Use &Existing", IDC_USE_EXISTING,193,124,50,14
+[!if AM_COUNTYLINE]
+    CONTROL         "Separate QSO mode on my County &Line", IDC_CHECK_COUNTYLINEMODE, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 7, 151, 137, 10
+[!endif]
+[!if MULTIPLE_NAMED_IN_QSO_TX]
+    CTEXT           "Select multiple if on county line", IDC_STATIC, 129, 25, 115, 10
+[!endif]
+END

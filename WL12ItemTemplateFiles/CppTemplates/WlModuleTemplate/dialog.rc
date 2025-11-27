@@ -1,0 +1,20 @@
+$if$ (0) /*Copyright (c) 2025 by Wayne E. Wright, W5XD
+This template was converted from the version used for the old vsz template technology.
+The old style used [!if ]. The new one uses the "if" that commands the processor to skip this very commentary.
+The difference between the two is (a) that the old tech supported nested "if" clauses while the new one does not,
+and (b) the old style supported && and || operators and the new one only supports string compare for "if" clauses.
+The way I made this work was to extract all the compounded conditional expressions that in the old tech were
+evaluated by the template processor, and make the wizard here evaluate the expressions and write a separate
+for each expression.*/$endif$$IDD_DIALOGID$ DIALOG 0, 0, 320, 200
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+$if$ ($AM_COUNTYLINE$ == 1)    CONTROL         "Separate QSO mode on my County &Line",14117,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,16,82,10
+$endif$$if$ ($NO_AYGMULT$ == 0)    LTEXT           "My AYG TODO",IDC_STATIC,17,32,50,8
+    EDITTEXT        IDC_EDIT_MYAYG,85,29,45,14, ES_UPPERCASE | ES_AUTOHSCROLL
+$endif$$if$ ($NO_NAMEDMULT$ == 0)    LTEXT           "My named TODO",IDC_STATIC,17,48,56,8
+    EDITTEXT        IDC_EDIT_MYNAMED,85,45,45,14, ES_UPPERCASE | ES_AUTOHSCROLL
+$endif$    DEFPUSHBUTTON   "OK",IDOK,209,179,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,263,179,50,14
+END

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+    <TemplateData>
+        <Name>WriteLog Project Wizard</Name>
+        <Description>Create an ATL C++ project for WriteLog Contest Modules</Description>
+        <Icon>WL12ProjectWizard2022.ico</Icon>
+        <ProjectType>VC</ProjectType>
+        <RequiredFrameworkVersion>4.7</RequiredFrameworkVersion>
+        <DefaultName>WriteLog Contest Modules</DefaultName>
+        <EnableLocationBrowseButton>true</EnableLocationBrowseButton>
+    </TemplateData>
+
+    <TemplateContent>
+        <Project TargetFileName="$safeprojectname$.vcxproj" File="WL12ContestTemplate.vcxproj" ReplaceParameters="true">
+            <ProjectItem ReplaceParameters="false" TargetFileName="framework.h">framework.h</ProjectItem>
+            <ProjectItem ReplaceParameters="false" TargetFileName="pch.h">pch.h</ProjectItem>
+            <ProjectItem ReplaceParameters="false" TargetFileName="pch.cpp">pch.cpp</ProjectItem>
+            <ProjectItem ReplaceParameters="false" TargetFileName="$safeprojectname$.rgs">WL12ContestTemplate.rgs</ProjectItem>
+            <ProjectItem ReplaceParameters="true" TargetFileName="dllmain.cpp">dllmain.cpp</ProjectItem>
+            <ProjectItem ReplaceParameters="true" TargetFileName="dllmain.h">dllmain.h</ProjectItem>
+            <ProjectItem ReplaceParameters="true" TargetFileName="Resource.h">Resource.h</ProjectItem>
+            <ProjectItem ReplaceParameters="true" TargetFileName="targetver.h">targetver.h</ProjectItem>
+            <ProjectItem ReplaceParameters="true" TargetFileName="$safeprojectname$.cpp">WL12ContestTemplate.cpp</ProjectItem>
+            <ProjectItem ReplaceParameters="true" TargetFileName="$safeprojectname$.rc">WL12ContestTemplate.rc</ProjectItem>
+            <ProjectItem ReplaceParameters="true" TargetFileName="$safeprojectname$.rc2">WL12ContestTemplate.rc2</ProjectItem>
+            <ProjectItem ReplaceParameters="true" TargetFileName="$safeprojectname$.idl">WL12ContestTemplate.idl</ProjectItem>
+            <ProjectItem ReplaceParameters="true" TargetFileName="$safeprojectname$.def">WL12ContestTemplate.def</ProjectItem>
+            <ProjectItem ReplaceParameters="true" TargetFileName="$safeprojectname$.vcxproj.filters">WL12ContestTemplate.vcxproj.filters</ProjectItem>
+        </Project>
+    </TemplateContent>
+</VSTemplate>
