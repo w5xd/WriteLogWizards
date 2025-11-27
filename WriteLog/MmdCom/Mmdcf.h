@@ -7,9 +7,9 @@
 
 #ifdef __cplusplus
 
-typedef void  (FAR PASCAL * DestroyFunction)(void);
-int FAR PASCAL SupportedClsid(REFCLSID rclsid);
-IUnknown FAR *MmdCreateInstance(int, LPUNKNOWN, DestroyFunction);
+typedef void  (PASCAL * DestroyFunction)(void);
+int PASCAL SupportedClsid(REFCLSID rclsid);
+IUnknown *MmdCreateInstance(int, LPUNKNOWN, DestroyFunction);
 
 class CWlMmdFactory : public IClassFactory
     {
