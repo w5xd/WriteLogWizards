@@ -79,7 +79,9 @@ Visual Studio installer. The project wizard install is simply a copy of a zip fi
 in a Visual Studio specific sub folder of your Documents folder. You have to track the
 zip file down and delete  it manually to uninstall.
 
-</ol>Once installed, and in Visual Studio use File/New-Project and find the WriteLog
+<h3>Create a project and add a contest</h3>
+
+Once installed, and in Visual Studio, use File/New-Project and find the WriteLog
 Project wizard.
 
 <p align='center'><img src='ProjectNew2019.png' alt='ProjectNew2019.png'/></p>
