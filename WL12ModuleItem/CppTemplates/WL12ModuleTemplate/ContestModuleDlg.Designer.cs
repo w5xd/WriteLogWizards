@@ -532,6 +532,8 @@
             this.splitContainerMultRove.Panel2.Controls.Add(this.checkBoxRoveCanBe);
             this.splitContainerMultRove.Panel2.Controls.Add(this.label5);
             this.splitContainerMultRove.Panel2.Controls.Add(this.checkBoxRoveLogging);
+            this.splitContainerMultRove.SizeChanged += new System.EventHandler(this.splitContainerMultRove_SizeChanged);
+
             this.splitContainerMultRove.Size = new System.Drawing.Size(523, 182);
             this.splitContainerMultRove.SplitterDistance = 500;
             this.splitContainerMultRove.TabIndex = 6;
