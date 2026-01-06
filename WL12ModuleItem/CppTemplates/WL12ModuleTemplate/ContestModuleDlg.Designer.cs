@@ -533,7 +533,7 @@
             this.splitContainerMultRove.Panel2.Controls.Add(this.label5);
             this.splitContainerMultRove.Panel2.Controls.Add(this.checkBoxRoveLogging);
             this.splitContainerMultRove.Size = new System.Drawing.Size(523, 182);
-            this.splitContainerMultRove.SplitterDistance = 232;
+            this.splitContainerMultRove.SplitterDistance = 500;
             this.splitContainerMultRove.TabIndex = 6;
             // 
             // checkBox2NamedPages
