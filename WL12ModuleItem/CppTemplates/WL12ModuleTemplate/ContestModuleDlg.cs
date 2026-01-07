@@ -86,11 +86,6 @@ namespace WL12ModuleItem.CppTemplates.WL12ModuleTemplate
             perNamedMult();
         }
 
-        private void splitContainerMultRove_SizeChanged(object sender, EventArgs e)
-        {
-           splitContainerMultRove.SplitterDistance = splitContainerMultRove.Size.Width/2;
-        }
-
         private void radioButtonNmNone_CheckedChanged(object sender, EventArgs e)
         {
             perNamedMult();

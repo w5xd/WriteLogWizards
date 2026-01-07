@@ -514,7 +514,6 @@
             // 
             this.splitContainerMultRove.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainerMultRove.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.splitContainerMultRove.IsSplitterFixed = true;
             this.splitContainerMultRove.Location = new System.Drawing.Point(0, 246);
             this.splitContainerMultRove.Name = "splitContainerMultRove";
             // 
@@ -524,6 +523,7 @@
             this.splitContainerMultRove.Panel1.Controls.Add(this.checkBox2TXinQSO);
             this.splitContainerMultRove.Panel1.Controls.Add(this.checkBox2inQSO);
             this.splitContainerMultRove.Panel1.Controls.Add(this.groupBox4);
+            this.splitContainerMultRove.Panel1MinSize = 200;
             // 
             // splitContainerMultRove.Panel2
             // 
@@ -532,10 +532,9 @@
             this.splitContainerMultRove.Panel2.Controls.Add(this.checkBoxRoveCanBe);
             this.splitContainerMultRove.Panel2.Controls.Add(this.label5);
             this.splitContainerMultRove.Panel2.Controls.Add(this.checkBoxRoveLogging);
-            this.splitContainerMultRove.SizeChanged += new System.EventHandler(this.splitContainerMultRove_SizeChanged);
-
+            this.splitContainerMultRove.Panel2MinSize = 200;
             this.splitContainerMultRove.Size = new System.Drawing.Size(523, 182);
-            this.splitContainerMultRove.SplitterDistance = 500;
+            this.splitContainerMultRove.SplitterDistance = 240;
             this.splitContainerMultRove.TabIndex = 6;
             // 
             // checkBox2NamedPages
@@ -576,7 +575,7 @@
             this.groupBox4.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox4.Location = new System.Drawing.Point(0, 0);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(232, 95);
+            this.groupBox4.Size = new System.Drawing.Size(240, 95);
             this.groupBox4.TabIndex = 0;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "&Named Mults:";
