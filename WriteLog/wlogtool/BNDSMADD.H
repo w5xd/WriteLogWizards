@@ -1,7 +1,10 @@
-#ifndef BNDSMADD_H
-#define BNDSMADD_H
+#pragma once
 
-extern "C" void PASCAL wlshr_GetSumm(IUnknown FAR *Parent,
-            IWlogBandSumm FAR * FAR *BndSum);
+#if !defined(BUILDING_WLOGSH32)
+#pragma comment(lib, "wlogsh32.lib")
+#endif
 
-#endif      
+extern "C" void __stdcall wlshr_GetSumm(IUnknown  *Parent,
+            IWlogBandSumm  *  *BndSum);
+
+
