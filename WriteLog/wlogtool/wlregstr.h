@@ -1,5 +1,8 @@
-#ifndef WLREGSTR_H
-#define WLREGSTR_H
+#pragma once
+
+#if !defined(BUILDING_WLOGSH32)
+#pragma comment(lib, "wlogsh32.lib")
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,4 +15,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif    

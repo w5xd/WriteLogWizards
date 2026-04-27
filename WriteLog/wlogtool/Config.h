@@ -4,8 +4,11 @@
 */
 /* config.h */
 
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
+
+#if !defined(BUILDING_WLOGSH32)
+#pragma comment(lib, "wlogsh32.lib")
+#endif
 #define CONFIG_STR_MAX 50
 #define CONFIG_ENTRIES 6
 
@@ -20,18 +23,18 @@ typedef struct
     extern "C" {
 #endif
 
-extern HWND FAR PASCAL sco_CreateSumm(const char *, Configuration_Entry_t **);
-extern void FAR PASCAL sco_SetRtfDefault(int NewDefToText);
-extern long FAR PASCAL sco_DoSummStringSubst(const char *,
+extern HWND __stdcall sco_CreateSumm(const char *, Configuration_Entry_t **);
+extern void __stdcall sco_SetRtfDefault(int NewDefToText);
+extern long __stdcall sco_DoSummStringSubst(const char *,
 											const char *,
 											Configuration_Entry_t **, 
 											short);
-extern long FAR PASCAL sco_EditSumm(const char *NewFile);
+extern long __stdcall sco_EditSumm(const char *NewFile);
 #ifdef __cplusplus
     }
 
     extern Configuration_Entry_t ConfigStrings[];
 #endif
 
-#endif
+
 
