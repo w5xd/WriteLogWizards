@@ -6,9 +6,6 @@
 
 #pragma once
 
-#if !defined(BUILDING_WLOGSH32)
-#pragma comment(lib, "wlogsh32.lib")
-#endif
 #define CONFIG_STR_MAX 50
 #define CONFIG_ENTRIES 6
 
