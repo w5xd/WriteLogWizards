@@ -31,15 +31,15 @@ struct LogFontSaveRestoreHelper : private LogFontWithPointSize
     PointSize_t PointSizeX10;
     LOGFONT &LogFont() { return lf; }
     void SaveFontToProfile(const char *section) { SaveFontToProfile2(this, section);}
-    int RestoreFontFromProfile(const char *section) { 
+    int RestoreFontFromProfile(const char *section, unsigned dpi = 96) { 
         auto ret = RestoreFontFromProfile2(this, section); 
         if (ret)
-            AssignDefaultPointSize();
+            AssignDefaultPointSize(dpi);
         return ret;
     }
     int RestoreFontFromProfile(HWND hWnd, const char* section) { 
-        auto ret = RestoreFontFromProfile(section);
         auto dpi = wl_GetDpiForHWND(hWnd);
+        auto ret = RestoreFontFromProfile(section, dpi);
         AdjustToDpi(dpi);
         return ret;
     }

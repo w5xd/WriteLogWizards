@@ -4,9 +4,7 @@
 */
 /*misc.h
 */
-
-#ifndef MISC_H
-#define MISC_H
+#pragma once
 
 #ifndef PORT_H
 #include "port.h"
@@ -33,27 +31,27 @@ union fpConvert
 extern "C" {
 #endif
 
-extern char * FAR PASCAL cvt_char(char FAR *, int , unsigned long, int);
-extern unsigned long FAR PASCAL cvt_long(const char FAR *, int);
-extern void FAR PASCAL build_fname(char *, char *, char *);
-extern void FAR PASCAL set_path(char *, char *);
-extern void FAR PASCAL set_fsel(char *, char *);
-extern void FAR PASCAL pr_number(char *, char *, long, int, int);
-extern int FAR PASCAL SubString(const char *, const char *, int);
-extern int FAR PASCAL xl_makeStr( char FAR *, const char FAR *);
-extern int FAR PASCAL xl_makeInt( char FAR *, int);
-extern int FAR PASCAL xl_makeDouble(char FAR *, double);
-extern int FAR PASCAL xl_makeLong(char FAR *, unsigned long, int);
-extern int FAR PASCAL xl_Header(char FAR *, int , int );
-extern int FAR PASCAL wk1_makeStr(     char FAR *, const char FAR *,  int ,        int );
-extern int FAR PASCAL wk1_makeInt(     char FAR *, int,   int ,        int );
-extern int FAR PASCAL wk1_makeDouble(char FAR *, double, int, int);
-extern int FAR PASCAL wk1_makeLong(    char FAR *, unsigned long , int,  int,  int );
-extern int FAR PASCAL wk1_Header(char FAR *, int , unsigned);
-extern void FAR PASCAL SetChildWindowFonts(HWND Dialog, HFONT Font);
-extern void FAR PASCAL SetDriveAndDir(char FAR *fpath);
+extern char * __stdcall cvt_char(char *, int , unsigned long, int);
+extern unsigned long __stdcall cvt_long(const char *, int);
+extern void __stdcall build_fname(char *, char *, char *);
+extern void __stdcall set_path(char *, char *);
+extern void __stdcall set_fsel(char *, char *);
+extern void __stdcall pr_number(char *, char *, long, int, int);
+extern int __stdcall SubString(const char *, const char *, int);
+extern int __stdcall xl_makeStr( char *, const char *);
+extern int __stdcall xl_makeInt( char *, int);
+extern int __stdcall xl_makeDouble(char *, double);
+extern int __stdcall xl_makeLong(char *, unsigned long, int);
+extern int __stdcall xl_Header(char *, int , int );
+extern int __stdcall wk1_makeStr(     char *, const char *,  int ,        int );
+extern int __stdcall wk1_makeInt(     char *, int,   int ,        int );
+extern int __stdcall wk1_makeDouble(char *, double, int, int);
+extern int __stdcall wk1_makeLong(    char *, unsigned long , int,  int,  int );
+extern int __stdcall wk1_Header(char *, int , unsigned);
+extern void __stdcall SetChildWindowFonts(HWND Dialog, HFONT Font);
+extern void __stdcall SetDriveAndDir(char *fpath);
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+

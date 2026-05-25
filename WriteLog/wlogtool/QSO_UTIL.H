@@ -1,9 +1,5 @@
 #pragma once
 
-#if !defined(BUILDING_WLOGSH32)
-#pragma comment(lib, "wlogsh32.lib")
-#endif
-
 
 #ifndef CONDEFS_H
 #include "condefs.h"
