@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("WriteLog Contesting Software, LLC")]
 [assembly: AssemblyProduct("WL12ModuleItem")]
-[assembly: AssemblyCopyright("Copyright © WriteLog Contesting Software LLC, 2025")]
+[assembly: AssemblyCopyright("Copyright © WriteLog Contesting Software LLC, 2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

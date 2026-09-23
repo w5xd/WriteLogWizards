@@ -1,5 +1,8 @@
 #include "stdafx.h"
-#include "iwritelg.h"
+#include <iwritelg.h>
+[!if FILL_RX_ON_TAB]
+#include <TabToCntyHelper.h>
+[!endif]
 #include "[!output HEADER_FILE]"
 #include "Exfsym.h"
 #include "bndsmadd.h"
@@ -1152,41 +1155,46 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
 	//***NAMED MULTIPLIER PROCESSING
 	//If its a CALL and the RCVD_POS not filled in...
     bool flagNamed(false);
-    if (fCALL == p) 
+    if ((fCALL == p) && canWrite) 
     {
         if (fRCVD(q).empty()) 
         {
             if (!fCALL(q).empty())
             {
-                if (canWrite)
-                {
 [!if !CAN_LOG_ROVER]
-                    if (OldQ)
-		            {
-                        if (canWrite)    // fill in new field from old qso
-                            fRCVD(q).assign(fRCVD(OldQ));
-                        if (!fRCVD(q).empty())
-			                flagNamed = true; // and check whether fRCVD is new mult
-		            }
+                if (OldQ)
+		        {
+                    fRCVD(q).assign(fRCVD(OldQ));
+                    if (!fRCVD(q).empty())
+			            flagNamed = true; // and check whether fRCVD is new mult
+		        }
 [!else]
-                    // Deal with possibility we have logged this guy as a rover
-                    auto PrevQsoRcvd = FindAllPreviousValuesForThisCall(2, fRCVD, q);
-                    if (PrevQsoRcvd.size() == 1) // only if exactly one RCVD value was found do we set it here
-                    {
-                        fRCVD(q)= PrevQsoRcvd.begin()->c_str();
-                        flagNamed = true;
-                    }
-[!endif]
+                // Deal with possibility we have logged this guy as a rover
+                auto PrevQsoRcvd = FindAllPreviousValuesForThisCall(2, fRCVD, q);
+                if (PrevQsoRcvd.size() == 1) // only if exactly one RCVD value was found do we set it here
+                {
+                    fRCVD(q)= PrevQsoRcvd.begin()->c_str();
+                    flagNamed = true;
                 }
+[!endif]
             }
+[!if FILL_RX_ON_TAB]
+[!if !AM_COUNTYLINE]
+            else
+            {   // both fRCVD and fCALL empty
+                static const short CNTY_FIELD_NUM(-1); // FIXME!
+                TabToCntyHelper th(m_Parent, RequestMask);
+                th.tab(q, CNTY_FIELD_NUM);
+            }
+[!endif]
+[!endif]
             ret = 0;
         }
 [!if AM_COUNTYLINE]
-        if (canWrite && m_countyLineMode)
         {
             if (!fCALL(q).empty())
             {   // County line--call filled in
-                for (unsigned i = 0; i < m_dupeSheets.size(); i++)
+                if (m_countyLineMode) for (unsigned i = 0; i < m_dupeSheets.size(); i++)
                 {
                     unsigned long QsoNumber;
                     // dupe sheet idx one higher that m_dupeSheets idx
@@ -1216,10 +1224,14 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                 // fill in call from previous QSO on this band and for next of our counties
                     unsigned long n = 0;
                     m_Parent->NumberQsos(&n);
-                    while (n != 0)
+[!if FILL_RX_ON_TAB]
+                    bool updated(false);
+[!endif]
+                    auto nn(n);
+                    while (nn != 0)
                     {
                         QsoPtr_t lastQ = 0;
-                        m_Parent->QsoIth(n-1, &lastQ);
+                        m_Parent->QsoIth(nn-1, &lastQ);
                         if (lastQ && (lastQ->band == q->band))
                         {
                             for (unsigned i = 0; i < m_dupeSheets.size(); i++)
@@ -1234,6 +1246,9 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                                     m_currentDupeSheet = i;
                                     fCALL(q) = fCALL(lastQ).str();
                                     fRCVD(q)= fRCVD(lastQ).str();
+[!if FILL_RX_ON_TAB]
+                                    updated=true;
+[!endif]
                                     if (diff)
                                     {
 [!if !NO_DXCC]
@@ -1250,8 +1265,16 @@ HRESULT [!output MM_CLASS_NAME]::MultiCheck(
                             }
                             break;
                         }
-                        n -= 1;
+                        nn -= 1;
                     }
+[!if FILL_RX_ON_TAB]
+                    if (!updated && n > 0)
+                    {
+                        TabToCntyHelper th(n, m_Parent, RequestMask);
+                        static const short CNTY_FIELD_NUM(-1); // FIXME!!
+                        th.tab(q, CNTY_FIELD_NUM);
+                    }
+[!endif]
             }
 [!endif]
         }

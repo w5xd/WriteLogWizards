@@ -4,11 +4,11 @@
 @for %%f in (ModifiedVszTemplates\*.*) do @(
 	@for %%p in ("%%f") do @(
 		if /i "%%~np" neq "ReadMe" @(
-		@echo convert %%f
+		@echo convert %%f to ".\ModuleTemplate\%%~np%%~xp"
 		@%exe% "%%f" ".\ModuleTemplate\%%~np%%~xp" -s symbol_table.txt
 		)
 	)
 )
-@rem replace the generaged CompositeSymbols.cs source file
+@rem replace the generated CompositeSymbols.cs source file
 %exe% -s symbol_table.txt -cs
 move /y CompositeSymbols.cs WL12ModuleItem\CppTemplates\WL12ModuleTemplate

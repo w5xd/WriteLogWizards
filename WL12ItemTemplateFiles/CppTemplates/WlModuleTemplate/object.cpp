@@ -1,4 +1,4 @@
-$if$ (0) /*Copyright (c) 2025 by Wayne E. Wright, W5XD
+$if$ (0) /*Copyright (c) 2026 by Wayne E. Wright, W5XD
 This template was converted from the version used for the old vsz template technology.
 The old style used [!if ]. The new one uses the "if" that commands the processor to skip this very commentary.
 The difference between the two is (a) that the old tech supported nested "if" clauses while the new one does not,
@@ -6,8 +6,9 @@ and (b) the old style supported && and || operators and the new one only support
 The way I made this work was to extract all the compounded conditional expressions that in the old tech were
 evaluated by the template processor, and make the wizard here evaluate the expressions and write a separate
 for each expression.*/$endif$#include "pch.h"
-#include "iwritelg.h"
-#include "$HEADER_FILE$"
+#include <iwritelg.h>
+$if$ ($FILL_RX_ON_TAB$ == 1)#include <TabToCntyHelper.h>
+$endif$#include "$HEADER_FILE$"
 #include "Exfsym.h"
 #include "bndsmadd.h"
 #include "bandsym.h" 
@@ -806,37 +807,38 @@ $endif$
 $if$ ($NO_NAMEDMULT$ == 0)	//***NAMED MULTIPLIER PROCESSING
 	//If its a CALL and the RCVD_POS not filled in...
     bool flagNamed(false);
-    if (fCALL == p) 
+    if ((fCALL == p) && canWrite) 
     {
         if (fRCVD(q).empty()) 
         {
             if (!fCALL(q).empty())
             {
-                if (canWrite)
+$endif$$if$ ($CAN_LOG_ROVER$$NO_NAMEDMULT$ == 00)                if (OldQ)
+		        {
+                    fRCVD(q).assign(fRCVD(OldQ));
+                    if (!fRCVD(q).empty())
+			            flagNamed = true; // and check whether fRCVD is new mult
+		        }
+$endif$$if$ ($CAN_LOG_ROVER$$NO_NAMEDMULT$ == 10)                // Deal with possibility we have logged this guy as a rover
+                auto PrevQsoRcvd = FindAllPreviousValuesForThisCall(2, fRCVD, q);
+                if (PrevQsoRcvd.size() == 1) // only if exactly one RCVD value was found do we set it here
                 {
-$endif$$if$ ($CAN_LOG_ROVER$$NO_NAMEDMULT$ == 00)                    if (OldQ)
-		            {
-                        if (canWrite)    // fill in new field from old qso
-                            fRCVD(q).assign(fRCVD(OldQ));
-                        if (!fRCVD(q).empty())
-			                flagNamed = true; // and check whether fRCVD is new mult
-		            }
-$endif$$if$ ($CAN_LOG_ROVER$$NO_NAMEDMULT$ == 10)                    // Deal with possibility we have logged this guy as a rover
-                    auto PrevQsoRcvd = FindAllPreviousValuesForThisCall(2, fRCVD, q);
-                    if (PrevQsoRcvd.size() == 1) // only if exactly one RCVD value was found do we set it here
-                    {
-                        fRCVD(q)= PrevQsoRcvd.begin()->c_str();
-                        flagNamed = true;
-                    }
-$endif$$if$ ($NO_NAMEDMULT$ == 0)                }
+                    fRCVD(q)= PrevQsoRcvd.begin()->c_str();
+                    flagNamed = true;
+                }
+$endif$$if$ ($NO_NAMEDMULT$ == 0)            }
+$endif$$if$ ($FILL_RX_ON_TAB$$NO_NAMEDMULT$ == 10)$endif$$if$ ($AM_COUNTYLINE$$FILL_RX_ON_TAB$$NO_NAMEDMULT$ == 010)            else
+            {   // both fRCVD and fCALL empty
+                static const short CNTY_FIELD_NUM(-1); // FIXME!
+                TabToCntyHelper th(m_Parent, RequestMask);
+                th.tab(q, CNTY_FIELD_NUM);
             }
-            ret = 0;
+$endif$$if$ ($FILL_RX_ON_TAB$$NO_NAMEDMULT$ == 10)$endif$$if$ ($NO_NAMEDMULT$ == 0)            ret = 0;
         }
-$endif$$if$ ($AM_COUNTYLINE$$NO_NAMEDMULT$ == 10)        if (canWrite && m_countyLineMode)
-        {
+$endif$$if$ ($AM_COUNTYLINE$$NO_NAMEDMULT$ == 10)        {
             if (!fCALL(q).empty())
             {   // County line--call filled in
-                for (unsigned i = 0; i < m_dupeSheets.size(); i++)
+                if (m_countyLineMode) for (unsigned i = 0; i < m_dupeSheets.size(); i++)
                 {
                     unsigned long QsoNumber;
                     // dupe sheet idx one higher that m_dupeSheets idx
@@ -861,10 +863,12 @@ $endif$$if$ ($NO_NAMEDMULT$$AM_COUNTYLINE$$NO_NAMEDMULT$ == 010)            else
                 // fill in call from previous QSO on this band and for next of our counties
                     unsigned long n = 0;
                     m_Parent->NumberQsos(&n);
-                    while (n != 0)
+$endif$$if$ ($FILL_RX_ON_TAB$$NO_NAMEDMULT$$AM_COUNTYLINE$$NO_NAMEDMULT$ == 1010)                    bool updated(false);
+$endif$$if$ ($NO_NAMEDMULT$$AM_COUNTYLINE$$NO_NAMEDMULT$ == 010)                    auto nn(n);
+                    while (nn != 0)
                     {
                         QsoPtr_t lastQ = 0;
-                        m_Parent->QsoIth(n-1, &lastQ);
+                        m_Parent->QsoIth(nn-1, &lastQ);
                         if (lastQ && (lastQ->band == q->band))
                         {
                             for (unsigned i = 0; i < m_dupeSheets.size(); i++)
@@ -879,7 +883,8 @@ $endif$$if$ ($NO_NAMEDMULT$$AM_COUNTYLINE$$NO_NAMEDMULT$ == 010)            else
                                     m_currentDupeSheet = i;
                                     fCALL(q) = fCALL(lastQ).str();
                                     fRCVD(q)= fRCVD(lastQ).str();
-                                    if (diff)
+$endif$$if$ ($FILL_RX_ON_TAB$$NO_NAMEDMULT$$AM_COUNTYLINE$$NO_NAMEDMULT$ == 1010)                                    updated=true;
+$endif$$if$ ($NO_NAMEDMULT$$AM_COUNTYLINE$$NO_NAMEDMULT$ == 010)                                    if (diff)
                                     {
 $endif$$if$ ($NO_DXCC$$NO_NAMEDMULT$$AM_COUNTYLINE$$NO_NAMEDMULT$ == 0010)                                        m_DxccContainer.InvalidateAll();
 $endif$$if$ ($NO_NAMEDMULT$$AM_COUNTYLINE$$NO_NAMEDMULT$ == 010)$endif$$if$ ($NO_NAMEDMULT$$NO_NAMEDMULT$$AM_COUNTYLINE$$NO_NAMEDMULT$ == 0010)                                        for (short region = 0; region < NUMBER_OF_REGIONS; region += 1)
@@ -891,9 +896,15 @@ $endif$$if$ ($NO_NAMEDMULT$$AM_COUNTYLINE$$NO_NAMEDMULT$ == 010)                
                             }
                             break;
                         }
-                        n -= 1;
+                        nn -= 1;
                     }
-            }
+$endif$$if$ ($FILL_RX_ON_TAB$$NO_NAMEDMULT$$AM_COUNTYLINE$$NO_NAMEDMULT$ == 1010)                    if (!updated && n > 0)
+                    {
+                        TabToCntyHelper th(n, m_Parent, RequestMask);
+                        static const short CNTY_FIELD_NUM(-1); // FIXME!!
+                        th.tab(q, CNTY_FIELD_NUM);
+                    }
+$endif$$if$ ($NO_NAMEDMULT$$AM_COUNTYLINE$$NO_NAMEDMULT$ == 010)            }
 $endif$$if$ ($AM_COUNTYLINE$$NO_NAMEDMULT$ == 10)        }
 $endif$$if$ ($NO_NAMEDMULT$ == 0)    }
     if (flagNamed || fRCVD == p)      /*or received*/

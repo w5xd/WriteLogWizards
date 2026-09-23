@@ -55,6 +55,7 @@ namespace WL12ModuleItem.CppTemplates.WL12ModuleTemplate
             replacementsDictionary["$DXCC_SINGLE_BAND$"] = "0";
             replacementsDictionary["$MULTIPLE_NAMED_IN_QSO$"] = "0";
             replacementsDictionary["$MULTIPLE_NAMED_IN_QSO_TX$"] = "0";
+            replacementsDictionary["$FILL_RX_ON_TAB$"] = "0";
             replacementsDictionary["$MULTI_MODE$"] = "0";
             replacementsDictionary["$NAMEDMULT_MULTI_BAND$"] = "0";
             replacementsDictionary["$NAMEDMULT_SINGLE_BAND$"] = "0";

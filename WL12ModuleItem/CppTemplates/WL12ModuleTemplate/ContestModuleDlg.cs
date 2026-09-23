@@ -52,6 +52,7 @@ namespace WL12ModuleItem.CppTemplates.WL12ModuleTemplate
             dict["$NAMEDMULT_MULTI_BAND$"] = radioButtonNmByBand.Checked ? "1" : "0"; ;
             dict["$MULTIPLE_NAMED_IN_QSO$"] = checkBox2inQSO.Checked ? "1" : "0";
             dict["$MULTIPLE_NAMED_IN_QSO_TX$"] = checkBox2TXinQSO.Checked ? "1" : "0";
+            dict["$FILL_RX_ON_TAB$"] = checkBoxFillOnTab.Checked ? "1" : "0";
             dict["$NAMED_MULTI_REGION$"] = checkBox2NamedPages.Checked ? "1" : "0";
 
             dict["$CAN_LOG_ROVER$"] = checkBoxRoveLogging.Checked ? "1" : "0";
@@ -100,6 +101,7 @@ namespace WL12ModuleItem.CppTemplates.WL12ModuleTemplate
             checkBox2inQSO.Enabled = !radioButtonNmNone.Checked;
             checkBox2NamedPages.Enabled = !radioButtonNmNone.Checked;
             checkBox2TXinQSO.Enabled= !radioButtonNmNone.Checked;
+            checkBoxFillOnTab.Enabled = !radioButtonNmNone.Checked;
 
             if (!checkBoxRoveCanBe.Enabled)
                 checkBoxRoveCanBe.Checked = false;
@@ -113,6 +115,8 @@ namespace WL12ModuleItem.CppTemplates.WL12ModuleTemplate
                 checkBox2NamedPages.Checked = false;
             if (!checkBox2TXinQSO.Enabled)
                 checkBox2TXinQSO.Checked = false;
+            if (!checkBoxFillOnTab.Enabled)
+                checkBoxFillOnTab.Checked = false;
         }
 
         private void checkBoxRoveCountyLine_CheckedChanged(object sender, EventArgs e)
