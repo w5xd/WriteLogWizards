@@ -81,7 +81,8 @@ DECLARE_INTERFACE_(IWriteLog2, IUnknown)
 
 /*Bit flags for RequestMask argument to MultiCheck member */
 #define WLOG_MULTICHECK_MSGSET 1L  /*Means Message buffer is valid */
-#define WLOG_MULTICHECK_NOWRT  2L  /*Means MultCheck may NOT alter the qso */
+#define WLOG_MULTICHECK_NOWRT  2L  /*Means MultiCheck may NOT alter the qso */
+#define WLOG_MULTICHECK_FILLFPRIOR 4L /* Means user requests this particular QSO fill from prior one*/
 /* ALL of the following bits MUST be CLEAR */
 #define WLOG_MULTICHECK_RESERVED (~(WLOG_MULTICHECK_MSGSET | \
                                     WLOG_MULTICHECK_NOWRT))
