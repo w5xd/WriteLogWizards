@@ -83,9 +83,7 @@ DECLARE_INTERFACE_(IWriteLog2, IUnknown)
 #define WLOG_MULTICHECK_MSGSET 1L  /*Means Message buffer is valid */
 #define WLOG_MULTICHECK_NOWRT  2L  /*Means MultiCheck may NOT alter the qso */
 #define WLOG_MULTICHECK_FILLFPRIOR 4L /* Means user requests this particular QSO fill from prior one*/
-/* ALL of the following bits MUST be CLEAR */
-#define WLOG_MULTICHECK_RESERVED (~(WLOG_MULTICHECK_MSGSET | \
-                                    WLOG_MULTICHECK_NOWRT))
+
 #define WLOG_IWLOGMULTI_MULTICHECK_RESULT_DOUBLE_MULT (5 << 16) // top 16 bits of Result is this to return mult count
 #define WLOG_IWLOGMULTI_MULTICHECK_RESULT_DOUBLE_MULT_MASK (0xFFFF << 16)
 DECLARE_INTERFACE_(IWlogMulti, IUnknown)
